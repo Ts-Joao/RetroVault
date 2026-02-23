@@ -1,135 +1,153 @@
-# Turborepo starter
+# RetroVault
 
-This Turborepo starter is maintained by the Turborepo core team.
+Monorepo do projeto RetroVault, contendo o app mobile, web e a API backend.
 
-## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest
-```
-
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
+## 🏗️ Estrutura do Projeto
 
 ```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+RetroVault/
+├── apps/
+│   ├── api/        # Backend (NestJS) → http://localhost:4000
+│   ├── web/        # Frontend (Next.js) → http://localhost:3000
+│   └── mobile/     # Mobile (Expo) → http://localhost:8081
+├── packages/
+│   └── shared/     # Tipos e interfaces compartilhadas
+├── turbo.json
+└── package.json
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## 🚀 Tecnologias
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+| App | Tecnologia |
+|-----|------------|
+| `api` | NestJS + TypeScript |
+| `web` | Next.js + TypeScript + Tailwind |
+| `mobile` | Expo + TypeScript |
+| Monorepo | Turborepo + pnpm |
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+## ⚙️ Pré-requisitos
 
-### Develop
+- [Node.js](https://nodejs.org/) >= 18
+- [pnpm](https://pnpm.io/) >= 9
 
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+```bash
+npm install -g pnpm
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## 🛠️ Instalação
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+Clone o repositório e instale as dependências:
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+```bash
+git clone https://github.com/seu-usuario/RetroVault.git
+cd RetroVault
+pnpm install
 ```
 
-### Remote Caching
+## 💻 Rodando o projeto
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+### Todos os apps ao mesmo tempo
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+```bash
+pnpm dev
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+### Apps separados (recomendado)
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+```bash
+# Backend
+pnpm dev --filter=api
+
+# Frontend
+pnpm dev --filter=web
+
+# Mobile
+pnpm dev --filter=mobile
+```
+
+## 📦 Scripts disponíveis
+
+| Comando | Descrição |
+|---------|-----------|
+| `pnpm dev` | Roda todos os apps em modo desenvolvimento |
+| `pnpm build` | Gera o build de todos os apps |
+| `pnpm lint` | Roda o linter em todos os apps |
+| `pnpm format` | Formata o código com Prettier |
+
+## 🌿 Fluxo de trabalho com Git
+
+### Branches
+
+| Branch | Descrição |
+|--------|-----------|
+| `main` | Produção — nunca commitar direto |
+| `develop` | Integração de features |
+| `feature/nome` | Nova funcionalidade |
+| `hotfix/nome` | Correção urgente em produção |
+
+### Criando uma feature
+
+```bash
+# 1. Sempre parta da branch develop atualizada
+git checkout develop
+git pull origin develop
+
+# 2. Crie sua branch
+git checkout -b feature/nome-da-feature
+
+# 3. Faça seus commits
+git add .
+git commit -m "feat(web): adiciona tela de login"
+
+# 4. Suba a branch e abra um Pull Request para develop
+git push origin feature/nome-da-feature
+```
+
+### Padrão de commits (Conventional Commits)
 
 ```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+feat(escopo):     nova funcionalidade
+fix(escopo):      correção de bug
+chore(escopo):    atualização de dependências, configs
+docs:             documentação
+refactor(escopo): refatoração sem mudança de comportamento
+test(escopo):     adição ou correção de testes
+style(escopo):    formatação, sem mudança de lógica
 ```
 
-## Useful Links
+**Exemplos:**
 
-Learn more about the power of Turborepo:
+```bash
+git commit -m "feat(api): adiciona endpoint de autenticação"
+git commit -m "fix(mobile): corrige navegação na tela inicial"
+git commit -m "chore: atualiza dependências do projeto"
+```
 
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+## 📁 Pacote Shared
+
+O pacote `packages/shared` centraliza tipos e interfaces usados por todos os apps. Qualquer alteração no contrato da API deve ser feita aqui.
+
+```ts
+// packages/shared/src/index.ts
+export interface User {
+  id: string
+  name: string
+  email: string
+}
+```
+
+Para usar em qualquer app:
+
+```ts
+import { User } from '@retrovault/shared'
+```
+
+## 👥 Time
+
+| Nome | Área |
+|------|------|
+| — | Backend |
+| — | Backend |
+| — | Frontend |
+| — | Mobile |
+| — | Mobile |
