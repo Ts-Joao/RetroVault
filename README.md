@@ -39,7 +39,7 @@ npm install -g pnpm
 Clone o repositório e instale as dependências:
 
 ```bash
-git clone https://github.com/seu-usuario/RetroVault.git
+git clone https://github.com/ts-joao/RetroVault.git
 cd RetroVault
 pnpm install
 ```
@@ -72,7 +72,6 @@ pnpm dev --filter=mobile
 | `pnpm dev` | Roda todos os apps em modo desenvolvimento |
 | `pnpm build` | Gera o build de todos os apps |
 | `pnpm lint` | Roda o linter em todos os apps |
-| `pnpm format` | Formata o código com Prettier |
 
 ## 🌿 Fluxo de trabalho com Git
 
@@ -82,72 +81,28 @@ pnpm dev --filter=mobile
 |--------|-----------|
 | `main` | Produção — nunca commitar direto |
 | `develop` | Integração de features |
-| `feature/nome` | Nova funcionalidade |
-| `hotfix/nome` | Correção urgente em produção |
 
-### Criando uma feature
+## 👥 Nossa Equipe
 
-```bash
-# 1. Sempre parta da branch develop atualizada
-git checkout develop
-git pull origin develop
+### [João Teixeira](https://github.com/ts-joao)
+**Tech Lead & Fullstack Developer**
+- 🏗️ **Arquitetura:** Responsável pela estrutura e organização da arquitetura do projeto.
+- 🗄️ **Database:** Realizou a modelagem completa do banco de dados.
+- 👨‍💻 **Desenvolvimento:** Desenvolveu a API, realizou a integração entre Back e Front, e atuou no desenvolvimento Web e Mobile.
+  
+### [Baruki Bytes](https://github.com/Baruki-Bytes)
+**Project Owner & Fullstack Developer**
+- 📑 **Gestão:** Responsável pela visão do produto (PO) e requisitos.
+- 👨‍💻 **Desenvolvimento:** Desenvolveu a interface Web e auxiliou no desenvolvimento Backend.
 
-# 2. Crie sua branch
-git checkout -b feature/nome-da-feature
+### [Felipe Farias](https://github.com/felipinho3105)
+**Frontend Developer**
+- 👨‍💻 **Desenvolvimento:** Desenvolveu a interface Web do projeto e auxiliou no desenvolvimento Mobile.
 
-# 3. Faça seus commits
-git add .
-git commit -m "feat(web): adiciona tela de login"
+### [Lucas Alves](https://github.com/ktzxs)
+**Fullstack Developer**
+- 👨‍💻 **Desenvolvimento:** Desenvolveu o Backend e auxiliou no desenvolvimento Frontend Mobile.
 
-# 4. Suba a branch e abra um Pull Request para develop
-git push origin feature/nome-da-feature
-```
-
-### Padrão de commits (Conventional Commits)
-
-```
-feat(escopo):     nova funcionalidade
-fix(escopo):      correção de bug
-chore(escopo):    atualização de dependências, configs
-docs:             documentação
-refactor(escopo): refatoração sem mudança de comportamento
-test(escopo):     adição ou correção de testes
-style(escopo):    formatação, sem mudança de lógica
-```
-
-**Exemplos:**
-
-```bash
-git commit -m "feat(api): adiciona endpoint de autenticação"
-git commit -m "fix(mobile): corrige navegação na tela inicial"
-git commit -m "chore: atualiza dependências do projeto"
-```
-
-## 📁 Pacote Shared
-
-O pacote `packages/shared` centraliza tipos e interfaces usados por todos os apps. Qualquer alteração no contrato da API deve ser feita aqui.
-
-```ts
-// packages/shared/src/index.ts
-export interface User {
-  id: string
-  name: string
-  email: string
-}
-```
-
-Para usar em qualquer app:
-
-```ts
-import { User } from '@retrovault/shared'
-```
-
-## 👥 Time
-
-| Nome | Área |
-|------|------|
-| — | Backend |
-| — | Backend |
-| — | Frontend |
-| — | Mobile |
-| — | Mobile |
+### [Luiz Henrique](https://github.com/troninho69)
+**Fullstack Developer**
+- 👨‍💻 **Desenvolvimento:** Desenvolveu o Frontend Mobile e axiliou no desenvolvimento da API.
