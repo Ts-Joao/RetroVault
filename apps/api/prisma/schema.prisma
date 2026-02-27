@@ -29,11 +29,6 @@ model User {
   @@map("users")
 }
 
-enum TypeMidia {
-  MOVIE @map("movie")
-  GAME  @map("game")
-}
-
 model Photo {
   id  String @id @default(cuid())
   url String
@@ -48,6 +43,25 @@ model Photo {
   @@map("photos")
 }
 
+model Genre {
+  id        Int   @id @default(autoincrement())
+  name      String  @unique
+
+  // relations
+  products  Product[]
+
+  // index
+  @@index([name])
+
+  // map
+  @@map("genres")
+}
+
+enum TypeMidia {
+  MOVIE @map("movie")
+  GAME  @map("game")
+}
+
 model Product {
   id          String    @id @default(cuid())
   type        TypeMidia
@@ -59,7 +73,14 @@ model Product {
 
   // relations
   photos     Photo[]
-  orderItems OrderItems[]
+  orderItems OrderItem[]
+  genre      Genre[]
+
+  // index
+  @@index([name])
+  @@index([type])
+  @@index([price])
+  @@index([rating])
 
   // map
   @@map("products")
@@ -83,14 +104,14 @@ model Order {
   // relations
   userId     String       @map("user_id")
   user       User         @relation(fields: [userId], references: [id])
-  orderItems OrderItems[]
+  orderItems OrderItem[]
   payment    Payment?
 
   // map
   @@map("orders")
 }
 
-model OrderItems {
+model OrderItem {
   id     String  @id @default(cuid())
   amount Int
   price  Decimal @db.Decimal(5, 2)
@@ -132,5 +153,5 @@ model Payment {
   order   Order  @relation(fields: [orderId], references: [id])
 
   // map
-  @@map("payment")
+  @@map("payments")
 }
