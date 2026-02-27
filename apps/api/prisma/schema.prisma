@@ -7,34 +7,130 @@ datasource db {
 }
 
 enum Role {
-  ADMIN
-  SELLER
-  USER
+  ADMIN  @map("admin")
+  SELLER @map("seller")
+  USER   @map("user")
 }
 
 model User {
-  id            String      @id @default(cuid())
-  email         String      @unique
-  name          String
-  password      String
-  role          Role        @default(USER)
-  createdAt     DateTime    @default(now()) @map("created_at")
-  updatedAt     DateTime    @updatedAt      @map("updated_at")
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  // Map
+  // relations
+  order      Order[]
+  profilePic Photo?
+
+  // map
   @@map("users")
 }
 
 enum TypeMidia {
-  MOVIE
-  GAME
+  MOVIE @map("movie")
+  GAME  @map("game")
 }
 
-model Produto {
-  id            String      @id @default(cuid())
-  type          TypeMidia
-  price         Decimal     @db.Decimal(5, 2)
-  name          String
-  amount        Int
-  rating        Decimal     @db.Decimal(2, 1)
+model Photo {
+  id  String @id @default(cuid())
+  url String
+
+  // relations
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
+  userId    String  @unique @map("user_id")
+  user      User    @relation(fields: [userId], references: [id])
+
+  // map
+  @@map("photos")
+}
+
+model Product {
+  id          String    @id @default(cuid())
+  type        TypeMidia
+  price       Decimal   @db.Decimal(5, 2)
+  name        String
+  description String
+  amount      Int
+  rating      Decimal   @db.Decimal(2, 1)
+
+  // relations
+  photos     Photo[]
+  orderItems OrderItems[]
+
+  // map
+  @@map("products")
+}
+
+enum OrderStatus {
+  PENDING   @map("pending")
+  PAID      @map("paid")
+  SHIPPED   @map("shipped")
+  DELIVERED @map("delivered")
+  CANCELED  @map("canceled")
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  status      OrderStatus @default(PENDING)
+  totalAmount Decimal     @map("total_amount") @db.Decimal(5, 2)
+  orderDate   DateTime    @default(now()) @map("order_date")
+  address     String
+
+  // relations
+  userId     String       @map("user_id")
+  user       User         @relation(fields: [userId], references: [id])
+  orderItems OrderItems[]
+  payment    Payment?
+
+  // map
+  @@map("orders")
+}
+
+model OrderItems {
+  id     String  @id @default(cuid())
+  amount Int
+  price  Decimal @db.Decimal(5, 2)
+
+  // relations
+  orderId   String  @map("order_id")
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
+
+  // map
+  @@map("order_items")
+}
+
+enum PaymentMethod {
+  PIX         @map("pix")
+  BOLETO      @map("boleto")
+  DEBIT_CARD  @map("debit_card")
+  CREDIT_CARD @map("credit_card")
+}
+
+enum PaymentStatus {
+  PENDING    @map("pending")
+  AUTHORIZED @map("authorized")
+  CAPTURED   @map("captured")
+  FAILED     @map("failed")
+  REFUNDED   @map("refunded")
+}
+
+model Payment {
+  id            Int           @id @default(autoincrement())
+  paidAt        DateTime      @default(now()) @map("paid_at")
+  status        PaymentStatus
+  paymentMethod PaymentMethod @map("payment_method")
+  installments  Int           @default(1)
+
+  // relations
+  orderId String @unique @map("order_id")
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  // map
+  @@map("payment")
 }
