@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
   engineType = "library"
 }
 
@@ -45,15 +45,14 @@ model Photo {
 }
 
 model Genre {
-  id        Int   @id @default(autoincrement())
-  name      String  @unique
+  id   Int    @id @default(autoincrement())
+  name String @unique
 
   // relations
-  products  Product[]
+  products Product[]
 
   // index
   @@index([name])
-
   // map
   @@map("genres")
 }
@@ -82,7 +81,6 @@ model Product {
   @@index([type])
   @@index([price])
   @@index([rating])
-
   // map
   @@map("products")
 }
@@ -103,8 +101,8 @@ model Order {
   address     String
 
   // relations
-  userId     String       @map("user_id")
-  user       User         @relation(fields: [userId], references: [id])
+  userId     String      @map("user_id")
+  user       User        @relation(fields: [userId], references: [id])
   orderItems OrderItem[]
   payment    Payment?
 
