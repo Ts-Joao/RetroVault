@@ -1,98 +1,176 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+<div align="center">
+    <img src="../.github/logo.png" alt="RetroVault Logo" width="300"/>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# RetroVault API
 
-## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+<strong>🔌 API RESTful construída com NestJS para servir aplicações web e mobile.</strong>
 
-## Project setup
+![Status](https://img.shields.io/badge/🚧%20Status-Em%20Desenvolvimento-22C55E?style=for-the-badge&labelColor=161b22&logo=github&logoColor=white)
 
-```bash
-$ pnpm install
+</div>
+
+## 📖 Sobre a API
+Este é a API RESTful do RetroVault, desenvolvida para centralizar e atender todas as demandas de dados e regras de negócio do ecossistema. Utilizamos TypeScript com NestJS para garantir um backend robusto e escalável.
+
+<div style="display:flex; justify-content:center; align-items:center; gap:20px; flex-wrap:nowrap;">
+
+  <img src="https://cdn.simpleicons.org/nestjs/E0234E"
+       height="50"
+       style="background:#161b22; padding:10px; border-radius:15px;" />
+
+  <img src="https://cdn.simpleicons.org/typescript/3178C6"
+       height="50"
+       style="background:#161b22; padding:10px; border-radius:15px;" />
+
+  <img src="https://cdn.simpleicons.org/nodedotjs/339933"
+       height="50"
+       style="background:#161b22; padding:10px; border-radius:15px;" />
+
+  <img src="https://cdn.simpleicons.org/postgresql/4169E1"
+       height="50"
+       style="background:#161b22; padding:10px; border-radius:15px;" />
+
+  <img src="https://cdn.simpleicons.org/prisma/2D3748"
+       height="50"
+       style="background:#161b22; padding:10px; border-radius:15px;" />
+
+  <img src="https://cdn.simpleicons.org/docker/2496ED"
+     height="50"
+     style="background:#161b22; padding:10px; border-radius:15px;" />
+
+</div>
+
+## 🏗️ Estrutura do Projeto
+
+```
+api/
+├── prisma/           # Módulos da aplicação
+│   ├── migrations/   # Migrations do banco
+│   ├── schema.prisma # Schema do prisma
+│   └── seed.ts      # Seeds
+├── src/              # Pasta source
+│   ├── prisma/       # Configuração do Prisma Client
+│   ├── app.module.ts # Módulo raiz
+│   └── main.ts       # Entry point
+├── .env              # Variáveis de ambiente (ignorado pelo git)
+├── nest-cli.json     # Configuração do NestJS
+└── package.json      # Dependências da API
 ```
 
-## Compile and run the project
+## ⚙️ Pré-requisitos
+
+- [Node.js](https://nodejs.org/) >= 18
+- [pnpm](https://pnpm.io/) >= 9
+
+## 🛠️ Instalação
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+# Na raiz do monorepo
+pnpm install
+# Rodar apenas a API
+pnpm --filter=api dev
 ```
 
-## Run tests
+## 🏃 Executando
 
 ```bash
-# unit tests
-$ pnpm run test
+# Da raiz do monorepo
+pnpm --filter=api dev
 
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+# Ou usando turbo
+turbo run dev --filter=api
 ```
 
-## Deployment
+A API estará disponível em http://localhost:4000
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+## Produção
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+# Build
+pnpm --filter=api build
+
+# Start
+pnpm --filter=api start:prod
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## 🚀 Tecnologias
 
-## Resources
+| Tecnologia | Função |
+|-----|------------|
+| <img src="https://img.shields.io/badge/TypeScript-0D1117?style=for-the-badge&logo=typescript&logoColor=00F7FF"/> | Framework principal do Backend |
+| <img src="https://img.shields.io/badge/Node.js-0D1117?style=for-the-badge&logo=nodedotjs&logoColor=00FF88"/> | Linguagem com tipagem estática |
+| <img src="https://img.shields.io/badge/NestJS-0D1117?style=for-the-badge&logo=nestjs&logoColor=FF0055"/> | Banco de dados relacional |
+| <img src="https://img.shields.io/badge/PostgreSQL-0D1117?style=for-the-badge&logo=postgresql&logoColor=00F7FF"/> | ORM e gerenciamento de banco |
+| <img src="https://img.shields.io/badge/Prisma-0D1117?style=for-the-badge&logo=prisma&logoColor=2D3748"/> | Gerenciamento do Monorepo |
+![Monorepo](https://img.shields.io/badge/Monorepo-0D1117?style=for-the-badge&logo=turborepo&logoColor=white) | Orquestração do Monorepo e Cache de Build
 
-Check out a few resources that may come in handy when working with NestJS:
+## 🔐 Variáveis de Ambiente
+Crie um arquivo .env na raiz do projeto:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```env
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
+```
 
-## Support
+## 🗃️ Database
+### 📑 Migrations (usando Prisma)
+```bash
+#Criar migration
+pnpm exec prisma migrate dev --name nome_da_migration
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# Aplicar migrations
+pnpm exec prisma migrate deploy
 
-## Stay in touch
+# Resetar database
+pnpm exec prisma migrate reset
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### 🌱 Seeds
+```bash
+pnpm --filter=api prisma db seed
+```
+## 📦 Dependências Principais
+```json
+{
+  "dependencies": {
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/platform-express": "^11.0.1",
+    "@prisma/adapter-pg": "^7.4.2",
+    "@prisma/client": "^7.4.1",
+    "pg": "^8.19.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  }
+}
+```
 
-## License
+## 👥 Nossa Equipe
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### [João Teixeira](https://github.com/ts-joao)
+**Tech Lead & Fullstack Developer**
+- 🏗️ **Arquitetura:** Responsável pela estrutura e organização da arquitetura do projeto.
+- 🗄️ **Database:** Realizou a modelagem completa do banco de dados.
+- 👨‍💻 **Desenvolvimento:** Desenvolveu a API, realizou a integração entre Back e Front, e atuou no desenvolvimento Web e Mobile.
+  
+### [Baruki Bytes](https://github.com/Baruki-Bytes)
+**Project Owner & Fullstack Developer**
+- 📑 **Gestão:** Responsável pela visão do produto (PO) e requisitos.
+- 👨‍💻 **Desenvolvimento:** Desenvolveu a interface Web e auxiliou no desenvolvimento Backend.
+
+### [Felipe Farias](https://github.com/felipinho3105)
+**Frontend Developer**
+- 👨‍💻 **Desenvolvimento:** Desenvolveu a interface Web do projeto e auxiliou no desenvolvimento Mobile.
+
+### [Lucas Alves](https://github.com/ktzxs)
+**Fullstack Developer**
+- 👨‍💻 **Desenvolvimento:** Desenvolveu o Backend e auxiliou no desenvolvimento Frontend Mobile.
+
+### [Luiz Henrique](https://github.com/troninho69)
+**Fullstack Developer**
+- 👨‍💻 **Desenvolvimento:** Desenvolveu o Frontend Mobile e axiliou no desenvolvimento da API.
+
+---
+
+### Feito cuidadosamente com NestJS 🚀

@@ -1,6 +1,43 @@
+<div align="center">
+    <img src="apps/.github/logo.png" alt="RetroVault Logo" width="300"/>
+
+
 # RetroVault
 
-Monorepo do projeto RetroVault, contendo o app mobile, web e a API backend.
+<strong>📦 Monorepo do projeto RetroVault, contendo o app mobile, web e a API backend.</strong>
+
+</div>
+
+
+## 📖 Sobre o projeto
+Este é um projeto desenvolvido para a disciplina de Projeto Integrador. Durante o nosso **brainstorm**, identificamos a carência de e-commerces focados em **mídia física**, o que dificulta a jornada de fãs e colecionadores em busca de itens específicos.  RetroVault surge como um marketplace com temática retrô, onde usuários podem comprar e vender produtos, celebrando o início da indústria do entretenimento.
+<br>
+<div style="display:flex; justify-content:center; align-items:center; gap:20px; flex-wrap:nowrap;">
+
+  <img src="https://cdn.simpleicons.org/typescript/3178C6"
+       height="50"
+       style="background:#161b22; padding:10px; border-radius:15px;" />
+
+  <img src="https://cdn.simpleicons.org/nextdotjs/FFFFFF"
+       height="50"
+       style="background:#161b22; padding:10px; border-radius:15px;" />
+
+  <img src="https://cdn.simpleicons.org/nodedotjs/339933"
+       height="50"
+       style="background:#161b22; padding:10px; border-radius:15px;" />
+
+  <img src="https://cdn.simpleicons.org/nestjs/E0234E"
+       height="50"
+       style="background:#161b22; padding:10px; border-radius:15px;" />
+
+  <img src="https://cdn.simpleicons.org/expo/FFFFFF"
+       height="50"
+       style="background:#161b22; padding:10px; border-radius:15px;" />
+
+  <img src="https://cdn.simpleicons.org/turborepo/EF4444"
+       height="50"
+       style="background:#161b22; padding:10px; border-radius:15px;" />
+</div>
 
 ## 🏗️ Estrutura do Projeto
 
@@ -23,7 +60,7 @@ RetroVault/
 | `api` | NestJS + TypeScript |
 | `web` | Next.js + TypeScript + Tailwind |
 | `mobile` | Expo + TypeScript |
-| Monorepo | Turborepo + pnpm |
+![Monorepo](https://img.shields.io/badge/Monorepo-0D1117?style=for-the-badge&logo=turborepo&logoColor=white) | Turborepo + pnpm |
 
 ## ⚙️ Pré-requisitos
 
@@ -65,7 +102,7 @@ pnpm dev --filter=web
 pnpm dev --filter=mobile
 ```
 
-## 📦 Scripts disponíveis
+## 📜 Scripts disponíveis
 
 | Comando | Descrição |
 |---------|-----------|
@@ -73,7 +110,7 @@ pnpm dev --filter=mobile
 | `pnpm build` | Gera o build de todos os apps |
 | `pnpm lint` | Roda o linter em todos os apps |
 
-## 🌿 Fluxo de trabalho com Git
+## ⛓️ Fluxo de trabalho com Git
 
 ### Branches
 
