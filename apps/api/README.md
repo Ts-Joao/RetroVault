@@ -5,42 +5,22 @@
 # RetroVault API
 
 
-<strong>🔌 API RESTful construída com NestJS para servir aplicações web e mobile.</strong>
+### 🔌 API RESTful construída com NestJS para servir aplicações web e mobile.
+
+<br>
 
 ![Status](https://img.shields.io/badge/🚧%20Status-Em%20Desenvolvimento-22C55E?style=for-the-badge&labelColor=161b22&logo=github&logoColor=white)
 
 </div>
 
+<br>
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=nestjs,ts,nodejs,postgres,prisma,docker&theme=dark" width="400" />
+</p>
+<br>
+
 ## 📖 Sobre a API
 Este é a API RESTful do RetroVault, desenvolvida para centralizar e atender todas as demandas de dados e regras de negócio do ecossistema. Utilizamos TypeScript com NestJS para garantir um backend robusto e escalável.
-
-<div style="display:flex; justify-content:center; align-items:center; gap:20px; flex-wrap:nowrap;">
-
-  <img src="https://cdn.simpleicons.org/nestjs/E0234E"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-  <img src="https://cdn.simpleicons.org/typescript/3178C6"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-  <img src="https://cdn.simpleicons.org/nodedotjs/339933"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-  <img src="https://cdn.simpleicons.org/postgresql/4169E1"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-  <img src="https://cdn.simpleicons.org/prisma/2D3748"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-  <img src="https://cdn.simpleicons.org/docker/2496ED"
-     height="50"
-     style="background:#161b22; padding:10px; border-radius:15px;" />
-
-</div>
 
 ## 🏗️ Estrutura do Projeto
 
@@ -110,7 +90,7 @@ Crie um arquivo .env na raiz do projeto:
 
 ```env
 # Database
-DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
+DATABASE_URL="postgresql://retrovault:retrovault@localhost:5432/retrovault_db?schema=public"
 ```
 
 ## 🗃️ Database

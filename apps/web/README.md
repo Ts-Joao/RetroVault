@@ -3,35 +3,21 @@
 
 # RetroVault Web
 
-<strong>🌐 Aplicação Web construída com Next.js para uma experiência moderna e responsiva.</strong>
+### 🌐 Aplicação Web construída com Next.js para uma experiência moderna e responsiva.
 
 ![Status](https://img.shields.io/badge/🚧%20Status-Em%20Desenvolvimento-22C55E?style=for-the-badge&labelColor=161b22&logo=github&logoColor=white)
 
 </div>
 
+<br>
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=nextjs,react,ts,tailwind&theme=dark" height="80" />
+</p>
+<br>
+
 ## 📖 Sobre o Web
 
 Este é o frontend web do RetroVault, desenvolvido com Next.js e App Router. Nossa aplicação oferece uma interface moderna, responsiva e otimizada para performance, permitindo aos usuários acessar todo o ecossistema RetroVault através do navegador.
-
-<div style="display:flex; justify-content:center; align-items:center; gap:20px; flex-wrap:nowrap;">
-
-  <img src="https://cdn.simpleicons.org/nextdotjs/FFFFFF"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-  <img src="https://cdn.simpleicons.org/react/61DAFB"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-  <img src="https://cdn.simpleicons.org/typescript/3178C6"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-  <img src="https://cdn.simpleicons.org/tailwindcss/06B6D4"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-</div>
 
 ## 🏗️ Estrutura do Projeto
 

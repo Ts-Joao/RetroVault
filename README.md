@@ -4,40 +4,20 @@
 
 # RetroVault
 
-<strong>📦 Monorepo do projeto RetroVault, contendo o app mobile, web e a API backend.</strong>
+### 📦 Monorepo do projeto RetroVault, contendo o app mobile, web e a API backend.
 
 </div>
-
+<br>
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=ts,nextjs,nodejs,nestjs,react&theme=dark" width="300" />
+  &nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/turborepo/EF4444" height="45" alt="Turborepo"/>
+</p>
+<br>
 
 ## 📖 Sobre o projeto
 Este é um projeto desenvolvido para a disciplina de Projeto Integrador. Durante o nosso **brainstorm**, identificamos a carência de e-commerces focados em **mídia física**, o que dificulta a jornada de fãs e colecionadores em busca de itens específicos.  RetroVault surge como um marketplace com temática retrô, onde usuários podem comprar e vender produtos, celebrando o início da indústria do entretenimento.
 <br>
-<div style="display:flex; justify-content:center; align-items:center; gap:20px; flex-wrap:nowrap;">
-
-  <img src="https://cdn.simpleicons.org/typescript/3178C6"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-  <img src="https://cdn.simpleicons.org/nextdotjs/FFFFFF"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-  <img src="https://cdn.simpleicons.org/nodedotjs/339933"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-  <img src="https://cdn.simpleicons.org/nestjs/E0234E"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-  <img src="https://cdn.simpleicons.org/expo/FFFFFF"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-  <img src="https://cdn.simpleicons.org/turborepo/EF4444"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-</div>
 
 ## 🏗️ Estrutura do Projeto
 

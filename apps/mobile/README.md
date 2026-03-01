@@ -3,39 +3,22 @@
 
 # RetroVault Mobile
 
-<strong>📱 Aplicação Mobile construída com React Native e Expo para iOS e Android.</strong>
+### 📱 Aplicação Mobile construída com React Native e Expo para iOS e Android.
 
 ![Status](https://img.shields.io/badge/🚧%20Status-Em%20Desenvolvimento-22C55E?style=for-the-badge&labelColor=161b22&logo=github&logoColor=white)
 
+
 </div>
+
+<br>
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=react,ts,androidstudio,apple&theme=dark" width="400" />
+</p>
+<br>
 
 ## 📖 Sobre o Mobile
 
 Este é o aplicativo mobile do RetroVault, desenvolvido com React Native e Expo. Oferecemos uma experiência nativa para dispositivos iOS e Android, permitindo aos usuários acessar todas as funcionalidades do RetroVault na palma da mão.
-
-<div style="display:flex; justify-content:center; align-items:center; gap:20px; flex-wrap:nowrap;">
-
-  <img src="https://cdn.simpleicons.org/expo/ffffff"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-  <img src="https://cdn.simpleicons.org/react/61DAFB"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-  <img src="https://cdn.simpleicons.org/typescript/3178C6"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-  <img src="https://cdn.simpleicons.org/android/3DDC84"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-  <img src="https://cdn.simpleicons.org/apple/ffffff"
-       height="50"
-       style="background:#161b22; padding:10px; border-radius:15px;" />
-
-</div>
 
 ## 🏗️ Estrutura do Projeto
 
