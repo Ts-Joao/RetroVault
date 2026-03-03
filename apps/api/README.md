@@ -39,6 +39,17 @@ api/
 └── package.json      # Dependências da API
 ```
 
+## 🚀 Tecnologias
+
+| Tecnologia | Função |
+|-----|------------|
+| <img src="https://img.shields.io/badge/TypeScript-0D1117?style=for-the-badge&logo=typescript&logoColor=00F7FF"/> | Framework principal do Backend |
+| <img src="https://img.shields.io/badge/Node.js-0D1117?style=for-the-badge&logo=nodedotjs&logoColor=00FF88"/> | Linguagem com tipagem estática |
+| <img src="https://img.shields.io/badge/NestJS-0D1117?style=for-the-badge&logo=nestjs&logoColor=FF0055"/> | Banco de dados relacional |
+| <img src="https://img.shields.io/badge/PostgreSQL-0D1117?style=for-the-badge&logo=postgresql&logoColor=00F7FF"/> | ORM e gerenciamento de banco |
+| <img src="https://img.shields.io/badge/Prisma-0D1117?style=for-the-badge&logo=prisma&logoColor=2D3748"/> | Gerenciamento do Monorepo |
+![Monorepo](https://img.shields.io/badge/Monorepo-0D1117?style=for-the-badge&logo=turborepo&logoColor=white) | Orquestração do Monorepo e Cache de Build
+
 ## ⚙️ Pré-requisitos
 
 - [Node.js](https://nodejs.org/) >= 18
@@ -73,17 +84,6 @@ pnpm --filter=api build
 # Start
 pnpm --filter=api start:prod
 ```
-
-## 🚀 Tecnologias
-
-| Tecnologia | Função |
-|-----|------------|
-| <img src="https://img.shields.io/badge/TypeScript-0D1117?style=for-the-badge&logo=typescript&logoColor=00F7FF"/> | Framework principal do Backend |
-| <img src="https://img.shields.io/badge/Node.js-0D1117?style=for-the-badge&logo=nodedotjs&logoColor=00FF88"/> | Linguagem com tipagem estática |
-| <img src="https://img.shields.io/badge/NestJS-0D1117?style=for-the-badge&logo=nestjs&logoColor=FF0055"/> | Banco de dados relacional |
-| <img src="https://img.shields.io/badge/PostgreSQL-0D1117?style=for-the-badge&logo=postgresql&logoColor=00F7FF"/> | ORM e gerenciamento de banco |
-| <img src="https://img.shields.io/badge/Prisma-0D1117?style=for-the-badge&logo=prisma&logoColor=2D3748"/> | Gerenciamento do Monorepo |
-![Monorepo](https://img.shields.io/badge/Monorepo-0D1117?style=for-the-badge&logo=turborepo&logoColor=white) | Orquestração do Monorepo e Cache de Build
 
 ## 🔐 Variáveis de Ambiente
 Crie um arquivo .env na raiz do projeto:

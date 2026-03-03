@@ -37,6 +37,17 @@ mobile/
 └── package.json        # Dependências do Mobile
 ```
 
+## 🚀 Tecnologias
+
+| Tecnologia | Função |
+|-----|------------|
+| <img src="https://img.shields.io/badge/Expo-0D1117?style=for-the-badge&logo=expo&logoColor=white"/> | Plataforma para apps React Native |
+| <img src="https://img.shields.io/badge/React_Native-0D1117?style=for-the-badge&logo=react&logoColor=61DAFB"/> | Framework para aplicativos nativos |
+| <img src="https://img.shields.io/badge/TypeScript-0D1117?style=for-the-badge&logo=typescript&logoColor=3178C6"/> | Linguagem com tipagem estática |
+| <img src="https://img.shields.io/badge/Expo_Router-0D1117?style=for-the-badge&logo=expo&logoColor=white"/> | Roteamento file-based para React Native |
+| ![Monorepo](https://img.shields.io/badge/Monorepo-0D1117?style=for-the-badge&logo=turborepo&logoColor=white) | Orquestração do Monorepo e Cache de Build
+
+
 ## ⚙️ Pré-requisitos
 
 - [Node.js](https://nodejs.org/) >= 18
@@ -90,16 +101,6 @@ pnpm --filter=mobile web
 Após rodar `pnpm dev`, escaneie o QR Code com:
 - **iOS:** Aplicativo Câmera
 - **Android:** Aplicativo Expo Go
-
-## 🚀 Tecnologias
-
-| Tecnologia | Função |
-|-----|------------|
-| <img src="https://img.shields.io/badge/Expo-0D1117?style=for-the-badge&logo=expo&logoColor=white"/> | Plataforma para apps React Native |
-| <img src="https://img.shields.io/badge/React_Native-0D1117?style=for-the-badge&logo=react&logoColor=61DAFB"/> | Framework para aplicativos nativos |
-| <img src="https://img.shields.io/badge/TypeScript-0D1117?style=for-the-badge&logo=typescript&logoColor=3178C6"/> | Linguagem com tipagem estática |
-| <img src="https://img.shields.io/badge/Expo_Router-0D1117?style=for-the-badge&logo=expo&logoColor=white"/> | Roteamento file-based para React Native |
-| ![Monorepo](https://img.shields.io/badge/Monorepo-0D1117?style=for-the-badge&logo=turborepo&logoColor=white) | Orquestração do Monorepo e Cache de Build
 
 ## 📦 Dependências Principais
 

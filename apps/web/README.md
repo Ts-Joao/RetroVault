@@ -40,6 +40,16 @@ web/
 └── package.json         # Dependências do Web
 ```
 
+## 🚀 Tecnologias
+
+| Tecnologia | Função |
+|-----|------------|
+| <img src="https://img.shields.io/badge/Next.js-0D1117?style=for-the-badge&logo=nextdotjs&logoColor=white"/> | Framework React com SSR e App Router |
+| <img src="https://img.shields.io/badge/React-0D1117?style=for-the-badge&logo=react&logoColor=61DAFB"/> | Biblioteca para construção de interfaces |
+| <img src="https://img.shields.io/badge/TypeScript-0D1117?style=for-the-badge&logo=typescript&logoColor=3178C6"/> | Linguagem com tipagem estática |
+| <img src="https://img.shields.io/badge/Tailwind_CSS-0D1117?style=for-the-badge&logo=tailwindcss&logoColor=06B6D4"/> | Framework CSS utilitário |
+| ![Monorepo](https://img.shields.io/badge/Monorepo-0D1117?style=for-the-badge&logo=turborepo&logoColor=white) | Orquestração do Monorepo e Cache de Build
+
 ## ⚙️ Pré-requisitos
 
 - [Node.js](https://nodejs.org/) >= 18
@@ -75,16 +85,6 @@ pnpm --filter=web build
 # Start
 pnpm --filter=web start
 ```
-
-## 🚀 Tecnologias
-
-| Tecnologia | Função |
-|-----|------------|
-| <img src="https://img.shields.io/badge/Next.js-0D1117?style=for-the-badge&logo=nextdotjs&logoColor=white"/> | Framework React com SSR e App Router |
-| <img src="https://img.shields.io/badge/React-0D1117?style=for-the-badge&logo=react&logoColor=61DAFB"/> | Biblioteca para construção de interfaces |
-| <img src="https://img.shields.io/badge/TypeScript-0D1117?style=for-the-badge&logo=typescript&logoColor=3178C6"/> | Linguagem com tipagem estática |
-| <img src="https://img.shields.io/badge/Tailwind_CSS-0D1117?style=for-the-badge&logo=tailwindcss&logoColor=06B6D4"/> | Framework CSS utilitário |
-| ![Monorepo](https://img.shields.io/badge/Monorepo-0D1117?style=for-the-badge&logo=turborepo&logoColor=white) | Orquestração do Monorepo e Cache de Build
 
 ## 🎨 Features
 
