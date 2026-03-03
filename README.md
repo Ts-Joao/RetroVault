@@ -4,9 +4,39 @@
 
 # RetroVault
 
-### 📦 Monorepo do projeto RetroVault, contendo o app mobile, web e a API backend.
+### 📦 Monorepo com API, Web e Mobile
+Marketplace retrô focado em mídia física e colecionáveis.
 
 </div>
+
+## 📖 Sobre o projeto
+Este é um projeto desenvolvido para a disciplina de Projeto Integrador. Durante o nosso **brainstorm**, identificamos a carência de e-commerces focados em **mídia física**, o que dificulta a jornada de fãs e colecionadores em busca de itens específicos.  RetroVault surge como um marketplace com temática retrô, onde usuários podem comprar e vender produtos, celebrando o início da indústria do entretenimento.
+<br>
+
+## 🏗️ Estrutura do Projeto
+Este projeto utiliza **arquitetura monorepo** com separação clara de responsabilidades:
+```
+RetroVault/
+├── apps/
+│   ├── api/        # Backend (NestJS)
+│   ├── web/        # Frontend (Next.js)
+│   └── mobile/     # Mobile (Expo)
+├── packages/
+│   └── shared/     # Tipos e interfaces compartilhadas
+├── turbo.json
+└── package.json
+```
+
+## 🚀 Aplicações
+
+| Aplicação | Stack | Porta |
+|-----------|--------|--------|
+| [`api`](apps/api) | NestJS + TypeScript | 4000 |
+| [`web`](apps/web) | Next.js + TypeScript + Tailwind | 3000 |
+| [`mobile`](apps/mobile) | Expo + TypeScript | 8081 |
+
+## 🧱 Stack Principal
+
 <br>
 <p align="center">
   <img src="https://skillicons.dev/icons?i=ts,nextjs,nodejs,nestjs,react&theme=dark" width="300" />
@@ -14,33 +44,6 @@
   <img src="https://cdn.simpleicons.org/turborepo/EF4444" height="45" alt="Turborepo"/>
 </p>
 <br>
-
-## 📖 Sobre o projeto
-Este é um projeto desenvolvido para a disciplina de Projeto Integrador. Durante o nosso **brainstorm**, identificamos a carência de e-commerces focados em **mídia física**, o que dificulta a jornada de fãs e colecionadores em busca de itens específicos.  RetroVault surge como um marketplace com temática retrô, onde usuários podem comprar e vender produtos, celebrando o início da indústria do entretenimento.
-<br>
-
-## 🏗️ Estrutura do Projeto
-
-```
-RetroVault/
-├── apps/
-│   ├── api/        # Backend (NestJS) → http://localhost:4000
-│   ├── web/        # Frontend (Next.js) → http://localhost:3000
-│   └── mobile/     # Mobile (Expo) → http://localhost:8081
-├── packages/
-│   └── shared/     # Tipos e interfaces compartilhadas
-├── turbo.json
-└── package.json
-```
-
-## 🚀 Tecnologias
-
-| App | Tecnologia |
-|-----|------------|
-| `api` | NestJS + TypeScript |
-| `web` | Next.js + TypeScript + Tailwind |
-| `mobile` | Expo + TypeScript |
-![Monorepo](https://img.shields.io/badge/Monorepo-0D1117?style=for-the-badge&logo=turborepo&logoColor=white) | Turborepo + pnpm |
 
 ## ⚙️ Pré-requisitos
 
