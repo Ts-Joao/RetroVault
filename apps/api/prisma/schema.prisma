@@ -25,6 +25,7 @@ model User {
   // relations
   order      Order[]
   profilePic Photo?
+  cart       Cart?
 
   // map
   @@map("users")
@@ -75,6 +76,7 @@ model Product {
   photos     Photo[]
   orderItems OrderItem[]
   genre      Genre[]
+  cartItems  CartItem[]
 
   // index
   @@index([name])
@@ -83,6 +85,29 @@ model Product {
   @@index([rating])
   // map
   @@map("products")
+}
+
+model Cart {
+  id String @id @default(cuid())
+
+  userId   String     @unique @map("user_id")
+  user     User       @relation(fields: [userId], references: [id])
+  cartItem CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id     String  @id @default(cuid())
+  amount Int
+  price  Decimal @db.Decimal(8, 2)
+
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("cart_items")
 }
 
 enum OrderStatus {
