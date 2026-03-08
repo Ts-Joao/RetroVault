@@ -63,24 +63,34 @@ enum TypeMidia {
   GAME  @map("game")
 }
 
+model MediaType {
+  id   Int       @id @default(autoincrement())
+  name TypeMidia @unique
+
+  product Product[]
+
+  @@map("media_types")
+}
+
 model Product {
-  id          String    @id @default(cuid())
-  type        TypeMidia
-  price       Decimal   @db.Decimal(5, 2)
+  id          String  @id @default(cuid())
+  price       Decimal @db.Decimal(5, 2)
   name        String
   description String
   amount      Int
-  rating      Decimal   @db.Decimal(2, 1)
+  rating      Decimal @db.Decimal(2, 1)
 
   // relations
-  photos     Photo[]
-  orderItems OrderItem[]
-  genre      Genre[]
-  cartItems  CartItem[]
+  mediaTypeId Int         @map("media_type_id")
+  mediaType   MediaType   @relation(fields: [mediaTypeId], references: [id])
+  photos      Photo[]
+  orderItems  OrderItem[]
+  genre       Genre[]
+  cartItems   CartItem[]
 
   // index
   @@index([name])
-  @@index([type])
+  @@index([mediaTypeId])
   @@index([price])
   @@index([rating])
   // map
