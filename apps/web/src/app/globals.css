@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #f2f2f2;
+  --color-prim: #BF372A;
+  --color-prim-light: #e57373;
+  --color-second: #F2EFDC;
+  --color-third: #D9A13B;
+  --color-white: #fff;
+  --color-black: #000;
+
+  --font-family-bebas-neue: var(--font-bebas-neue);
+  --font-family-special-elite: var(--font-special-elite);
+  --font-family-chakra-petch: var(--font-chakra-petch);
+}
+
+.Bebas_Neue {
+  font-family: var(--font-family-bebas-neue);
+}
+
+.Special_Elite {
+  font-family: var(--font-family-special-elite);
+}
+
+.Chakra_Petch {
+  font-family: var(--font-family-chakra-petch);
+}
+
+body {
+  background-color: var(--color-bg);
+  overflow-x: hidden !important;
+}
