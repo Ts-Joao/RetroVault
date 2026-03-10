@@ -42,13 +42,13 @@ export default function MiddleBtn() {
             
             <button onClick={() => setIsOpen(!isOpen)} className="flex md:hidden">
                 {isOpen ? (
-                    <PiXSquare size={15} />
+                    <PiXSquare className="text-4xl text-second" />
                     ) : (
                     <PiListBold className="text-second cursor-pointer text-4xl"/>
                 )}
             </button>
 
-            <ul className={`fixed bg-bg border-2 rounded-md border-prim right-1 ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 md:opacity-100'}`}>
+            <ul className={`fixed bg-bg border-2 rounded-md border-prim right-1 p-1 md:hidden ${isOpen ? 'translate-x-0 block' : 'translate-x-full opacity-0 hidden'}`}>
                 <li>
                     <Link href='/notifications' className="flex items-center gap-1">
                         <PiBell className="text-black cursor-pointer text-lg"/>
