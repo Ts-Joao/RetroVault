@@ -9,10 +9,30 @@ const mockProducts: Product[] = [
     id: '1',
     name: 'EA Sport F1 25 - Play Station 5',
     price: 353.30,
-    photo: '/image/f1-25.png',
+    photo: '/image/f1-25.webp',
     seller: 'Play Station',
     installment_amount: 10,
     installment_number: 39.25,
     rating: 4
-  }
+  },
+  {
+    id: '2',
+    name: 'Shadow of the Colossus PS4 Remake',
+    price: 154,
+    photo: '/image/shadow-of-the-colossus.png',
+    seller: 'Play Station',
+    installment_amount: 12,
+    installment_number: 15.22,
+    rating: 4
+  },
+  {
+    id: '3',
+    name: 'Pokemon Legends Z-A Nintendo Switch 2',
+    price: 380.37,
+    photo: '/image/pokemon-legends-za.png',
+    seller: 'Nintendo Oficial',
+    installment_amount: 8,
+    installment_number: 51.12,
+    rating: 5
+  },
 ]

@@ -1,16 +1,16 @@
-import { Product } from "@retrovault/shared"
-import ProductCard from "./ProductCard"
+import { Product } from "@retrovault/shared";
+import ProductCard from "./ProductCard";
 
 type Props = {
-    products : Product[]
-}
+ products: Product[];
+};
 
-export default function ProductGrid({products}: Props) {
-    return (
-        <div className="grid columns-5 justify-center p-3">
-            {products.map(product => (
-                <ProductCard key={product.id} product={product} />
-            ))}
-        </div>
-    )
+export default function ProductGrid({ products }: Props) {
+ return (
+  <div className="grid grid-cols-3 justify-center p-3">
+   {products.map((product) => (
+    <ProductCard key={product.id} product={product} />
+   ))}
+  </div>
+ );
 }

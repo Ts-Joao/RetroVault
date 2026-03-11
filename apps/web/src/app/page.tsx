@@ -8,7 +8,9 @@ export default async function Home() {
   return (
     <>
       <NavBar />
-      <ProductGrid products={products} />
+      <section className="justify-center">
+        <ProductGrid products={products} />
+      </section>
     </>
   );
 }
