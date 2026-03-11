@@ -1,9 +1,14 @@
 import NavBar from "@/components/layout/nav-bar/NavBar";
+import ProductGrid from "@/components/layout/product-grid/ProductGrid";
+import { getProducts } from "@/services/product";
 
-export default function Home() {
+export default async function Home() {
+  const products = await getProducts()
+
   return (
     <>
       <NavBar />
+      <ProductGrid products={products} />
     </>
   );
 }
