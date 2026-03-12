@@ -48,7 +48,7 @@ export default function MiddleBtn() {
                 )}
             </button>
 
-            <ul className={`fixed bg-second border-2 rounded-md border-third right-1 px-2 py-1 md:hidden ${isOpen ? 'translate-x-0 block' : 'translate-x-full opacity-0 hidden'}`}>
+            <ul className={`fixed bg-second font-chakra-petch border-2 rounded-md border-third right-1 px-2 py-1 md:hidden ${isOpen ? 'translate-x-0 block' : 'translate-x-full opacity-0 hidden'}`}>
                 <li>
                     <Link href='/notifications' className="flex items-center gap-1">
                         <PiBell className="text-prim cursor-pointer text-lg"/>

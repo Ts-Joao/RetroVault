@@ -15,7 +15,7 @@ const specialElite = Special_Elite({
 })
 
 const chakraPetch = Chakra_Petch({
-  weight: '400',
+  weight: ['300', '400'],
   variable: '--font-chakra-petch',
   subsets: ['latin']
 })
