@@ -12,7 +12,6 @@ export default function Footer() {
      <Link href="/">Termos de Uso</Link>
      <Link href="/">Política de Privacidade</Link>
      <Link href="/">Contato</Link>
-     <Link href="/">Promoções</Link>
     </div>
    </div>
    <div className="text-center text-sm mt-6">
