@@ -28,8 +28,8 @@ export default function CheckoutClient({product}: {product : Product}) {
 
                 {/* div principal */}
                 <div className='bg-[#d9d9d9] flex p-2 rounded-lg'>
-                    <div className='bg-whte flex items-center justify-center'>
-                        <Image src={product.photo} alt={product.name} width={100} height={60} className='lg:w-full' />
+                    <div className='bg-white flex relative items-center justify-center rounded-lg w-50 h-50 md:w-95 md:h-95'>
+                        <Image src={product.photo} alt={product.name} fill className='object-contain' />
                     </div>
                     <div>
                         <h1>{product.name}</h1>
