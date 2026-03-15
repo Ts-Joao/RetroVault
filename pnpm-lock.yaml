@@ -154,6 +154,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@retrovault/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       iconify:
         specifier: ^1.4.0
         version: 1.4.0
@@ -194,6 +197,8 @@ importers:
       typescript:
         specifier: ^5
         version: 5.9.3
+
+  packages/shared: {}
 
 packages:
 
