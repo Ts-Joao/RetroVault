@@ -11,7 +11,7 @@ export default async function Home() {
   return (
     <>
       <NavBar />
-      
+      <Shopping />
     </>
   );
 }
