@@ -18,7 +18,7 @@ const mockProducts: Product[] = [
     seller: 'Play Station',
     installment_amount: 10,
     installment_number: 39.25,
-    rating: 4
+    rating: 4.5
   },
   {
     id: '2',

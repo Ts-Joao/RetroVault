@@ -8,6 +8,7 @@ import {
     PiPlusSquare,
     PiMinusSquare
 } from "react-icons/pi"; 
+import StarRating from '@/components/StarRating';
 
 export default function CheckoutClient({product}: {product : Product}) {
     const { quantity, increment, decrement } = useQuantity()
@@ -24,17 +25,17 @@ export default function CheckoutClient({product}: {product : Product}) {
     return (
         <>
         {/* div central */}
-            <div className='bg-third flex w-[90%] justify-self-center-safe font-chakra-petch'>
+            <div className='bg-third flex w-full justify-self-center-safe font-chakra-petch'>
 
                 {/* div principal */}
-                <div className='bg-[#d9d9d9] flex p-2 rounded-lg'>
-                    <div className='bg-white flex relative items-center justify-center rounded-lg w-50 h-50 md:w-95 md:h-95'>
+                <div className='bg-[#d9d9d9] flex p-3 rounded-lg lg:rounded-2xl'>
+                    <div className='bg-white flex relative items-center justify-center rounded-lg lg:rounded-2xl w-50 h-50 md:w-120 md:h-120'>
                         <Image src={product.photo} alt={product.name} fill className='object-contain' />
                     </div>
-                    <div>
-                        <h1>{product.name}</h1>
-                        <p>{product.seller}</p>
-                        <span>{product.rating}</span>
+                    <div className='lg:px-7 py-2 lg:py-5'>
+                        <h1 className='font-semibold text-3xl'>{product.name}</h1>
+                        <p>Por {product.seller}</p>
+                        <span><StarRating rating={product.rating}/></span>
 
                         <p className='flex items-center gap-5'><PiTruck className='text-prim'/> Frete: <span>Caraguatatuba - São Paulo</span></p>
                         <p className='flex items-center gap-5'><PiMoney className='text-prim'/> Valor: 0,00</p>

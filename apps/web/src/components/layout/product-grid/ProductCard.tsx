@@ -2,6 +2,7 @@ import { Product } from "@retrovault/shared"
 import { PiBag, PiStarFill } from "react-icons/pi";
 import Image from "next/image"
 import Link from "next/link";
+import StarRating from "@/components/StarRating";
 
 type Props = {
     product: Product
@@ -23,7 +24,7 @@ export default function ProductCard({ product }: Props) {
 
             <h1 className="font-barlow-condensed text-lg md:text-2xl leading-none">{product.name}</h1>
             <p>Por <Link href={`/u/${product.seller}`} className="cursor-pointer">{product.seller}</Link></p>
-            <span className="text-prim flex justify-end"><PiStarFill/><PiStarFill/><PiStarFill/><PiStarFill/><PiStarFill/></span>
+            <span className="flex justify-end"><StarRating rating={product.rating}/></span>
             <div className="text-[16px] flex justify-between">
                 <p className="font-medium text-sm md:font-semibold md:text-xl">R$ {formatador.format(product.price)}</p>
                 <div className="flex gap-1 justify-end items-baseline">
