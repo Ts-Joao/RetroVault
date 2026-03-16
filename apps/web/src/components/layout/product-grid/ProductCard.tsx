@@ -2,6 +2,7 @@ import { Product } from "@retrovault/shared"
 import { PiBag, PiStarFill } from "react-icons/pi";
 import Image from "next/image"
 import Link from "next/link";
+import StarRating from "@/components/StarRating";
 
 type Props = {
     product: Product
@@ -17,13 +18,13 @@ export default function ProductCard({ product }: Props) {
 
     return (
         <div className="p-2 bg-[#d9d9d9] max-w-40 min-w-40 md:max-w-55 rounded-2xl grid justify-center items-center justify-self-center gap-1 md:gap-2 font-chakra-petch text-xs md:text-lg">
-            <div className="bg-white flex justify-center items-center h-40 md:w-full rounded-t-xl w-35">
-                <Image src={product.photo} alt={product.name} width={100} height={50} className="bg-cover h-40 w-auto"/>
+            <div className="bg-white flex relative justify-center items-center h-35 w-35 md:w-full rounded-t-xl">
+                <Image src={product.photo} alt={product.name} fill className="object-contain"/>
             </div>
 
             <h1 className="font-barlow-condensed text-lg md:text-2xl leading-none">{product.name}</h1>
             <p>Por <Link href={`/u/${product.seller}`} className="cursor-pointer">{product.seller}</Link></p>
-            <span className="text-prim flex justify-end"><PiStarFill/><PiStarFill/><PiStarFill/><PiStarFill/><PiStarFill/></span>
+            <span className="flex justify-end"><StarRating rating={product.rating}/></span>
             <div className="text-[16px] flex justify-between">
                 <p className="font-medium text-sm md:font-semibold md:text-xl">R$ {formatador.format(product.price)}</p>
                 <div className="flex gap-1 justify-end items-baseline">
