@@ -16,11 +16,13 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
         return <div>Produto não encontrado!</div>
 
     return (
-        <>
+        <div className='flex flex-col justify-between h-dvh font-chakra-petch'>
             <Navbar />
-            <div>Checkout do produto: {product?.name}</div>
-            <CheckoutClient product={product} />
+            <section className='flex flex-col px-30 gap-2'>
+                <p><span className='font-semibold'>Checkout do produto:</span> {product?.name}</p>
+                <CheckoutClient product={product} />
+            </section>
             <Footer />
-        </>
+        </div>
     )
 }
