@@ -25,7 +25,7 @@ export default function CheckoutClient({product}: {product : Product}) {
     return (
         <>
         {/* div central */}
-            <div className='bg-third flex w-full justify-self-center-safe font-chakra-petch'>
+            <div className='flex w-full font-chakra-petch'>
 
                 {/* div principal */}
                 <div className='bg-[#d9d9d9] flex p-3 rounded-lg lg:rounded-2xl'>
@@ -57,22 +57,6 @@ export default function CheckoutClient({product}: {product : Product}) {
                                 <span className='text-prim md:mr-3'>R$</span>{reais}, <p className='text-third md:mr-3'>{centavos}</p> à vista
                             </h1>
                         </div>
-                    </div>
-                </div>
-
-                {/* div que agrupa as outras 4 opções sobre o pagamento */}
-                <div className='grid'>
-                    <div>
-                        <h1>Cupom:</h1>
-                    </div>
-                    <div>
-                        <h1>Total:</h1>
-                    </div>
-                    <div>
-                        <h1>Método de pagamento:</h1>
-                    </div>
-                    <div>
-                        <h1>Confirmar Compra</h1>
                     </div>
                 </div>
             </div>

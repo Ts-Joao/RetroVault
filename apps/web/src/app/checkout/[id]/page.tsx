@@ -19,12 +19,12 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
     return (
         <div className='flex flex-col justify-between h-dvh font-chakra-petch'>
             <Navbar />
-            <section className='flex gap-2'>
-                <div className='flex flex-col px-30'>
-                    <p><span className='font-semibold'>Checkout do produto:</span> {product?.name}</p>
+            <section className='flex justify-center gap-20'>
+                <div className='flex flex-col'>
+                    <p><span className='font-semibold'>Checkout do produto: </span>{product?.name}</p>
                     <CheckoutClient product={product} />
                 </div>
-                <Ordersummary />
+                <Ordersummary product={product} />
             </section>
             <Footer />
         </div>
