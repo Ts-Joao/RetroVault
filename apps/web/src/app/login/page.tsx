@@ -4,71 +4,75 @@ import { MdEmail } from "react-icons/md";
 
 export default function LoginPage() {
   return (
-    <main className="flex items-center justify-center min-h-screen bg-gray-100 gap-6">
-      <div className="bg-second p-10 rounded-lg w-[700px] h-[700px] text-white shadow- border-prim-light border-4 ">
-        
-        <Image className="ml-50 mt-[-10]"   
-          src="/logo.png"
-          alt="logo"
-          width={200}
-          height={200}
-        />
-
-        <div className="mb-4">
-            <label className="flex items-center gap-2 text-sm mb-1">
-                <MdEmail className="text-black text-3xl mt-5 m-2"/>
-                <p className="text-black ml-[-7] mt-2">E-mail</p>
-            </label>
-
-            <input
-                type="email"
-                alt="email"
-                className="w-full  bg-black text-white p-2 rounded outline-none"
-            />
+    <main className="flex items-center justify-center min-h-screen bg-[var(--color-bg)] px-4">
+      <div className="bg-[var(--color-second)] p-10 rounded-2xl w-full max-w-md shadow-2xl border-4 border-[var(--color-prim-light)]">
+        <div className="flex justify-center mb-6">
+          <Image
+            src="/logo.png"
+            alt="logo"
+            width={180}
+            height={180}
+          />
         </div>
 
         <div className="mb-4">
-            <label className="flex items-center gap-2 text-sm mb-1">
-                <FaLock className="text-black text-3xl mt-5 m-2"/>
-                <p className="text-black ml-[-8] mt-3.5">PassWord</p>
-            </label>
+          <label className="flex items-center gap-2 text-black mb-1">
+            <MdEmail className="text-[var(--color-prim)] text-xl" />
+            <span className="text-sm font-semibold">E-mail</span>
+          </label>
 
-            <input 
-                type="password"
-                className="w-full bg-black text-white p-2 rounded outline-none" 
-            />
+          <input
+            type="email"
+            placeholder="Digite seu e-mail"
+            className="w-full bg-white text-black p-3 rounded-md outline-none border focus:border-[var(--color-prim)]"
+          />
         </div>
 
-        <p className="text-sm text-black mb-6 cursor-pointer ">
-          &gt; criar uma conta
+        <div className="mb-4">
+          <label className="flex items-center gap-2 text-black mb-1">
+            <FaLock className="text-[var(--color-prim)] text-xl" />
+            <span className="text-sm font-semibold">Senha</span>
+          </label>
+
+          <input
+            type="password"
+            placeholder="Digite sua senha"
+            className="w-full bg-white text-black p-3 rounded-md outline-none border focus:border-[var(--color-prim)]"
+          />
+        </div>
+
+        <p className="text-sm text-[var(--color-prim)] mb-6 cursor-pointer hover:underline">
+          Criar uma conta
         </p>
 
-        <button className="w-full bg-black text-white text-black mt-4 py-2 rounded-md mb-6 hover:opacity-90">
-          Continue
+        <button className="w-full bg-[var(--color-prim)] text-white py-3 rounded-md font-semibold hover:bg-[var(--color-third)] transition">
+          Continuar
         </button>
 
-        <p className="text-center text-sm mb- font-bold text-black">
+        <p className="text-center text-sm font-semibold text-black mt-6">
           Login com
         </p>
 
-        <div className="flex justify-center gap-20 mt-10 text-center">
-          <div className="flex flex-col items-center cursor-pointer">
-            <FaGoogle className="text-black"size={50}/>
-            <span className="text-xs mt-1  text-black size-10 font-bold">Google</span>
+        <div className="flex justify-center gap-10 mt-6">
+
+          <div className="flex flex-col items-center cursor-pointer hover:scale-110 transition">
+            <FaGoogle className="text-black" size={40} />
+            <span className="text-xs mt-1 text-black font-bold">Google</span>
           </div>
 
-          <div className="flex flex-col items-center cursor-pointer">
-            <FaInstagram className="text-black" size={50}/>
-            <span className="text-xs mt-1 text-black size-10 font-bold">Instagram</span>
+          <div className="flex flex-col items-center cursor-pointer hover:scale-110 transition">
+            <FaInstagram className="text-black" size={40} />
+            <span className="text-xs mt-1 text-black font-bold">Instagram</span>
           </div>
-          
-          <div className="flex flex-col items-center cursor-pointer">
-            <FaFacebook className="text-black" size={50}/>
-            <span className="text-xs mt-1 text-black size-10 font-bold">Facebook</span>
+
+          <div className="flex flex-col items-center cursor-pointer hover:scale-110 transition">
+            <FaFacebook className="text-black" size={40} />
+            <span className="text-xs mt-1 text-black font-bold">Facebook</span>
           </div>
+
         </div>
 
       </div>
     </main>
-  )
+  );
 }
