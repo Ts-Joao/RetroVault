@@ -9,6 +9,7 @@ import {
     PiMinusSquare
 } from "react-icons/pi"; 
 import StarRating from '@/components/StarRating';
+import Ordersummary from '@/components/layout/order-summary/OrderSummary';
 
 export default function CheckoutClient({product}: {product : Product}) {
     const { quantity, increment, decrement } = useQuantity()
@@ -21,11 +22,10 @@ export default function CheckoutClient({product}: {product : Product}) {
     const price = formatador.format(total)
     const [ reais, centavos ] = price.split(',')
 
-    
     return (
         <>
         {/* div central */}
-            <div className='flex w-full font-chakra-petch'>
+            <div className='flex w-full font-chakra-petch gap-20'>
 
                 {/* div principal */}
                 <div className='bg-[#d9d9d9] flex p-3 rounded-lg lg:rounded-2xl'>
@@ -58,6 +58,10 @@ export default function CheckoutClient({product}: {product : Product}) {
                             </h1>
                         </div>
                     </div>
+                </div>
+
+                <div>
+                    <Ordersummary product={product} total={total}/>
                 </div>
             </div>
         </>

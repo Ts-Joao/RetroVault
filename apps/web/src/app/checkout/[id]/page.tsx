@@ -24,7 +24,6 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
                     <p><span className='font-semibold'>Checkout do produto: </span>{product?.name}</p>
                     <CheckoutClient product={product} />
                 </div>
-                <Ordersummary product={product} />
             </section>
             <Footer />
         </div>

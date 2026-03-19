@@ -5,12 +5,28 @@ import { IoIosArrowDown } from "react-icons/io";
 import { Product, useSelect } from "@retrovault/shared";
 import { PiPixLogoBold, PiCreditCardBold } from "react-icons/pi";
 
-type PaymentValue = 'pix' | 'credit_card' | 'debit_card'
-type InstallmentValue = '1x' | '2x' | '3x' | '6x' | '12x'
+type PaymentValue = "pix" | "credit_card" | "debit_card";
+type InstallmentValue = "1x" | "2x" | "3x" | "6x" | "12x";
 
-export default function Ordersummary({ product }: { product: Product }) {
- const { isOpen, selected, toggle, selectOption } = useSelect<PaymentValue>()
- const { isOpen: isOpenInstallment, selected: installment, toggle: toggleInstallment, selectOption: selectInstallment } = useSelect<InstallmentValue>()
+export default function Ordersummary({product, total}: { product: Product; total: number}) {
+ const formatador = new Intl.NumberFormat("pt-BR", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+ })
+
+ const frete = 0
+ const cupom = 0
+ const resultadoTotal = total + frete + cupom
+
+ const { isOpen, selected, toggle, selectOption } = useSelect<PaymentValue>();
+ 
+ const {
+  isOpen: isOpenInstallment,
+  selected: installment,
+  toggle: toggleInstallment,
+  selectOption: selectInstallment,
+ } = useSelect<InstallmentValue>();
+
  const paymentOptions = [
   {
    value: "pix" as PaymentValue,
@@ -36,39 +52,72 @@ export default function Ordersummary({ product }: { product: Product }) {
  ];
 
  const installmentOptions = [
-  { value: '1x' as InstallmentValue,  label: '1x',  sublabel: `R$ ${product.price} sem juros` },
-  { value: '2x' as InstallmentValue,  label: '2x',  sublabel: `R$ ${(product.price / 2).toFixed(2)} sem juros` },
-  { value: '3x' as InstallmentValue,  label: '3x',  sublabel: `R$ ${(product.price / 3).toFixed(2)} sem juros` },
-  { value: '6x' as InstallmentValue,  label: '6x',  sublabel: `R$ ${(product.price / 6).toFixed(2)} sem juros` },
-  { value: '12x' as InstallmentValue, label: '12x', sublabel: `R$ ${(product.price / 12).toFixed(2)} com juros` },
-]
+  {
+   value: "1x" as InstallmentValue,
+   label: "1x",
+   sublabel: `R$ ${product.price} sem juros`,
+  },
+  {
+   value: "2x" as InstallmentValue,
+   label: "2x",
+   sublabel: `R$ ${(product.price / 2).toFixed(2)} sem juros`,
+  },
+  {
+   value: "3x" as InstallmentValue,
+   label: "3x",
+   sublabel: `R$ ${(product.price / 3).toFixed(2)} sem juros`,
+  },
+  {
+   value: "6x" as InstallmentValue,
+   label: "6x",
+   sublabel: `R$ ${(product.price / 6).toFixed(2)} sem juros`,
+  },
+  {
+   value: "12x" as InstallmentValue,
+   label: "12x",
+   sublabel: `R$ ${(product.price / 12).toFixed(2)} com juros`,
+  },
+ ];
 
-const selectedInstallment = installmentOptions.find((p) => p.value === installment)
- const selectedOption = paymentOptions.find((p) => p.value === selected)
+ const selectedInstallment = installmentOptions.find(
+  (p) => p.value === installment,
+ );
+ const selectedOption = paymentOptions.find((p) => p.value === selected);
 
  return (
   <div className="flex flex-col gap-10 justify-center">
    <div className="grid bg-[#d9d9d9] px-3 py-2 rounded-lg gap-2">
     <h1>Cupom:</h1>
     <div className="grid gap-1">
-        <input type="text" placeholder="Insira o Cupom" className="flex bg-white w-full justify-self-center rounded-lg py-1 px-2 focus:outline-none" />
-        <input type="button" value="Aplicar Cupom" className="w-full bg-submit py-0.5 rounded-md text-sm cursor-pointer" />
+     <input
+      type="text"
+      placeholder="Insira o Cupom"
+      className="flex bg-white w-full justify-self-center rounded-lg py-1 px-2 focus:outline-none"
+     />
+     <input
+      type="button"
+      value="Aplicar Cupom"
+      className="w-full bg-submit py-0.5 rounded-md text-sm cursor-pointer"
+     />
     </div>
    </div>
    <div className="bg-[#d9d9d9] px-3 py-2 rounded-lg flex flex-col justify-between h-35">
     <div className="grid gap-0.5">
      <p className="flex justify-between">
-      Produto: <span className="text-prim">+ {product.price}</span>
+      Produto:{" "}
+      <span className="text-[#000]">
+       + R$ {formatador.format(total)}
+      </span>
      </p>
      <p className="flex justify-between">
-      Frete: <span className="text-prim">+ 0,00</span>
+      Frete: <span className="text-[#000]">+ R$ {formatador.format(frete)}</span>
      </p>
      <p className="flex justify-between">
-      Cupom: <span className="text-[#168634]">- 0,00</span>
+      Cupom: <span className="text-prim">- R$ {formatador.format(cupom)}</span>
      </p>
     </div>
     <h1 className="flex justify-between text-xl">
-     Total <span>{product.price}</span>
+     Total <span>R$ {formatador.format(resultadoTotal)}</span>
     </h1>
    </div>
    <div className="bg-[#d9d9d9] px-3 py-2 rounded-lg">
@@ -125,37 +174,49 @@ const selectedInstallment = installmentOptions.find((p) => p.value === installme
      )}
     </div>
 
-    {selected === 'credit_card' && (
-        <div className="relative w-full mt-2">
-            <button onClick={toggleInstallment} 
-            className={`
+    {selected === "credit_card" && (
+     <div className="relative w-full mt-2">
+      <button
+       onClick={toggleInstallment}
+       className={`
                         w-full px-2 py-1.5 bg-white text-start flex items-center justify-between gap-2
                         border border-gray-200 transition-all duration-150 cursor-pointer
                         hover:border-gray-300 hover:bg-amber-50
                         ${isOpenInstallment ? "rounded-b-lg border-t-0" : "rounded-lg"}
-            `}>
-            <span className={`text-sm font-medium ${installment ? 'text-gray-900' : 'text-gray-400'}`}>
-                {(selectedInstallment?.label) ?? 'Selecione as parcelas'}
-            </span>
-            {selectedInstallment && (
-                <span className="text-xs text-gray-400">{selectedInstallment.sublabel}</span>
-            )}
-            <IoIosArrowDown className={`transition-transform duration-200 ${isOpenInstallment ? 'rotate-180' : ''}`} />
-            </button>
+            `}
+      >
+       <span
+        className={`text-sm font-medium ${installment ? "text-gray-900" : "text-gray-400"}`}
+       >
+        {selectedInstallment?.label ?? "Selecione as parcelas"}
+       </span>
+       {selectedInstallment && (
+        <span className="text-xs text-gray-400">
+         {selectedInstallment.sublabel}
+        </span>
+       )}
+       <IoIosArrowDown
+        className={`transition-transform duration-200 ${isOpenInstallment ? "rotate-180" : ""}`}
+       />
+      </button>
 
-            {isOpenInstallment && (
-            <ul className="absolute bottom-full left-0 right-0 bg-white border border-gray-300 border-b-0 rounded-t-xl overflow-hidden z-10 text-sm">
-                {installmentOptions
-                .filter((p) => p.value !== installment)
-                .map((opt) => (
-                    <li key={opt.value} onClick={() => selectInstallment(opt.value)} className="flex items-center gap-2.5 px-2 py-1.5 cursor-pointer hover:bg-amber-50 border-b border-gray-100 transition-colors">
-                    <p>{opt.label}</p>
-                    <p>{opt.sublabel}</p>
-                    </li>
-                ))}
-            </ul>
-            )}
-        </div>
+      {isOpenInstallment && (
+       <ul className="absolute bottom-full left-0 right-0 bg-white border border-gray-300 border-b-0 rounded-t-xl overflow-hidden z-10 text-sm">
+        {installmentOptions
+         .filter((p) => p.value !== installment)
+         .map((opt) => (
+          <li
+           key={opt.value}
+           onClick={() => selectInstallment(opt.value)}
+           className="flex items-center gap-2.5 px-2 py-1.5 cursor-pointer hover:bg-amber-50 border-b border-gray-100 transition-colors"
+          >
+           <p>{opt.label}</p>
+           <p>{opt.sublabel}</p>
+          </li>
+         ))}
+       </ul>
+      )}
+     </div>
     )}
    </div>
    <Link href="/" className="bg-submit text-center text-xl rounded-lg">
