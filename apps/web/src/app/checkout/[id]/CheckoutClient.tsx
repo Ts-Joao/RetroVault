@@ -1,31 +1,26 @@
 'use client'
 
-import Image from 'next/image';
-import { Product, useQuantity } from '@retrovault/shared'
 import { 
     PiTruck,
     PiMoney,
     PiPlusSquare,
     PiMinusSquare
 } from "react-icons/pi"; 
+import Image from 'next/image';
 import StarRating from '@/components/StarRating';
+import Ordersummary from '@/components/layout/order-summary/OrderSummary';
+import { formatPrice, Product, splitPrice, useQuantity } from '@retrovault/shared'
 
 export default function CheckoutClient({product}: {product : Product}) {
     const { quantity, increment, decrement } = useQuantity()
     const total = product.price * quantity
+    const { units, cents } = splitPrice(total)
+    const shippingCost = 0
 
-    const formatador = new Intl.NumberFormat('pt-BR', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    })
-    const price = formatador.format(total)
-    const [ reais, centavos ] = price.split(',')
-
-    
     return (
         <>
         {/* div central */}
-            <div className='bg-third flex w-full justify-self-center-safe font-chakra-petch'>
+            <div className='flex w-full font-chakra-petch gap-20'>
 
                 {/* div principal */}
                 <div className='bg-[#d9d9d9] flex p-3 rounded-lg lg:rounded-2xl'>
@@ -40,8 +35,12 @@ export default function CheckoutClient({product}: {product : Product}) {
                         </div>
 
                         <div className='grid gap-3'>
-                            <p className='flex items-center gap-5 text-md'><PiTruck className='text-prim lg:text-3xl'/> Frete: <span>Caraguatatuba - São Paulo</span></p>
-                            <p className='flex items-center gap-5 text-md'><PiMoney className='text-prim lg:text-3xl'/> Valor: <span>0,00</span></p>
+                            <p className='flex items-center gap-5 text-md'><PiTruck className='text-prim lg:text-3xl'/> Frete:<span>Caraguatatuba - São Paulo</span></p>
+                            <p className='flex items-center gap-5 text-md'><PiMoney className='text-prim lg:text-3xl'/> Valor: 
+                                <span>
+                                    {(shippingCost == 0) ? <span className="text-[#168634]">Grátis</span> : ` R$ ${formatPrice(shippingCost)}`}
+                                </span>
+                            </p>
                         </div>
 
                         <div className='flex items-center gap-4 text-lg'>
@@ -54,26 +53,14 @@ export default function CheckoutClient({product}: {product : Product}) {
                         <div className='grid gap-5 text-md'>
                             <div className='bg-gray-700 h-0.5 w-full'></div> {/* Separetor */}
                             <h1 className='flex text-3xl md:font-semibold'>
-                                <span className='text-prim md:mr-3'>R$</span>{reais}, <p className='text-third md:mr-3'>{centavos}</p> à vista
+                                <span className='text-prim md:mr-3'>R$</span>{units}, <p className='text-third md:mr-3'>{cents}</p> à vista
                             </h1>
                         </div>
                     </div>
                 </div>
 
-                {/* div que agrupa as outras 4 opções sobre o pagamento */}
-                <div className='grid'>
-                    <div>
-                        <h1>Cupom:</h1>
-                    </div>
-                    <div>
-                        <h1>Total:</h1>
-                    </div>
-                    <div>
-                        <h1>Método de pagamento:</h1>
-                    </div>
-                    <div>
-                        <h1>Confirmar Compra</h1>
-                    </div>
+                <div>
+                    <Ordersummary product={product} total={total} shippingCost={shippingCost}/>
                 </div>
             </div>
         </>
