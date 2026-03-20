@@ -84,6 +84,8 @@ model Product {
   discountStart DateTime? @map("discount_start")
   discountEnd   DateTime? @map("discount_end")
 
+  viewCount Int @default(0) @map("view_count")
+
   // relations
   mediaTypeId Int         @map("media_type_id")
   mediaType   MediaType   @relation(fields: [mediaTypeId], references: [id])
@@ -91,6 +93,7 @@ model Product {
   orderItems  OrderItem[]
   genre       Genre[]
   cartItems   CartItem[]
+  view        ProductView[]
 
   // index
   @@index([name])
@@ -98,8 +101,21 @@ model Product {
   @@index([price])
   @@index([discountEnd])
   @@index([rating])
+  @@index([viewCount])
   // map
   @@map("products")
+}
+
+model ProductView {
+  id String @id @default(cuid())
+  viewAt DateTime @default(now()) @map("view_at")
+
+  productId String @map("product_id")
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+  @@index([viewAt])
+  @@map("product_views")
 }
 
 model Cart {
