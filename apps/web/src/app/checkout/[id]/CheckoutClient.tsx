@@ -15,6 +15,7 @@ export default function CheckoutClient({product}: {product : Product}) {
     const { quantity, increment, decrement } = useQuantity()
     const total = product.price * quantity
     const { units, cents } = splitPrice(total)
+    const shippingCost = 0
 
     return (
         <>
@@ -34,8 +35,12 @@ export default function CheckoutClient({product}: {product : Product}) {
                         </div>
 
                         <div className='grid gap-3'>
-                            <p className='flex items-center gap-5 text-md'><PiTruck className='text-prim lg:text-3xl'/> Frete: <span>Caraguatatuba - São Paulo</span></p>
-                            <p className='flex items-center gap-5 text-md'><PiMoney className='text-prim lg:text-3xl'/> Valor: <span>0,00</span></p>
+                            <p className='flex items-center gap-5 text-md'><PiTruck className='text-prim lg:text-3xl'/> Frete:<span>Caraguatatuba - São Paulo</span></p>
+                            <p className='flex items-center gap-5 text-md'><PiMoney className='text-prim lg:text-3xl'/> Valor: 
+                                <span>
+                                    {(shippingCost == 0) ? <span className="text-[#168634]">Grátis</span> : ` R$ ${formatPrice(shippingCost)}`}
+                                </span>
+                            </p>
                         </div>
 
                         <div className='flex items-center gap-4 text-lg'>
@@ -55,7 +60,7 @@ export default function CheckoutClient({product}: {product : Product}) {
                 </div>
 
                 <div>
-                    <Ordersummary product={product} total={total}/>
+                    <Ordersummary product={product} total={total} shippingCost={shippingCost}/>
                 </div>
             </div>
         </>
