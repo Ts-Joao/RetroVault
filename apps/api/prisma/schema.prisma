@@ -80,6 +80,10 @@ model Product {
   amount      Int
   rating      Decimal @db.Decimal(2, 1)
 
+  discountPrice Decimal?  @map("discount_price") @db.Decimal(5, 2)
+  discountStart DateTime? @map("discount_start")
+  discountEnd   DateTime? @map("discount_end")
+
   // relations
   mediaTypeId Int         @map("media_type_id")
   mediaType   MediaType   @relation(fields: [mediaTypeId], references: [id])
@@ -92,6 +96,7 @@ model Product {
   @@index([name])
   @@index([mediaTypeId])
   @@index([price])
+  @@index([discountEnd])
   @@index([rating])
   // map
   @@map("products")
