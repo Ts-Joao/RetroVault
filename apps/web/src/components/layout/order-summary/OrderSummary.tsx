@@ -4,15 +4,12 @@ import Link from "next/link";
 import { IoIosArrowDown } from "react-icons/io";
 import { Product, useSelect } from "@retrovault/shared";
 import { PiPixLogoBold, PiCreditCardBold } from "react-icons/pi";
+import { formatPrice } from "@retrovault/shared";
 
 type PaymentValue = "pix" | "credit_card" | "debit_card";
 type InstallmentValue = "1x" | "2x" | "3x" | "6x" | "12x";
 
 export default function Ordersummary({product, total}: { product: Product; total: number}) {
- const formatador = new Intl.NumberFormat("pt-BR", {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
- })
 
  const frete = 0
  const cupom = 0
@@ -82,6 +79,7 @@ export default function Ordersummary({product, total}: { product: Product; total
  const selectedInstallment = installmentOptions.find(
   (p) => p.value === installment,
  );
+
  const selectedOption = paymentOptions.find((p) => p.value === selected);
 
  return (
@@ -105,19 +103,19 @@ export default function Ordersummary({product, total}: { product: Product; total
     <div className="grid gap-0.5">
      <p className="flex justify-between">
       Produto:{" "}
-      <span className="text-[#000]">
-       + R$ {formatador.format(total)}
+      <span className="text-[#168634]">
+       + R$ {formatPrice(total)}
       </span>
      </p>
      <p className="flex justify-between">
-      Frete: <span className="text-[#000]">+ R$ {formatador.format(frete)}</span>
+      Frete: <span className="text-[#168634]">+ R$ {formatPrice(frete)}</span>
      </p>
      <p className="flex justify-between">
-      Cupom: <span className="text-prim">- R$ {formatador.format(cupom)}</span>
+      Cupom: <span className="text-prim">- R$ {formatPrice(cupom)}</span>
      </p>
     </div>
     <h1 className="flex justify-between text-xl">
-     Total <span>R$ {formatador.format(resultadoTotal)}</span>
+     Total <span>R$ {formatPrice(resultadoTotal)}</span>
     </h1>
    </div>
    <div className="bg-[#d9d9d9] px-3 py-2 rounded-lg">
@@ -126,11 +124,11 @@ export default function Ordersummary({product, total}: { product: Product; total
      <button
       onClick={toggle}
       className={`
-                        w-full px-2 py-1.5 bg-white text-start flex items-center justify-between gap-2
-                        border border-gray-200 transition-all duration-150 cursor-pointer
-                        hover:border-gray-300 hover:bg-amber-50
-                        ${isOpen ? "rounded-b-lg border-t-0" : "rounded-lg"}
-                    `}
+                    w-full px-2 py-1.5 bg-white text-start flex items-center justify-between gap-2
+                    border border-gray-200 transition-all duration-150 cursor-pointer
+                    hover:border-gray-300 hover:bg-amber-50
+                    ${isOpen ? "rounded-b-lg border-t-0" : "rounded-lg"}
+                  `}
      >
       <div className="flex items-center gap-2.5">
        <div
@@ -179,12 +177,11 @@ export default function Ordersummary({product, total}: { product: Product; total
       <button
        onClick={toggleInstallment}
        className={`
-                        w-full px-2 py-1.5 bg-white text-start flex items-center justify-between gap-2
-                        border border-gray-200 transition-all duration-150 cursor-pointer
-                        hover:border-gray-300 hover:bg-amber-50
-                        ${isOpenInstallment ? "rounded-b-lg border-t-0" : "rounded-lg"}
-            `}
-      >
+                    w-full px-2 py-1.5 bg-white text-start flex items-center justify-between gap-2
+                    border border-gray-200 transition-all duration-150 cursor-pointer
+                    hover:border-gray-300 hover:bg-amber-50
+                    ${isOpenInstallment ? "rounded-b-lg border-t-0" : "rounded-lg"}
+            `}>
        <span
         className={`text-sm font-medium ${installment ? "text-gray-900" : "text-gray-400"}`}
        >

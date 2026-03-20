@@ -1,26 +1,20 @@
 'use client'
 
-import Image from 'next/image';
-import { Product, useQuantity } from '@retrovault/shared'
 import { 
     PiTruck,
     PiMoney,
     PiPlusSquare,
     PiMinusSquare
 } from "react-icons/pi"; 
+import Image from 'next/image';
 import StarRating from '@/components/StarRating';
 import Ordersummary from '@/components/layout/order-summary/OrderSummary';
+import { formatPrice, Product, splitPrice, useQuantity } from '@retrovault/shared'
 
 export default function CheckoutClient({product}: {product : Product}) {
     const { quantity, increment, decrement } = useQuantity()
     const total = product.price * quantity
-
-    const formatador = new Intl.NumberFormat('pt-BR', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    })
-    const price = formatador.format(total)
-    const [ reais, centavos ] = price.split(',')
+    const { units, cents } = splitPrice(total)
 
     return (
         <>
@@ -54,7 +48,7 @@ export default function CheckoutClient({product}: {product : Product}) {
                         <div className='grid gap-5 text-md'>
                             <div className='bg-gray-700 h-0.5 w-full'></div> {/* Separetor */}
                             <h1 className='flex text-3xl md:font-semibold'>
-                                <span className='text-prim md:mr-3'>R$</span>{reais}, <p className='text-third md:mr-3'>{centavos}</p> à vista
+                                <span className='text-prim md:mr-3'>R$</span>{units}, <p className='text-third md:mr-3'>{cents}</p> à vista
                             </h1>
                         </div>
                     </div>
