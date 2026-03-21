@@ -4,6 +4,11 @@ export async function getProducts(): Promise<Product[]> {
     return mockProducts
 }
 
+export async function getProductById(id: string): Promise<Product | undefined> {
+    const products = await getProducts()
+    return products.find(product => product.id === id)
+}
+
 const mockProducts: Product[] = [
   {
     id: '1',
@@ -13,7 +18,7 @@ const mockProducts: Product[] = [
     seller: 'Play Station',
     installment_amount: 10,
     installment_number: 39.25,
-    rating: 4
+    rating: 4.5
   },
   {
     id: '2',
@@ -29,7 +34,7 @@ const mockProducts: Product[] = [
     id: '3',
     name: 'Pokemon Legends Z-A Nintendo Switch 2',
     price: 380.37,
-    photo: '/image/pokemon-legends-za.png',
+    photo: '/image/pokemon-legends-za.webp',
     seller: 'Nintendo Oficial',
     installment_amount: 8,
     installment_number: 51.12,
