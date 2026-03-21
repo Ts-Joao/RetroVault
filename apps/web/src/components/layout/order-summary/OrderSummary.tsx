@@ -2,17 +2,17 @@
 
 import Link from "next/link";
 import { IoIosArrowDown } from "react-icons/io";
-import { Product, useSelect } from "@retrovault/shared";
+import { useSelect } from "@retrovault/shared";
 import { PiPixLogoBold, PiCreditCardBold } from "react-icons/pi";
 import { formatPrice } from "@retrovault/shared";
 
 type PaymentValue = "pix" | "credit_card" | "debit_card";
 type InstallmentValue = "1x" | "2x" | "3x" | "6x" | "12x";
 
-export default function Ordersummary({product, total, shippingCost}: { product: Product; total: number; shippingCost: number}) {
+export default function Ordersummary({orderTotal, shippingCost}: { orderTotal: number; shippingCost: number}) {
 
  const cupom = 0
- const resultadoTotal = total - cupom + shippingCost
+ const finalPrice = orderTotal - cupom + shippingCost
 
  const { isOpen, selected, toggle, selectOption } = useSelect<PaymentValue>();
  
@@ -51,27 +51,27 @@ export default function Ordersummary({product, total, shippingCost}: { product: 
   {
    value: "1x" as InstallmentValue,
    label: "1x",
-   sublabel: `R$ ${product.price} sem juros`,
+   sublabel: `R$ ${formatPrice(finalPrice)} sem juros`,
   },
   {
    value: "2x" as InstallmentValue,
    label: "2x",
-   sublabel: `R$ ${(product.price / 2).toFixed(2)} sem juros`,
+   sublabel: `R$ ${formatPrice(finalPrice / 2)} sem juros`,
   },
   {
    value: "3x" as InstallmentValue,
    label: "3x",
-   sublabel: `R$ ${(product.price / 3).toFixed(2)} sem juros`,
+   sublabel: `R$ ${formatPrice(finalPrice / 3)} sem juros`,
   },
   {
    value: "6x" as InstallmentValue,
    label: "6x",
-   sublabel: `R$ ${(product.price / 6).toFixed(2)} sem juros`,
+   sublabel: `R$ ${formatPrice(finalPrice / 6)} sem juros`,
   },
   {
    value: "12x" as InstallmentValue,
    label: "12x",
-   sublabel: `R$ ${(product.price / 12).toFixed(2)} com juros`,
+   sublabel: `R$ ${formatPrice(finalPrice / 12)} com juros`,
   },
  ];
 
@@ -103,7 +103,7 @@ export default function Ordersummary({product, total, shippingCost}: { product: 
      <p className="flex justify-between">
       Produto:{" "}
       <span className="text-[#168634]">
-       + R$ {formatPrice(total)}
+       + R$ {formatPrice(orderTotal)}
       </span>
      </p>
      <p className="flex justify-between">
@@ -114,7 +114,7 @@ export default function Ordersummary({product, total, shippingCost}: { product: 
      </p>
     </div>
     <h1 className="flex justify-between text-xl">
-     Total <span>R$ {formatPrice(resultadoTotal)}</span>
+     Total <span>R$ {formatPrice(finalPrice)}</span>
     </h1>
    </div>
    <div className="bg-[#d9d9d9] px-3 py-2 rounded-lg">
@@ -188,7 +188,7 @@ export default function Ordersummary({product, total, shippingCost}: { product: 
        </span>
        {selectedInstallment && (
         <span className="text-xs text-gray-400">
-         {selectedInstallment.sublabel}
+         {(selectedInstallment.sublabel)}
         </span>
        )}
        <IoIosArrowDown
