@@ -33,7 +33,7 @@ export default function MiddleBtn() {
                     </Link>
                 </li>
                 <li>
-                    <Link href='/shopping-cart'>
+                    <Link href='/cart'>
                         <PiBag className="text-second cursor-pointer md:text-2xl lg:text-4xl"/>
                     </Link>
                 </li>
