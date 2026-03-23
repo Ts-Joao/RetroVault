@@ -19,7 +19,7 @@ export default function CheckoutClient({product}: {product : Product}) {
     return (
         <>
         {/* div central */}
-            <div className='flex w-full font-chakra-petch gap-20'>
+            <div className='flex w-full font-chakra-petch gap-20 items-start'>
 
                 {/* div principal */}
                 <div className='bg-[#d9d9d9] flex p-3 rounded-lg lg:rounded-2xl'>
