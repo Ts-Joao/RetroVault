@@ -73,12 +73,13 @@ model MediaType {
 }
 
 model Product {
-  id          String  @id @default(cuid())
-  price       Decimal @db.Decimal(5, 2)
-  name        String
-  description String
-  amount      Int
-  rating      Decimal @db.Decimal(2, 1)
+  id           String  @id @default(cuid())
+  price        Decimal @db.Decimal(5, 2)
+  name         String
+  description  String
+  amount       Int
+  rating       Decimal @db.Decimal(2, 1)
+  shippingCost Decimal @map("shipping_cost") @db.Decimal(3, 2)
 
   discountPrice Decimal?  @map("discount_price") @db.Decimal(5, 2)
   discountStart DateTime? @map("discount_start")
@@ -87,8 +88,8 @@ model Product {
   viewCount Int @default(0) @map("view_count")
 
   // relations
-  mediaTypeId Int         @map("media_type_id")
-  mediaType   MediaType   @relation(fields: [mediaTypeId], references: [id])
+  mediaTypeId Int           @map("media_type_id")
+  mediaType   MediaType     @relation(fields: [mediaTypeId], references: [id])
   photos      Photo[]
   orderItems  OrderItem[]
   genre       Genre[]
@@ -107,11 +108,11 @@ model Product {
 }
 
 model ProductView {
-  id String @id @default(cuid())
+  id     String   @id @default(cuid())
   viewAt DateTime @default(now()) @map("view_at")
 
-  productId String @map("product_id")
-  product Product @relation(fields: [productId], references: [id])
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
 
   @@index([productId])
   @@index([viewAt])
