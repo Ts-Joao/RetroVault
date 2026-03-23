@@ -9,10 +9,15 @@ import { formatPrice } from "@retrovault/shared";
 type PaymentValue = "pix" | "credit_card" | "debit_card";
 type InstallmentValue = "1x" | "2x" | "3x" | "6x" | "12x";
 
-export default function Ordersummary({orderTotal, shippingCost}: { orderTotal: number; shippingCost: number}) {
+type Props = {
+  total: number
+  shippingCost: number
+}
+
+export default function Ordersummary({total, shippingCost}: Props) {
 
  const cupom = 0
- const finalPrice = orderTotal - cupom + shippingCost
+ const finalPrice = total - cupom + shippingCost
 
  const { isOpen, selected, toggle, selectOption } = useSelect<PaymentValue>();
  
@@ -103,7 +108,7 @@ export default function Ordersummary({orderTotal, shippingCost}: { orderTotal: n
      <p className="flex justify-between">
       Produto:{" "}
       <span className="text-[#168634]">
-       + R$ {formatPrice(orderTotal)}
+       + R$ {formatPrice(total)}
       </span>
      </p>
      <p className="flex justify-between">

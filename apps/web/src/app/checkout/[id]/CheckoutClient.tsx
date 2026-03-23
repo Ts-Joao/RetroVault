@@ -60,7 +60,7 @@ export default function CheckoutClient({product}: {product : Product}) {
                 </div>
 
                 <div>
-                    <Ordersummary orderTotal={total} shippingCost={shippingCost}/>
+                    <Ordersummary total={total} shippingCost={shippingCost}/>
                 </div>
             </div>
         </>

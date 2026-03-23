@@ -1,9 +1,7 @@
-import Image from 'next/image'
 import Footer from '@/components/layout/footer/Footer'
 import Navbar from '@/components/layout/nav-bar/NavBar'
 import { getProductById } from '@/services/product'
 import CheckoutClient from './CheckoutClient'
-import Ordersummary from '@/components/layout/order-summary/OrderSummary'
 
 interface CheckoutPageProps {
     params: Promise<{ id: string }>
@@ -22,7 +20,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
             <section className='flex justify-center gap-20'>
                 <div className='flex flex-col'>
                     <p><span className='font-semibold'>Checkout do produto: </span>{product?.name}</p>
-                    <CheckoutClient product={product} />
+                    <CheckoutClient key={product.id} product={product} />
                 </div>
             </section>
             <Footer />
