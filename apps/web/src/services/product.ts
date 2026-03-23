@@ -1,4 +1,4 @@
-import { Product } from "@retrovault/shared"
+import { Product, ProductDetails } from "@retrovault/shared"
 
 export async function getProducts(): Promise<Product[]> {
     return mockProducts
@@ -18,7 +18,8 @@ export const mockProducts: Product[] = [
     seller: 'Play Station',
     installment_amount: 10,
     installment_number: 39.25,
-    rating: 4.5
+    rating: 4.5,
+    shipping_cost: 0
   },
   {
     id: '2',
@@ -28,7 +29,8 @@ export const mockProducts: Product[] = [
     seller: 'Play Station',
     installment_amount: 12,
     installment_number: 15.22,
-    rating: 4
+    rating: 4,
+    shipping_cost: 20
   },
   {
     id: '3',
@@ -38,6 +40,7 @@ export const mockProducts: Product[] = [
     seller: 'Nintendo Oficial',
     installment_amount: 8,
     installment_number: 51.12,
-    rating: 5
+    rating: 5,
+    shipping_cost: 10
   },
 ]

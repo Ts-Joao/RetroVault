@@ -7,6 +7,7 @@ export interface Product {
     rating: number
     installment_number: number
     installment_amount: number
+    shipping_cost: number
 }
 
 export interface ProductDetails extends Product {

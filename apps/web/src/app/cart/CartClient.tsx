@@ -24,7 +24,7 @@ export default function CartClient({ cart }: { cart: CartItem[] }) {
                     ))}
                 </div>
                 <div>
-                    <Ordersummary total={total()} shippingCost={0}/>
+                    <Ordersummary total={total()} shippingCost={cart.reduce((acc, item) => acc + item.product.shipping_cost, 0) * 1.2}/>
                 </div>
             </div>
 
