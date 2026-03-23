@@ -1,21 +1,22 @@
-"use client";
-
 import NavBar from "@/components/layout/nav-bar/NavBar";
-import ProductCart from "@/components/product-cart/ProductCart";
+import Footer from "@/components/layout/footer/Footer";
+import { getCart } from "@/services/cart";
+import CartClient from "./CartClient";
 
-export default function Shopping() {
+export default async function Shopping() {
+  const cart = await getCart()
+
   return (
     <>
+    <div className="flex flex-col justify-between h-dvh font-chakra-petch">
       <NavBar />
-      <div className="flex items-center justify-center gap-3">
-        <div className="flex flex-col items-center justify-center mt-10 gap-2">
-          <ProductCart />
-          <ProductCart />
+      <div className="flex w-full  justify-center items-center font-chakra-petch gap-20">
+        <div className="flex items-center justify-center gap-3">
+          <CartClient cart={cart}/>
         </div>
-        <div>
-        </div>
-
       </div>
+      <Footer/>
+    </div>
     </>
   );
 }

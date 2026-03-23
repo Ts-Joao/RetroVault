@@ -9,7 +9,7 @@ export async function getProductById(id: string): Promise<Product | undefined> {
     return products.find(product => product.id === id)
 }
 
-const mockProducts: Product[] = [
+export const mockProducts: Product[] = [
   {
     id: '1',
     name: 'EA Sport F1 25 - Play Station 5',
