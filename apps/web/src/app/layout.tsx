@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import NavBar from "@/components/layout/nav-bar/NavBar";
+import Footer from "@/components/layout/footer/Footer";
 import { Barlow_Condensed, Special_Elite, Chakra_Petch } from "next/font/google";
 import './globals.css';
 
@@ -33,9 +35,13 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <body
-        className={`${barlowCondensed.variable} ${specialElite.variable} ${chakraPetch.variable} antialiased`}
+        className={`${barlowCondensed.variable} ${specialElite.variable} ${chakraPetch.variable} antialiased flex flex-col min-h-dvh gap-5`}
       >
-        {children}
+      <NavBar />
+        <main className="flex flex-col flex-1">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );

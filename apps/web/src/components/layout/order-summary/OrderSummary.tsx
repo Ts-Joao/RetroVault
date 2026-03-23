@@ -123,103 +123,104 @@ export default function Ordersummary({total, shippingCost}: Props) {
     </h1>
    </div>
    <div className="bg-[#d9d9d9] px-3 py-2 rounded-lg">
-    <h1>Forma de pagamento</h1>
+  <h1>Forma de pagamento</h1>
     <div className="relative w-full">
-     <button
-      onClick={toggle}
-      className={`
-                    w-full px-2 py-1.5 bg-white text-start flex items-center justify-between gap-2
-                    border border-gray-200 transition-all duration-150 cursor-pointer
-                    hover:border-gray-300 hover:bg-amber-50
-                    ${isOpen ? "rounded-b-lg border-t-0" : "rounded-lg"}
-                  `}
-     >
-      <div className="flex items-center gap-2.5">
-       <div
-        className={`w-6 h-6 rounded-md flex items-center justify-center text-base shrink-0 ${selectedOption?.iconClass ?? "bg-gray-100 text-gray-400"}`}
-       >
-        {selectedOption?.icon ?? <PiCreditCardBold />}
-       </div>
-       <span
-        className={`text-sm font-medium ${selected ? "text-gray-900" : "text-gray-400"}`}
-       >
-        {selectedOption?.label ?? "Selecione"}
-       </span>
-      </div>
-      <IoIosArrowDown
-       className={`text-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-      />
-     </button>
-
-     {isOpen && (
-      <ul className="absolute bottom-full left-0 right-0 bg-white border border-gray-300 border-b-0 rounded-t-xl overflow-hidden z-10">
-       {paymentOptions
-        .filter((p) => p.value !== selected)
-        .map((opt) => (
-         <li
-          key={opt.value}
-          onClick={() => selectOption(opt.value)}
-          className="flex items-center gap-2.5 px-2 py-1.5 cursor-pointer hover:bg-amber-50 border-b border-gray-100 transition-colors"
-         >
-          <div
-           className={`w-6 h-6 rounded-md flex items-center justify-center text-base shrink-0 ${opt.iconClass}`}
-          >
-           {opt.icon}
-          </div>
-          <div>
-           <p className="text-sm font-medium text-gray-900">{opt.label}</p>
-           <p className="text-xs text-gray-400">{opt.sublabel}</p>
-          </div>
-         </li>
-        ))}
-      </ul>
-     )}
-    </div>
-
-    {selected === "credit_card" && (
-     <div className="relative w-full mt-2">
       <button
-       onClick={toggleInstallment}
-       className={`
-                    w-full px-2 py-1.5 bg-white text-start flex items-center justify-between gap-2
-                    border border-gray-200 transition-all duration-150 cursor-pointer
-                    hover:border-gray-300 hover:bg-amber-50
-                    ${isOpenInstallment ? "rounded-b-lg border-t-0" : "rounded-lg"}
-            `}>
-       <span
-        className={`text-sm font-medium ${installment ? "text-gray-900" : "text-gray-400"}`}
-       >
-        {selectedInstallment?.label ?? "Selecione as parcelas"}
-       </span>
-       {selectedInstallment && (
-        <span className="text-xs text-gray-400">
-         {(selectedInstallment.sublabel)}
-        </span>
-       )}
-       <IoIosArrowDown
-        className={`transition-transform duration-200 ${isOpenInstallment ? "rotate-180" : ""}`}
-       />
+        onClick={toggle}
+        className={`
+          w-full px-2 py-1.5 bg-white text-start flex items-center justify-between gap-2
+          border border-gray-200 transition-all duration-150 cursor-pointer
+          hover:border-gray-300 hover:bg-amber-50
+          ${isOpen ? "rounded-b-lg border-t-0" : "rounded-lg"}
+        `}
+      >
+        <div className="flex items-center gap-2.5">
+          <div
+            className={`w-6 h-6 rounded-md flex items-center justify-center text-base shrink-0 ${selectedOption?.iconClass ?? "bg-gray-100 text-gray-400"}`}
+          >
+            {selectedOption?.icon ?? <PiCreditCardBold />}
+          </div>
+          <span
+            className={`text-sm font-medium ${selected ? "text-gray-900" : "text-gray-400"}`}
+          >
+            {selectedOption?.label ?? "Selecione"}
+          </span>
+        </div>
+        <IoIosArrowDown
+          className={`text-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+        />
       </button>
 
-      {isOpenInstallment && (
-       <ul className="absolute bottom-full left-0 right-0 bg-white border border-gray-300 border-b-0 rounded-t-xl overflow-hidden z-10 text-sm">
-        {installmentOptions
-         .filter((p) => p.value !== installment)
-         .map((opt) => (
-          <li
-           key={opt.value}
-           onClick={() => selectInstallment(opt.value)}
-           className="flex items-center gap-2.5 px-2 py-1.5 cursor-pointer hover:bg-amber-50 border-b border-gray-100 transition-colors"
-          >
-           <p>{opt.label}</p>
-           <p>{opt.sublabel}</p>
-          </li>
-         ))}
-       </ul>
+      {isOpen && (
+        <ul className="absolute bottom-full left-0 right-0 bg-white border border-gray-300 border-b-0 rounded-t-xl overflow-hidden z-10">
+          {paymentOptions
+            .filter((p) => p.value !== selected)
+            .map((opt) => (
+              <li
+                key={opt.value}
+                onClick={() => selectOption(opt.value)}
+                className="flex items-center gap-2.5 px-2 py-1.5 cursor-pointer hover:bg-amber-50 border-b border-gray-100 transition-colors"
+              >
+                <div
+                  className={`w-6 h-6 rounded-md flex items-center justify-center text-base shrink-0 ${opt.iconClass}`}
+                >
+                  {opt.icon}
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">{opt.label}</p>
+                  <p className="text-xs text-gray-400">{opt.sublabel}</p>
+                </div>
+              </li>
+            ))}
+        </ul>
       )}
-     </div>
-    )}
-   </div>
+    </div>
+
+    <div className={`grid transition-all duration-200 ${selected === 'credit_card' ? 'grid-rows-[1fr] mt-2' : 'grid-rows-[0fr]'}`}>
+      <div className={`min-h-0 ${isOpenInstallment ? 'overflow-visible' : 'overflow-hidden'}`}>
+        <div className="relative w-full">
+          <button
+            onClick={toggleInstallment}
+            className={`
+              w-full px-2 py-1.5 bg-white text-start flex items-center justify-between gap-2
+              border border-gray-200 transition-all duration-150 cursor-pointer
+              hover:border-gray-300 hover:bg-amber-50
+              ${isOpenInstallment ? "rounded-b-lg border-t-0" : "rounded-lg"}
+            `}
+          >
+            <span className={`text-sm font-medium ${installment ? "text-gray-900" : "text-gray-400"}`}>
+              {selectedInstallment?.label ?? "Selecione as parcelas"}
+            </span>
+            {selectedInstallment && (
+              <span className="text-xs text-gray-400">
+                {selectedInstallment.sublabel}
+              </span>
+            )}
+            <IoIosArrowDown
+              className={`transition-transform duration-200 ${isOpenInstallment ? "rotate-180" : ""}`}
+            />
+          </button>
+
+          {isOpenInstallment && (
+            <ul className="absolute bottom-full left-0 right-0 bg-white border border-gray-300 border-b-0 rounded-t-xl overflow-hidden z-10 text-sm">
+              {installmentOptions
+                .filter((p) => p.value !== installment)
+                .map((opt) => (
+                  <li
+                    key={opt.value}
+                    onClick={() => selectInstallment(opt.value)}
+                    className="flex items-center gap-2.5 px-2 py-1.5 cursor-pointer hover:bg-amber-50 border-b border-gray-100 transition-colors"
+                  >
+                    <p>{opt.label}</p>
+                    <p>{opt.sublabel}</p>
+                  </li>
+                ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
    <Link href="/" className="bg-submit text-center text-xl rounded-lg">
     <button className="cursor-pointer px-20 py-2">Continuar Comprar</button>
    </Link>

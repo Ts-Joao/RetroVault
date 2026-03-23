@@ -1,5 +1,3 @@
-import Footer from '@/components/layout/footer/Footer'
-import Navbar from '@/components/layout/nav-bar/NavBar'
 import { getProductById } from '@/services/product'
 import CheckoutClient from './CheckoutClient'
 
@@ -15,15 +13,13 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
         return <div>Produto não encontrado!</div>
 
     return (
-        <div className='flex flex-col justify-between h-dvh font-chakra-petch'>
-            <Navbar />
+        <div className='flex flex-col justify-between font-chakra-petch overflow-y-auto h-full'>
             <section className='flex justify-center gap-20'>
                 <div className='flex flex-col'>
                     <p><span className='font-semibold'>Checkout do produto: </span>{product?.name}</p>
                     <CheckoutClient key={product.id} product={product} />
                 </div>
             </section>
-            <Footer />
         </div>
     )
 }
