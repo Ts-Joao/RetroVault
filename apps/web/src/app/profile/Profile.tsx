@@ -5,12 +5,12 @@ import Image from "next/image";
 export default function Profile() {
  return (
   <>
-   <div className="bg-amber-950 flex flex-col justify-center xl:mx-40 xl:my-15 lg:mx-40 lg:my-15 md:mx-40 md:my-15 border-2 border-[#BF372A] rounded-xl">
+   <div className="bg-amber-950 flex flex-col justify-center xl:mx-40 xl:my-15 lg:mx-40 lg:my-15 md:mx-40 md:my-15 md:border-2 border-[#BF372A] md:rounded-xl">
     <Image
      src="/image/placeholder-pfp.webp"
      width={100}
      height={100}
-     className="w-full max-h-50 rounded-t-xl"
+     className="w-full max-h-50 md:rounded-t-xl"
      alt="Banner do perfil"
     />
 
@@ -24,7 +24,7 @@ export default function Profile() {
         <button className="underline xl:text-2xl lg:text-xl md:text-xl sm:text-lg">Avaliações</button>
      </div>
     </div>
-    <div className="bg-[#E3E2E2] grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 justify-items-center p-10 rounded-b-xl gap-y-3">
+    <div className="bg-[#E3E2E2] grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 justify-items-center p-10 md:rounded-b-xl gap-y-3">
      <div className="flex bg-amber-200 h-20 w-20">a</div>
      <div className="flex bg-amber-200 h-20 w-20">a</div>
      <div className="flex bg-amber-200 h-20 w-20">a</div>
@@ -34,7 +34,7 @@ export default function Profile() {
      src="/image/placeholder-pfp.webp"
      width={50}
      height={50}
-     className="absolute bg-amber-950 ml-10 top-70 h-40 w-40 rounded-full border-5 border-white"
+     className="absolute bg-amber-950 ml-10 top-40 md:top-70 h-40 w-40 rounded-full border-5 border-white"
      alt="Foto de perfil"
     />
    </div>
