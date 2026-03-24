@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { IoAddCircleOutline } from "react-icons/io5";
 import { IoIosRemoveCircleOutline } from "react-icons/io";
-import { Product, splitPrice } from "@retrovault/shared";
+import { Product, splitPrice } from "@retrovault/core";
 
 type Props = {
   product: Product

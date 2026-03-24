@@ -3,7 +3,8 @@
 import { useEffect } from "react"
 import Ordersummary from "@/components/layout/order-summary/OrderSummary"
 import ProductCart from "@/components/product-cart/ProductCart"
-import { CartItem, useCartStore } from "@retrovault/shared"
+import { useCartStore } from "@retrovault/store"
+import { CartItem } from "@retrovault/core"
 import { PiBag } from "react-icons/pi";
 
 export default function CartClient({ cart }: { cart: CartItem[] }) {

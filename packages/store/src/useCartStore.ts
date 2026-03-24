@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { CartItem } from '../types/cart'
+import { CartItem } from '@retrovault/core'
 
 type CartStore = {
     items: CartItem[]

@@ -1,4 +1,4 @@
-import { Product } from "@retrovault/shared";
+import { Product } from "@retrovault/core";
 import ProductCard from "./ProductCard";
 
 type Props = {

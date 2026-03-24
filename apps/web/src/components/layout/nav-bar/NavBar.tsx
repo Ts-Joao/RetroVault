@@ -1,4 +1,4 @@
-import Logo from "../../brand/Logo";
+import Logo from "@/components/brand/Logo";
 import MiddleBtn from "./MiddleNav";
 import SearchBar from "./SearchBar";
 

@@ -9,7 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@retrovault/shared": "workspace:*",
+    "@retrovault/core": "workspace:*",
+    "@retrovault/store": "workspace:*",
+    "@retrovault/ui-hooks": "workspace:*",
     "iconify": "^1.4.0",
     "next": "16.1.6",
     "react": "19.2.3",

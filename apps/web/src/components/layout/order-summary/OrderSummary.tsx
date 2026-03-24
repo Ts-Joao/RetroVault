@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { IoIosArrowDown } from "react-icons/io";
-import { useSelect } from "@retrovault/shared";
+import { useSelect } from "@retrovault/ui-hooks";
 import { PiPixLogoBold, PiCreditCardBold } from "react-icons/pi";
-import { formatPrice } from "@retrovault/shared";
+import { formatPrice } from "@retrovault/core";
 
 type PaymentValue = "pix" | "credit_card" | "debit_card";
 type InstallmentValue = "1x" | "2x" | "3x" | "6x" | "12x";

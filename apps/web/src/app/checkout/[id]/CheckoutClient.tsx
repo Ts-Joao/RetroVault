@@ -9,7 +9,8 @@ import {
 import Image from 'next/image';
 import StarRating from '@/components/StarRating';
 import Ordersummary from '@/components/layout/order-summary/OrderSummary';
-import { formatPrice, Product, splitPrice, useQuantity } from '@retrovault/shared'
+import { formatPrice, Product, splitPrice } from '@retrovault/core'
+import { useQuantity } from "@retrovault/ui-hooks";
 
 export default function CheckoutClient({product}: {product : Product}) {
     const { quantity, increment, decrement } = useQuantity()
