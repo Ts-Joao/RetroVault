@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <body
-        className={`${barlowCondensed.variable} ${specialElite.variable} ${chakraPetch.variable} antialiased`}
+        className={`${barlowCondensed.variable} ${specialElite.variable} ${chakraPetch.variable} antialiased `}
       >
           {children}
       </body>
