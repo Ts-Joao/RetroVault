@@ -2,10 +2,10 @@
 
 import Image from "next/image";
 
-export default function Profile() {
+export default function ProfileClient() {
  return (
   <>
-   <div className="bg-amber-950 flex flex-col justify-center xl:mx-40 xl:my-15 lg:mx-40 lg:my-15 md:mx-40 md:my-15 md:border-2 border-[#BF372A] md:rounded-xl">
+   <div className="bg-amber-950 flex flex-col justify-center xl:mx-40 xl:my-15 lg:mx-40 lg:my-15 md:mx-40 md:my-15 md:border-2 border-prim md:rounded-xl">
     <Image
      src="/image/placeholder-pfp.webp"
      width={100}

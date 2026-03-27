@@ -28,7 +28,7 @@ export default function MiddleBtn() {
                     </Link>
                 </li>
                 <li>
-                    <Link href='/profile'>
+                    <Link href='/profile/u'>
                         <PiUserCircleFill className="text-second cursor-pointer lg:text-4xl md:text-2xl"/>
                     </Link>
                 </li>

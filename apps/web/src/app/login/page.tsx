@@ -4,8 +4,8 @@ import { MdEmail } from "react-icons/md";
 
 export default function LoginPage() {
   return (
-    <main className="flex items-center justify-center min-h-screen bg-[var(--color-bg)] px-4">
-      <div className="bg-[var(--color-second)] p-10 rounded-2xl w-full max-w-md shadow-2xl border-4 border-[var(--color-prim-light)]">
+    <main className="flex items-center justify-center min-h-screen bg-bg px-4">
+      <div className="bg-second p-10 rounded-2xl w-full max-w-md shadow-2xl border-4 border-prim-light">
         <div className="flex justify-center mb-6">
           <Image
             src="/logo.png"
@@ -17,35 +17,35 @@ export default function LoginPage() {
 
         <div className="mb-4">
           <label className="flex items-center gap-2 text-black mb-1">
-            <MdEmail className="text-[var(--color-prim)] text-xl" />
+            <MdEmail className="text-prim text-xl" />
             <span className="text-sm font-semibold">E-mail</span>
           </label>
 
           <input
             type="email"
             placeholder="Digite seu e-mail"
-            className="w-full bg-white text-black p-3 rounded-md outline-none border focus:border-[var(--color-prim)]"
+            className="w-full bg-white text-black p-3 rounded-md outline-none border focus:border-prim"
           />
         </div>
 
         <div className="mb-4">
           <label className="flex items-center gap-2 text-black mb-1">
-            <FaLock className="text-[var(--color-prim)] text-xl" />
+            <FaLock className="text-prim text-xl" />
             <span className="text-sm font-semibold">Senha</span>
           </label>
 
           <input
             type="password"
             placeholder="Digite sua senha"
-            className="w-full bg-white text-black p-3 rounded-md outline-none border focus:border-[var(--color-prim)]"
+            className="w-full bg-white text-black p-3 rounded-md outline-none border focus:border-prim"
           />
         </div>
 
-        <p className="text-sm text-[var(--color-prim)] mb-6 cursor-pointer hover:underline">
+        <p className="text-sm text-prim mb-6 cursor-pointer hover:underline">
           Criar uma conta
         </p>
 
-        <button className="w-full bg-[var(--color-prim)] text-white py-3 rounded-md font-semibold hover:bg-[var(--color-third)] transition">
+        <button className="w-full bg-prim text-white py-3 rounded-md font-semibold hover:bg-third transition">
           Continuar
         </button>
 
