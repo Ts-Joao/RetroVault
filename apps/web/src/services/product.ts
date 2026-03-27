@@ -1,4 +1,4 @@
-import { Product, ProductDetails } from "@retrovault/shared"
+import { Product, ProductDetails } from "@retrovault/core"
 
 export async function getProducts(): Promise<Product[]> {
     return mockProducts
