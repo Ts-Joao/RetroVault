@@ -8,14 +8,15 @@
   --color-third: #D9A13B;
   --color-white: #fff;
   --color-black: #000;
+  --color-submit: #F4BB2A;
 
-  --font-family-bebas-neue: var(--font-bebas-neue);
-  --font-family-special-elite: var(--font-special-elite);
-  --font-family-chakra-petch: var(--font-chakra-petch);
+  --font-barlow-condensed: var(--font-barlow-condensed);
+  --font-special-elite: var(--font-special-elite);
+  --font-chakra-petch: var(--font-chakra-petch);
 }
 
-.Bebas_Neue {
-  font-family: var(--font-family-bebas-neue);
+.Barlow_Condensed {
+  font-family: var(--font-family-barlow-condensed);
 }
 
 .Special_Elite {

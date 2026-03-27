@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Special_Elite, Chakra_Petch } from "next/font/google";
+import { Barlow_Condensed, Special_Elite, Chakra_Petch } from "next/font/google";
 import './globals.css';
 
-const bebasNeue = Bebas_Neue({
+const barlowCondensed = Barlow_Condensed({
   weight: '400',
-  variable: '--font-bebas-neue',
+  variable: '--font-barlow-condensed',
   subsets: ['latin']
 })
 
@@ -15,7 +15,7 @@ const specialElite = Special_Elite({
 })
 
 const chakraPetch = Chakra_Petch({
-  weight: '400',
+  weight: ['300', '400'],
   variable: '--font-chakra-petch',
   subsets: ['latin']
 })
@@ -33,9 +33,9 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <body
-        className={`${bebasNeue.variable} ${specialElite.variable} ${chakraPetch.variable} antialiased`}
+        className={`${barlowCondensed.variable} ${specialElite.variable} ${chakraPetch.variable} antialiased `}
       >
-        {children}
+          {children}
       </body>
     </html>
   );
