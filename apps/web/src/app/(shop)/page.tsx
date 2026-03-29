@@ -6,12 +6,10 @@ export default async function Home() {
   const products = await getProducts()
   return (
     <>
-      <section className="p-6">
-        <CategoryBar />
-      </section>
-      <section className="justify-center">
-        <ProductGrid products={products} />
-      </section>
+      <div className="flex flex-col gap-10 mt-10">
+          <CategoryBar />
+          <ProductGrid products={products} />
+      </div>
     </>
   );
 }
