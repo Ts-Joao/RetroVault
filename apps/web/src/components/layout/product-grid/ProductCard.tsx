@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image"
 import { PiBag } from "react-icons/pi";
 import StarRating from "@/components/StarRating";
-import { Product, formatPrice, splitPrice } from "@retrovault/core"
+import { Product, calculeCartInstallments, formatPrice, splitPrice } from "@retrovault/core"
 
 type Props = {
     product: Product
@@ -10,7 +10,17 @@ type Props = {
 
 export default function ProductCard({ product }: Props) {
 
-    const { units, cents } = splitPrice(product.installment_number)
+    const installments = calculeCartInstallments([{
+        price: product.price,
+        quantity: 1,
+        max_installments: product.max_installments,
+        free_installments: product.free_installments,
+        min_installment_amount: product.min_installment_amount,
+        monthly_interest_rate: product.monthly_interest_rate,
+    }])
+
+    const best = installments.at(-1)!
+    const { units, cents } = splitPrice(best.installment_amount)
 
     return (
         <div className="p-2 bg-[#d9d9d9] max-w-40 min-w-40 md:max-w-55 rounded-2xl grid justify-center items-center justify-self-center gap-1 md:gap-2 font-chakra-petch text-xs md:text-lg">
@@ -24,7 +34,7 @@ export default function ProductCard({ product }: Props) {
             <div className="text-[16px] flex justify-between">
                 <p className="font-medium text-sm md:font-semibold md:text-xl">R$ {formatPrice(product.price)}</p>
                 <div className="flex gap-1 justify-end items-baseline">
-                    <p className="text-sm md:text-xl">{product.installment_amount}x</p>
+                    <p className="text-sm md:text-xl">{product.max_installments}x</p>
                     <span className="text-xs md:text-sm flex">R$ {units}, <p className="text-[10px] flex items-stretch">{cents}</p></span>
                 </div>
             </div>

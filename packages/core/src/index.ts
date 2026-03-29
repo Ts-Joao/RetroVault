@@ -1,3 +1,5 @@
 export * from './types/cart'
 export * from './types/product'
+export * from './types/installments'
 export * from './utils/formatPrice'
+export * from './utils/installmentsUtils'

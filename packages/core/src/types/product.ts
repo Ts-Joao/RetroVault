@@ -5,8 +5,10 @@ export interface Product {
     photo: string
     seller: string
     rating: number
-    installment_number: number
-    installment_amount: number
+    max_installments: number
+    free_installments: number
+    monthly_interest_rate: number
+    min_installment_amount: number
     shipping_cost: number
 }
 
