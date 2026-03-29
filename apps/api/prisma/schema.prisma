@@ -26,6 +26,7 @@ model User {
   order      Order[]
   profilePic Photo?
   cart       Cart?
+  products   Product[]
 
   // map
   @@map("users")
@@ -100,6 +101,8 @@ model Product {
   genre       Genre[]
   cartItems   CartItem[]
   view        ProductView[]
+  sellerId    String        @map("seller_id")
+  seller      User          @relation(fields: [sellerId], references: [id])
 
   // index
   @@index([name])
