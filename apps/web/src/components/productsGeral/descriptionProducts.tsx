@@ -1,11 +1,21 @@
 
-export default  function DescriptionProducts(){
+
+type Description = {
+    text: string,
+    titulo: string
+}
+
+export default  function DescriptionProducts({text, titulo}: Description){
     
 
     
     return(
         <>
-            <h1>descrição dos produtos</h1>
+            <div className="">
+
+                <span>{text}</span>
+                <span>{titulo}</span>
+            </div>
         </>
     )
 }
