@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image"
 import { PiBag } from "react-icons/pi";
 import StarRating from "@/components/StarRating";
-// import { Product, formatPrice, splitPrice } from "@retrovault/core"
+import { Product, formatPrice, splitPrice } from "@retrovault/core"
 
 type Props = {
     product: Product
