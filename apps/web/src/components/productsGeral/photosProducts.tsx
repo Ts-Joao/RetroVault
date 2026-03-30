@@ -16,7 +16,7 @@ export default function PhotosProducts({imagens}: GaleryProps ){
     return(
         <>
           {/*Div das image para clicar e mudar o produto */}
-           <div className={'flex m-5 rounded-xl w-[1200] h-[700]'} >
+           <div className={'flex m-5 rounded-xl w-[1150] h-[700]'} >
              <div className={'gap-15 flex flex-col m-10'} >
                 {imagens.map((img,index) => (
                   <Image
