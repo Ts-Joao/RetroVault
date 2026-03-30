@@ -1,7 +1,9 @@
+import Link from "next/link";
 import Image from "next/image";
 import { IoAddCircleOutline } from "react-icons/io5";
 import { IoIosRemoveCircleOutline } from "react-icons/io";
 import { Product, splitPrice } from "@retrovault/core";
+import { mockUsers } from "@/services/user";
 
 type Props = {
   product: Product
@@ -13,6 +15,7 @@ type Props = {
 export default function ProductCart({ product, quantity, onIncrement, onDecrement }: Props) {
   const total = quantity * product.price
   const { units, cents } = splitPrice(total)
+  const seller = mockUsers.find(user => user.id === product.seller_id)
   
   return (
     <>
@@ -29,7 +32,7 @@ export default function ProductCart({ product, quantity, onIncrement, onDecremen
 
           <div className="grid gap-5">
             <h3 className="text-lg font-semibold">{product.name}</h3>
-            <p className="text-md text-gray-500">Por: {product.seller}</p>
+            <p className="text-md text-gray-500">Por: <Link href={`/profile/${seller?.id}/${seller?.slug}`}>{seller?.name}</Link></p>
           </div>
         </div>
 

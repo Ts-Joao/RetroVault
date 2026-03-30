@@ -1,4 +1,4 @@
-import { CartItem } from '@retrovault/shared'
+import { CartItem } from '@retrovault/core'
 import { mockProducts } from './product'
 
 export async function getCart(): Promise<CartItem[]> {

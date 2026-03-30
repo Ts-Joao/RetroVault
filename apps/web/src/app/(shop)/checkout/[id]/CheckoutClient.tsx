@@ -6,7 +6,9 @@ import {
     PiPlusSquare,
     PiMinusSquare
 } from "react-icons/pi"; 
+import Link from "next/link";
 import Image from 'next/image';
+import { mockUsers } from "@/services/user";
 import StarRating from '@/components/StarRating';
 import Ordersummary from '@/components/layout/order-summary/OrderSummary';
 import { formatPrice, Product, splitPrice } from '@retrovault/core'
@@ -16,6 +18,7 @@ export default function CheckoutClient({product}: {product : Product}) {
     const { quantity, increment, decrement } = useQuantity()
     const total = product.price * quantity
     const { units, cents } = splitPrice(total)
+    const seller = mockUsers.find(user => user.id === product.seller_id)
 
     return (
         <>
@@ -30,13 +33,13 @@ export default function CheckoutClient({product}: {product : Product}) {
                     <div className='flex flex-col lg:px-7 py-2 lg:py-5 gap-13'>
                         <div className='flex flex-col gap-4'>
                             <h1 className='font-semibold text-3xl'>{product.name}</h1>
-                            <p className='text-lg'>Vendido por {product.seller}</p>
+                            <p className='text-lg'><Link href={`/profile/${seller?.id}/${seller?.slug}`} >Vendido por {seller?.name}</Link></p>
                             <span className='text-lg'><StarRating rating={product.rating}/></span>
                         </div>
 
                         <div className='grid gap-3'>
                             <p className='flex items-center gap-5 text-md'><PiTruck className='text-prim lg:text-3xl'/> Frete:<span>Caraguatatuba - São Paulo</span></p>
-                            <p className='flex items-center gap-5 text-md'><PiMoney className='text-prim lg:text-3xl'/> Valor: 
+                            <p className='flex items-center gap-5 text-md'><PiMoney className='text-prim lg:text-3xl'/> Frete: 
                                 <span>
                                     {(product.shipping_cost == 0) ? <span className="text-[#168634]">Grátis</span> : ` R$ ${formatPrice(product.shipping_cost)}`}
                                 </span>
@@ -60,7 +63,7 @@ export default function CheckoutClient({product}: {product : Product}) {
                 </div>
 
                 <div>
-                    <Ordersummary total={total} shippingCost={product.shipping_cost}/>
+                    <Ordersummary total={total} shippingCost={product.shipping_cost} itens={[{ product, quantity }]}/>
                 </div>
             </div>
         </>

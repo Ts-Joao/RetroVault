@@ -9,7 +9,7 @@ import {
 
 export default function CategoryBar() {
     return (
-        <div className="bg-[#d9d9d9] border-2 border-black text-second md:w-[60%] lg:w-[50%] xl:w-[35%] rounded-lg justify-self-center p-2 text-xs lg:text-[13px] text-center font-chakra-petch">
+        <div className="bg-[#d9d9d9] border-2 border-black text-second md:w-[60%] lg:w-[50%] xl:w-[35%] rounded-lg self-center items-center-safe p-2 text-xs lg:text-[13px] text-center font-chakra-petch">
             <div className="bg-[#d9d9d9] absolute mt-[-30] ml-2 p-1 h-6 border-2 rounded-b-none rounded-md border-black border-y-[#d9d9d9] border-t-black">
                 <p className="text-black text-[13px] lg:text-[15px]">Categorias</p>
             </div>

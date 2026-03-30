@@ -9,7 +9,7 @@ import { PiBag } from "react-icons/pi";
 
 export default function CartClient({ cart }: { cart: CartItem[] }) {
     const { items, setItems, decrement, increment, total } = useCartStore()
-    
+
     useEffect(() => {
         setItems(cart)
     }, [cart])
@@ -25,7 +25,7 @@ export default function CartClient({ cart }: { cart: CartItem[] }) {
                     ))}
                 </div>
                 <div>
-                    <Ordersummary total={total()} shippingCost={cart.reduce((acc, item) => acc + item.product.shipping_cost, 0) * 1.2}/>
+                    <Ordersummary total={total()} shippingCost={cart.reduce((acc, item) => acc + item.product.shipping_cost, 0) * 1.2} itens={items}/>
                 </div>
             </div>
 
