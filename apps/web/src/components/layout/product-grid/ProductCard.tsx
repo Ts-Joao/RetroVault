@@ -3,12 +3,15 @@ import Image from "next/image"
 import { PiBag } from "react-icons/pi";
 import StarRating from "@/components/StarRating";
 import { Product, calculeCartInstallments, formatPrice, splitPrice } from "@retrovault/core"
+import { mockUsers } from "@/services/user";
 
 type Props = {
     product: Product
 }
 
 export default function ProductCard({ product }: Props) {
+
+    const seller = mockUsers.find(user => user.id === product.seller_id)
 
     const installments = calculeCartInstallments([{
         price: product.price,
@@ -29,7 +32,7 @@ export default function ProductCard({ product }: Props) {
             </div>
 
             <h1 className="font-barlow-condensed text-lg md:text-2xl leading-none">{product.name}</h1>
-            <p>Por <Link href={`/u/${product.seller}`} className="cursor-pointer">{product.seller}</Link></p>
+            <p>Por <Link href={`/profile/${seller?.id}/${seller?.slug}`} className="cursor-pointer">{seller?.name}</Link></p>
             <span className="flex justify-end"><StarRating rating={product.rating}/></span>
             <div className="text-[16px] flex justify-between">
                 <p className="font-medium text-sm md:font-semibold md:text-xl">R$ {formatPrice(product.price)}</p>

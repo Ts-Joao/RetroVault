@@ -3,7 +3,7 @@ export interface Product {
     name: string
     price: number
     photo: string
-    seller: string
+    seller_id: string
     rating: number
     max_installments: number
     free_installments: number

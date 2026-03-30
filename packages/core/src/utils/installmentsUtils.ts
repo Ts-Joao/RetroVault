@@ -1,6 +1,8 @@
 import { formatPrice, Installment, InstallmentProduct } from '@retrovault/core';
 
 export function calculeCartInstallments(items: InstallmentProduct[], totalOverride?: number): Installment[] {
+    if (items.length === 0) return []
+    
     const total = totalOverride ?? items.reduce((acc, item) => acc + item.price * item.quantity, 0)
 
     const maxIntallments = Math.min(...items.map((i) => i.max_installments))
