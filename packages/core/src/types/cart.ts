@@ -1,4 +1,4 @@
-import { Product } from "@retrovault/shared"
+import { Product } from "./product"
 
 export type CartItem = {
     product: Product

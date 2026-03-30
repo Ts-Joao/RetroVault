@@ -19,17 +19,17 @@ export default function MiddleBtn() {
             <ul className="hidden md:gap-5 lg:gap-10 md:flex">
                 <li>
                     <Link href='/notifications'>
-                        <PiBell className="text-second cursor-pointer md:text-2xl lg:text-4xl"/>
+                        <PiBell className="text-second cursor-pointer lg:text-4xl md:text-2xl"/>
                     </Link>
                 </li>
                 <li>
                     <Link href='/favorites'>
-                        <PiHeart className="text-second cursor-pointer md:text-2xl lg:text-4xl"/>
+                        <PiHeart className="text-second cursor-pointer lg:text-4xl md:text-2xl"/>
                     </Link>
                 </li>
                 <li>
-                    <Link href='/profile'>
-                        <PiUserCircleFill className="text-second cursor-pointer md:text-2xl lg:text-4xl"/>
+                    <Link href={`/profile/1/admin123`}>
+                        <PiUserCircleFill className="text-second cursor-pointer lg:text-4xl md:text-2xl"/>
                     </Link>
                 </li>
                 <li>
@@ -68,7 +68,7 @@ export default function MiddleBtn() {
                     </Link>
                 </li>
                 <li>
-                    <Link href='/shopping-cart' className="flex items-center gap-1">
+                    <Link href='/cart' className="flex items-center gap-1">
                         <PiBag className="text-prim cursor-pointer text-lg"/>
                         <p>Sacola</p>
                     </Link>

@@ -26,6 +26,7 @@ model User {
   order      Order[]
   profilePic Photo?
   cart       Cart?
+  products   Product[]
 
   // map
   @@map("users")
@@ -81,6 +82,11 @@ model Product {
   rating       Decimal @db.Decimal(2, 1)
   shippingCost Decimal @map("shipping_cost") @db.Decimal(3, 2)
 
+  maxInstallments      Int     @default(1) @map("max_intallments")
+  freeInstallments     Int     @default(1) @map("free_intalments")
+  monthlyInterestRate  Decimal @map("monthly_interest_rate") @db.Decimal(5, 4)
+  minInstallmentAmount Decimal @map("min_intallment_amount") @db.Decimal(6, 2)
+
   discountPrice Decimal?  @map("discount_price") @db.Decimal(5, 2)
   discountStart DateTime? @map("discount_start")
   discountEnd   DateTime? @map("discount_end")
@@ -95,6 +101,8 @@ model Product {
   genre       Genre[]
   cartItems   CartItem[]
   view        ProductView[]
+  sellerId    String        @map("seller_id")
+  seller      User          @relation(fields: [sellerId], references: [id])
 
   // index
   @@index([name])

@@ -7,9 +7,9 @@ type Props = {
 
 export default function ShopLayout({ children }: Props) {
   return (
-      <div className=' flex flex-col min-h-dvh'>
+      <div className='flex flex-col min-h-dvh justify-between'>
         <NavBar />
-          <main className="flex flex-col flex-1 gap-5">
+          <main className="grid grid-col flex-1 gap-5 h-full">
             {children}
           </main>
         <Footer />

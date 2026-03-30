@@ -6,13 +6,11 @@ export default async function Shopping() {
 
   return (
     <>
-    <div className="flex flex-col justify-between font-chakra-petch overflow-y-auto h-full">
-      <div className="flex w-full  justify-center items-center font-chakra-petch gap-20">
-        <div className="flex items-center justify-center gap-3">
+      <div className="flex w-full justify-center items-start font-chakra-petch gap-20 mt-10">
+        <div className="flex gap-3">
           <CartClient cart={cart}/>
         </div>
       </div>
-    </div>
     </>
   );
 }
