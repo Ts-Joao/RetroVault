@@ -22,7 +22,11 @@ export default function ProductCard({ product }: Props) {
         monthly_interest_rate: product.monthly_interest_rate,
     }])
 
-    const best = installments.at(-1)!
+    const best = installments.at(-1) ?? {
+        installment_amount: product.price,
+        installments: 1,
+    }
+
     const { units, cents } = splitPrice(best.installment_amount)
 
     return (

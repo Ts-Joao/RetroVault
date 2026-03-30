@@ -1,4 +1,4 @@
-import { getProductById } from '@/services/product'
+import { getProductById, getProducts } from '@/services/product'
 import CheckoutClient from './CheckoutClient'
 
 interface CheckoutPageProps {
@@ -7,7 +7,11 @@ interface CheckoutPageProps {
 
 export default async function CheckoutPage({ params }: CheckoutPageProps) {
     const { id } = await params
+    const products = await getProducts()
+    console.log('total de produtos:', products.length)
+    console.log('id recebido:', JSON.stringify(id))
     const product = await getProductById(id)
+    console.log('product:', product)
 
     if (!product)
         return <div>Produto não encontrado!</div>
