@@ -43,4 +43,37 @@ export const mockProducts: Product[] = [
     rating: 5,
     shipping_cost: 10
   },
+  {
+    id: '4',
+    name: 'Zelda Breath of the Wild Nintendo Switch',
+    price: 409.11,
+    photo: '/image/zelda-breath-of-the-wild.webp',
+    seller: 'Nintendo Oficial',
+    installment_amount: 12,
+    installment_number: 36.75,
+    rating: 5,
+    shipping_cost: 10
+  },
+  {
+    id: '5',
+    name: 'Metal gear solid V: The Phantom Pain PS4',
+    price: 224.00,
+    photo: '/image/metal-gear-solid-v-the-phantom-pain.ps4.webp',
+    seller: 'Play Station',
+    installment_amount: 2,
+    installment_number: 112.00,
+    rating: 4.5,
+    shipping_cost: 10
+  },
+  {
+    id: '6',
+    name: 'Sonic x shadow generations Nintendo Switch',
+    price: 251.00,
+    photo: '/image/sonic-x-shadow-generations.nintendo-switch.webp',
+    seller: 'Nintendo Oficial',
+    installment_amount: 2,
+    installment_number: 125.50,
+    rating: 5,
+    shipping_cost: 10
+  },
 ]
