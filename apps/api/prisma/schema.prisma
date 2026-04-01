@@ -25,6 +25,8 @@ model User {
   // relations
   order      Order[]
   profilePic Photo?
+  cart       Cart?
+  products   Product[]
 
   // map
   @@map("users")
@@ -62,27 +64,90 @@ enum TypeMidia {
   GAME  @map("game")
 }
 
+model MediaType {
+  id   Int       @id @default(autoincrement())
+  name TypeMidia @unique
+
+  product Product[]
+
+  @@map("media_types")
+}
+
 model Product {
-  id          String    @id @default(cuid())
-  type        TypeMidia
-  price       Decimal   @db.Decimal(5, 2)
-  name        String
-  description String
-  amount      Int
-  rating      Decimal   @db.Decimal(2, 1)
+  id           String  @id @default(cuid())
+  price        Decimal @db.Decimal(5, 2)
+  name         String
+  description  String
+  amount       Int
+  rating       Decimal @db.Decimal(2, 1)
+  shippingCost Decimal @map("shipping_cost") @db.Decimal(3, 2)
+
+  maxInstallments      Int     @default(1) @map("max_intallments")
+  freeInstallments     Int     @default(1) @map("free_intalments")
+  monthlyInterestRate  Decimal @map("monthly_interest_rate") @db.Decimal(5, 4)
+  minInstallmentAmount Decimal @map("min_intallment_amount") @db.Decimal(6, 2)
+
+  discountPrice Decimal?  @map("discount_price") @db.Decimal(5, 2)
+  discountStart DateTime? @map("discount_start")
+  discountEnd   DateTime? @map("discount_end")
+
+  viewCount Int @default(0) @map("view_count")
 
   // relations
-  photos     Photo[]
-  orderItems OrderItem[]
-  genre      Genre[]
+  mediaTypeId Int           @map("media_type_id")
+  mediaType   MediaType     @relation(fields: [mediaTypeId], references: [id])
+  photos      Photo[]
+  orderItems  OrderItem[]
+  genre       Genre[]
+  cartItems   CartItem[]
+  view        ProductView[]
+  sellerId    String        @map("seller_id")
+  seller      User          @relation(fields: [sellerId], references: [id])
 
   // index
   @@index([name])
-  @@index([type])
+  @@index([mediaTypeId])
   @@index([price])
+  @@index([discountEnd])
   @@index([rating])
+  @@index([viewCount])
   // map
   @@map("products")
+}
+
+model ProductView {
+  id     String   @id @default(cuid())
+  viewAt DateTime @default(now()) @map("view_at")
+
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+  @@index([viewAt])
+  @@map("product_views")
+}
+
+model Cart {
+  id String @id @default(cuid())
+
+  userId   String     @unique @map("user_id")
+  user     User       @relation(fields: [userId], references: [id])
+  cartItem CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id     String  @id @default(cuid())
+  amount Int
+  price  Decimal @db.Decimal(8, 2)
+
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("cart_items")
 }
 
 enum OrderStatus {
