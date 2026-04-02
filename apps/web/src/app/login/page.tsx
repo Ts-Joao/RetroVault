@@ -16,7 +16,7 @@ export default function LoginPage() {
         </div>
 
         <div className="mb-4">
-          <label className="flex items-center gap-2 text-black mb-1">
+          <label className="flex items-center gap-2 text-prim mb-1">
             <MdEmail className="text-prim text-xl" />
             <span className="text-sm font-semibold">E-mail</span>
           </label>
@@ -29,7 +29,7 @@ export default function LoginPage() {
         </div>
 
         <div className="mb-4">
-          <label className="flex items-center gap-2 text-black mb-1">
+          <label className="flex items-center gap-2 text-prim mb-1">
             <FaLock className="text-prim text-xl" />
             <span className="text-sm font-semibold">Senha</span>
           </label>
@@ -45,29 +45,29 @@ export default function LoginPage() {
           Criar uma conta
         </p>
 
-        <button className="w-full bg-prim text-white py-3 rounded-md font-semibold hover:bg-third transition">
+        <button className="w-full bg-prim text-white py-3 cursor-pointer rounded-md font-semibold hover:bg-third transition">
           Continuar
         </button>
 
-        <p className="text-center text-sm font-semibold text-black mt-6">
+        <p className="text-center text-sm font-semibold text-prim mt-6">
           Login com
         </p>
 
         <div className="flex justify-center gap-10 mt-6">
 
           <div className="flex flex-col items-center cursor-pointer hover:scale-110 transition">
-            <FaGoogle className="text-black" size={40} />
-            <span className="text-xs mt-1 text-black font-bold">Google</span>
+            <FaGoogle className="text-prim" size={40} />
+            <span className="text-xs mt-1 text-prim font-bold">Google</span>
           </div>
 
           <div className="flex flex-col items-center cursor-pointer hover:scale-110 transition">
-            <FaInstagram className="text-black" size={40} />
-            <span className="text-xs mt-1 text-black font-bold">Instagram</span>
+            <FaInstagram className="text-prim" size={40} />
+            <span className="text-xs mt-1 text-prim font-bold">Instagram</span>
           </div>
 
           <div className="flex flex-col items-center cursor-pointer hover:scale-110 transition">
-            <FaFacebook className="text-black" size={40} />
-            <span className="text-xs mt-1 text-black font-bold">Facebook</span>
+            <FaFacebook className="text-prim" size={40} />
+            <span className="text-xs mt-1 text-prim font-bold">Facebook</span>
           </div>
 
         </div>
