@@ -3,7 +3,7 @@
     "name": "RetroVault",
     "slug": "retrovault",
     "version": "1.0.0",
-    "schema": "RetroVault",
+    "schema": "retrovault",
     "plugins": ["expo-router"],
     "orientation": "portrait",
     "icon": "./assets/icon.png",

@@ -1,20 +1,27 @@
 const { getDefaultConfig } = require('expo/metro-config');
 const path = require('path');
+const fs = require('fs');
 
 const projectRoot = __dirname;
-const workspaceRoot = path.resolve(projectRoot, '../..');
+const monorepoRoot = path.resolve(projectRoot, '../..');
 
 const config = getDefaultConfig(projectRoot);
 
-config.watchFolders = [workspaceRoot];
+config.watchFolders = [monorepoRoot];
 
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
-  path.resolve(workspaceRoot, 'node_modules'),
+  path.resolve(monorepoRoot, 'node_modules'),
 ];
 
-// Resolve symlinks — necessário no Windows com pnpm
-config.resolver.unstable_enableSymlinks = true;
-config.resolver.unstable_enablePackageExports = true;
+const resolveReal = (p) => {
+  try { return fs.realpathSync(p); } catch { return p; }
+};
+
+config.resolver.extraNodeModules = {
+  'react': resolveReal(path.resolve(projectRoot, 'node_modules/react')),
+  'react-dom': resolveReal(path.resolve(projectRoot, 'node_modules/react-dom')),
+  'react-native': resolveReal(path.resolve(projectRoot, 'node_modules/react-native')),
+};
 
 module.exports = config;
