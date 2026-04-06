@@ -1,8 +1,10 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "RetroVault",
+    "slug": "retrovault",
     "version": "1.0.0",
+    "schema": "retrovault",
+    "plugins": ["expo-router"],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
