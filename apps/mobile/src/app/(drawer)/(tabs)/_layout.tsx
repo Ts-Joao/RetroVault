@@ -1,6 +1,6 @@
-import { Tabs } from "expo-router";
-import Header from "../../components/Header";
 import { Octicons, Ionicons } from '@expo/vector-icons';
+import Header from "../../../components/Header";
+import { Tabs } from "expo-router";
 
 export default function TabsLayout() {
     return (

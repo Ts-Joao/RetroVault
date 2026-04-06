@@ -4,6 +4,11 @@ module.exports = {
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
+      fontFamily: {
+        chakra: ['Chackra'],
+        elite: ['Elite'],
+        barlow: ['Barlow']
+      },
       colors: {
         background: {
           light: "#F2EFDC",
