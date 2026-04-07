@@ -21,9 +21,11 @@ export default function Header() {
                 </View>
                 <View className="relative">
                     <MaterialCommunityIcons name="cart-outline" size={28} color='#fff' onPress={() => setCartOpen(true)} />
-                        <Text className="absolute text-center font-bold rounded-full border-2 border-white -right-2.5 -top-2.5 h-5 text-white w-5">
-                            2
-                        </Text>
+                        <View className="absolute flex items-center justify-center rounded-full bg-red-400 border-2 border-white -right-2 -top-2 h-5 w-5">
+                            <Text className="text-white font-bold text-[10px] text-center include-font-padding-false textAlignVertical-center">
+                                2
+                            </Text>
+                        </View>
                 </View>
             </View>
 
