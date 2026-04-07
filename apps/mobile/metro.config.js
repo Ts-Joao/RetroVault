@@ -21,7 +21,14 @@ const resolveReal = (p) => {
 config.resolver.extraNodeModules = {
   'react': resolveReal(path.resolve(projectRoot, 'node_modules/react')),
   'react-dom': resolveReal(path.resolve(projectRoot, 'node_modules/react-dom')),
-  'react-native': resolveReal(path.resolve(projectRoot, 'node_modules/react-native')),
 };
 
-module.exports = withNativeWind(config, { input: './src/globals.css' });
+
+config.resolver.unstable_conditionNames = [
+  'require',
+  'react-native',
+  'browser',
+  'default',
+];
+
+module.exports = withNativeWind(config, { input: './src/app/globals.css' });

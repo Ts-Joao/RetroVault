@@ -3,7 +3,7 @@
     "name": "RetroVault",
     "slug": "retrovault",
     "version": "1.0.0",
-    "schema": "retrovault",
+    "scheme": "retrovault",
     "plugins": ["expo-router"],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -26,6 +26,7 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
+      "bundler": "metro",
       "favicon": "./assets/favicon.png"
     }
   }

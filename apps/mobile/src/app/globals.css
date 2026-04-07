@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@theme {
+/* @theme {
   --color-bg: #f2f2f2;
   --color-prim: #BF372A;
   --color-prim-light: #e57373;
@@ -15,11 +15,28 @@
   --font-barlow-condensed: var(--font-barlow-condensed);
   --font-special-elite: var(--font-special-elite);
   --font-chakra-petch: var(--font-chakra-petch);
-}
+} */
 
 
 @layer base {
   :root {
     color-scheme: light;
+  }
+
+  html, body, #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    display: flex;
+    overflow: hidden;
+  }
+
+  #root {
+    display: flex;
+    flex: 1;
   }
 }

@@ -5,7 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { View, useColorScheme } from 'react-native';
 import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
-import '../globals.css';
+import './globals.css';
 
 SplashScreen.preventAutoHideAsync()
 
@@ -30,7 +30,7 @@ export default function RootLayout() {
   
   return (
     <SafeAreaProvider>
-      <View className={`flex-1 ${colorSchema === 'dark' ? 'dark' : ''}`}>
+      <View style={{ flex: 1 }} className={colorSchema === 'dark' ? 'dark' : ''}>
         <Stack screenOptions={{ headerShown: false }} />
       </View>
     </SafeAreaProvider>
