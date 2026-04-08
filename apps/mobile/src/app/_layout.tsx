@@ -7,6 +7,7 @@ import { View, useColorScheme } from 'react-native';
 import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import * as SystemUI from 'expo-system-ui';
+import * as NavigationBar from 'expo-navigation-bar'
 import './globals.css';
 
 SplashScreen.preventAutoHideAsync()
@@ -20,6 +21,10 @@ export default function RootLayout() {
   })
 
   const colorSchema = useColorScheme()
+
+  useEffect(() => {
+    NavigationBar.setVisibilityAsync('hidden')
+  }, [])
 
   useEffect(() => {
     if (loaded || error) {
