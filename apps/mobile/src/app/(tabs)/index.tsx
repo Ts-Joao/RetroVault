@@ -1,12 +1,13 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import ScreenContainer from '@/components/ScreenContainer';
 
 export default function Home() {
   const recentlySeen = true
   
   return (
-    <View className="flex-1 bg-white px-8 py-5 gap-10">
+    <ScreenContainer>
       <StatusBar style="auto" />
 
       {/* Banner */}
@@ -49,7 +50,7 @@ export default function Home() {
           <View style={styles.item}><Text>4</Text></View>
         </View>
       </View>
-    </View>
+    </ScreenContainer>
   );
 }
 
