@@ -1,7 +1,8 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ScreenContainer from '@/components/ScreenContainer';
+import { StatusBar } from 'expo-status-bar';
+import ProductGrid from '@/components/Product/ProductGrid';
 
 export default function Home() {
   const recentlySeen = true
@@ -43,12 +44,7 @@ export default function Home() {
           <Text style={styles.title}>Recomendações</Text>
           <MaterialCommunityIcons name="filter-outline" size={20} color="black" />
         </View>
-        <View style={styles.grid}>
-          <View style={styles.item}><Text>1</Text></View>
-          <View style={styles.item}><Text>2</Text></View>
-          <View style={styles.item}><Text>3</Text></View>
-          <View style={styles.item}><Text>4</Text></View>
-        </View>
+        <ProductGrid />
       </View>
     </ScreenContainer>
   );
@@ -60,13 +56,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between'
-  },
-  grid: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 10
   },
   item: {
     backgroundColor: '#d9d9d9',
