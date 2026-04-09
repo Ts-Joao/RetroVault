@@ -16,7 +16,8 @@ export const mockUsers: User[] = [
         slug: 'admin-123',
         email: 'admin@retro.com',
         photo: '/image/admin-pfp.jpg',
-        products: []
+        products: [],
+        password: 'adminTS'
     },
     {
         id: '2',
@@ -24,7 +25,8 @@ export const mockUsers: User[] = [
         slug: 'play-station',
         email: 'play@station.com',
         photo: '/image/ps-pfp.png',
-        products: ['1', '2']
+        products: ['1', '2'],
+        password: 'playPae'
     },
     {
         id: '3',
@@ -32,6 +34,7 @@ export const mockUsers: User[] = [
         slug: 'nintendo-oficial',
         email: 'nintendo@ofc.com',
         photo: '/image/nintendo-pfp.png',
-        products: ['3']
+        products: ['3'],
+        password: 'eomario'
     },
 ]
