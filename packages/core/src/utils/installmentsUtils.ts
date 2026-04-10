@@ -1,4 +1,5 @@
-import { formatPrice, Installment, InstallmentProduct } from '@retrovault/core';
+import { Installment, InstallmentProduct } from '../types/installments';
+import { formatPrice } from './formatPrice';
 
 export function calculeCartInstallments(items: InstallmentProduct[], totalOverride?: number): Installment[] {
     if (items.length === 0) return []
