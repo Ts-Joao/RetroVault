@@ -3,9 +3,14 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ScreenContainer from '@/components/ScreenContainer';
 import { StatusBar } from 'expo-status-bar';
 import ProductGrid from '@/components/Product/ProductGrid';
+import { useState } from 'react';
+import FilterSheet from '@/components/FilterSheet';
+import { useFilters } from '@retrovault/ui-hooks';
 
 export default function Home() {
-  const recentlySeen = true
+  const [recentlySeen, setRecentlySeen] = useState(false)
+  const [filterModalOpen, setFilterModalOpen] = useState(false)
+  const { updateFilter, filters, activeCount, resetFilters } = useFilters()
   
   return (
     <ScreenContainer>
@@ -15,7 +20,7 @@ export default function Home() {
       <View style={{height: 150, backgroundColor: '#43464B', borderRadius: 8, marginBottom: 20}}></View>
 
       {/* Recently Seen */}
-      { recentlySeen ? (
+      { recentlySeen == true ? (
         <View className='gap-2'>
           <Text style={styles.title}>Visto Recemente</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carousel} >
@@ -42,7 +47,12 @@ export default function Home() {
       <View className='flex gap-2' style={{ marginInline: 'auto' }}>
         <View style={styles.container}>
           <Text style={styles.title}>Recomendações</Text>
-          <MaterialCommunityIcons name="filter-outline" size={20} color="black" />
+          <MaterialCommunityIcons name="filter-outline" size={28} color="black" onPress={() => setFilterModalOpen(!filterModalOpen)} />
+            {filterModalOpen ? (
+              <View className='absolute h-20 w-10'>
+                <FilterSheet filters={filters} onChange={updateFilter} onClose={() => setFilterModalOpen(false)} visible={filterModalOpen} onReset={resetFilters} />
+              </View>
+            ) : ''}
         </View>
         <ProductGrid />
       </View>
@@ -53,6 +63,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     display: 'flex',
+    position: 'relative',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between'
@@ -78,8 +89,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontFamily: 'Chackra',
-    fontSize: 14,
-    fontWeight: 'bold'
+    fontFamily: 'Chackra-Bold',
+    fontSize: 24,
   }
 })
