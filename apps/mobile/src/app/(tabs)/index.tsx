@@ -39,7 +39,7 @@ export default function Home() {
       </View>
 
       {/* Grid-Products */}
-      <View className='flex gap-2'>
+      <View className='flex gap-2' style={{ marginInline: 'auto' }}>
         <View style={styles.container}>
           <Text style={styles.title}>Recomendações</Text>
           <MaterialCommunityIcons name="filter-outline" size={20} color="black" />

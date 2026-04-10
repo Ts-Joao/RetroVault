@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Text } from "react-native";
 
 interface StarRatingProps {
     rating: number;
@@ -7,7 +8,7 @@ interface StarRatingProps {
 
 export default function StarRating({ rating, color = 'text-prim' }: StarRatingProps) {
     return (
-        <div className="flex">
+        <Text className="flex">
             {[1, 2, 3, 4, 5].map((i) => {
                 if (rating >= i) {
                     return <MaterialCommunityIcons name="star" key={i} color='#BF372A' />
@@ -17,6 +18,6 @@ export default function StarRating({ rating, color = 'text-prim' }: StarRatingPr
                     return <MaterialCommunityIcons name="star-outline" key={i} color="#BF372A" />
                 }
             })}
-        </div>
+        </Text>
     )
 }

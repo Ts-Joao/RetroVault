@@ -7,7 +7,7 @@ export default function ScreenContainer({ children }: {children: React.ReactNode
     return (
         <ScrollView
             className="flex-1 bg-white"
-            contentContainerStyle={{ paddingHorizontal: 32, paddingVertical: 20, gap: 20, paddingBottom: 80 + insets.bottom }}
+            contentContainerStyle={{ paddingHorizontal: 8, paddingVertical: 20, gap: 20, paddingBottom: 80 + insets.bottom }}
         >
             {children}
         </ScrollView>

@@ -1,5 +1,5 @@
 
-import { ChakraPetch_400Regular, useFonts } from '@expo-google-fonts/chakra-petch';
+import { ChakraPetch_400Regular, ChakraPetch_700Bold, useFonts } from '@expo-google-fonts/chakra-petch';
 import { BarlowCondensed_400Regular } from '@expo-google-fonts/barlow-condensed';
 import { SpecialElite_400Regular } from '@expo-google-fonts/special-elite';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -16,6 +16,7 @@ SystemUI.setBackgroundColorAsync('#000000')
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     'Chackra': ChakraPetch_400Regular,
+    'Chackra-Bold': ChakraPetch_700Bold,
     'Elite': SpecialElite_400Regular,
     'Barlow': BarlowCondensed_400Regular
   })

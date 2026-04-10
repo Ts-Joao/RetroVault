@@ -2,7 +2,7 @@ export interface Product {
     id: string
     name: string
     price: number
-    photo: string
+    photo: string | number
     seller_id: string
     rating: number
     max_installments: number
