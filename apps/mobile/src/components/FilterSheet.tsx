@@ -1,6 +1,7 @@
+import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons'
 import { FilterState } from '@retrovault/ui-hooks'
 import { useEffect, useRef } from 'react'
-import { Modal, View, Text, Pressable, Animated, Dimensions } from 'react-native'
+import { Modal, View, Text, Pressable, Animated, Dimensions, Button, TouchableOpacity, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window')
@@ -50,21 +51,44 @@ export default function FilterSheet({ filters, visible, onChange, onClose, onRes
                 }}
             >
                 <View style={{ padding: 16, flex: 1 }}>
-                    <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Filtros</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Filtros</Text>
+                        <View style={{ height: 28, width: 28, backgroundColor: '#FFCDD2', borderRadius: 50, alignItems: 'center', justifyContent: 'center' }}>
+                            <FontAwesome6 name="x" size={10} color="#B20000" onPress={() =>onClose()}/>
+                        </View>
+                    </View>
 
                     <Pressable onPress={() => onChange('condition', 'used')}>
                         <Text>Usado</Text>
                     </Pressable>
 
-                    <Pressable onPress={onReset}>
-                        <Text>Limpar Filtros</Text>
-                    </Pressable>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <TouchableOpacity onPress={() => onReset()} style={styles.input}>
+                            <Text>Limpar</Text>
+                        </TouchableOpacity>
 
-                    <Pressable onPress={onClose}>
-                        <Text>Aplicar Filtros</Text>
-                    </Pressable>
+                        <TouchableOpacity onPress={onClose} style={styles.input}>
+                            <MaterialCommunityIcons name="tune-variant" size={24} color="black" />
+                            <Text>Aplicar Filtros</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </Animated.View>
         </Modal>
     )
 }
+
+const styles = StyleSheet.create({
+    input: {
+        width: '49%',
+        height: 40,
+        flexDirection: 'row',
+        gap: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 8,
+    },
+    input_filter: {
+        backgroundColor: '#B20000'
+    }
+})
