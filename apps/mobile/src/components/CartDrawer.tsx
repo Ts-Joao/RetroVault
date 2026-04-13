@@ -3,7 +3,7 @@ import { View, Text, FlatList, Image, TouchableOpacity, Modal, Animated, Dimensi
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCartStore } from '@retrovault/store';
-import { CartItem } from '@retrovault/core';
+import { CartItem, formatPrice } from '@retrovault/core';
 
 const DRAWER_WIDTH = Dimensions.get('window').width * 0.75;
 
@@ -27,17 +27,19 @@ export default function CartDrawer({ visible, onClose }: Props) {
 
   const renderItem = ({ item }: { item: CartItem }) => (
     <View className="flex-row items-center gap-3 py-3 border-b border-gray-100">
-      <Image
-        source={{ uri: item.product.photo }}
-        style={{ width: 64, height: 64, borderRadius: 8 }}
-        resizeMode="cover"
-      />
+      <View className='flex justify-center items-center h-20 w-20 bg-white'>
+        <Image
+          source={item.product.photo as any}
+          style={{ width: '100%', height: '100%' }}
+          resizeMode="contain"
+        />
+      </View>
       <View className="flex-1">
-        <Text className="text-sm font-semibold text-gray-800" numberOfLines={2}>
+        <Text className="text-sm font-semibold text-gray-800 font-chakra" numberOfLines={2}>
           {item.product.name}
         </Text>
-        <Text className="text-sm text-primary font-bold mt-1">
-          R$ {(item.product.price * item.quantity).toFixed(2)}
+        <Text className="text-sm text-primary font-bold mt-1 font-chakra">
+          R$ {formatPrice(item.product.price * item.quantity)}
         </Text>
         <View className="flex-row items-center gap-2 mt-2">
           <TouchableOpacity
@@ -46,7 +48,7 @@ export default function CartDrawer({ visible, onClose }: Props) {
           >
             <Feather name="minus" size={12} color="#374151" />
           </TouchableOpacity>
-          <Text className="text-sm font-medium text-gray-700 w-4 text-center">
+          <Text className="text-sm font-medium text-gray-700 w-4 text-center font-chakra">
             {item.quantity}
           </Text>
           <TouchableOpacity
@@ -62,14 +64,12 @@ export default function CartDrawer({ visible, onClose }: Props) {
 
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
-      {/* Overlay */}
       <TouchableOpacity
         style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}
         activeOpacity={1}
         onPress={onClose}
       />
 
-      {/* Drawer */}
       <Animated.View
         style={{
           position: 'absolute',
@@ -101,13 +101,13 @@ export default function CartDrawer({ visible, onClose }: Props) {
               />
               <View className="border-t border-gray-200 pt-4 gap-3 pb-4">
                 <View className="flex-row justify-between items-center">
-                  <Text className="text-gray-500 text-sm">Total</Text>
-                  <Text className="text-primary font-bold text-lg">
-                    R$ {total().toFixed(2)}
+                  <Text className="text-gray-500 text-sm font-chakra">Total</Text>
+                  <Text className="text-primary font-bold text-lg font-chakra">
+                    R$ {formatPrice(total())}
                   </Text>
                 </View>
                 <TouchableOpacity className="bg-primary py-3 rounded-xl items-center">
-                  <Text className="text-white font-semibold text-sm">Finalizar compra</Text>
+                  <Text className="text-white font-semibold text-lg font-chakra">Finalizar compra</Text>
                 </TouchableOpacity>
               </View>
             </>

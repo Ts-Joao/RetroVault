@@ -4,12 +4,16 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import CartDrawer from "./CartDrawer";
+import { useCartStore } from "@retrovault/store";
 
 export default function Header() {
     const [cartOpen, setCartOpen] = useState(false);
     const insets = useSafeAreaInsets()
     const router = useRouter()
     const padding = Platform.OS === 'web' ? 10 : insets.top
+    const totalItems = useCartStore((state) =>
+        state.items.reduce((acc, item) => acc + item.quantity, 0)
+    )
 
     return (
         <>
@@ -21,11 +25,13 @@ export default function Header() {
                 </View>
                 <View className="relative">
                     <MaterialCommunityIcons name="cart-outline" size={28} color='#fff' onPress={() => setCartOpen(true)} />
-                        <View className="absolute flex items-center justify-center rounded-full bg-red-400 border-2 border-white -right-2 -top-2 h-5 w-5">
-                            <Text className="text-white font-bold text-[10px] text-center include-font-padding-false textAlignVertical-center">
-                                2
-                            </Text>
-                        </View>
+                            {totalItems > 0 && (
+                                <View className="absolute flex items-center justify-center rounded-full bg-red-400 border-2 border-white -right-2 -top-2 h-5 w-5">
+                                    <Text className="text-white font-bold text-[10px] text-center include-font-padding-false textAlignVertical-center">
+                                        {totalItems}
+                                    </Text>
+                                </View>
+                            )}
                 </View>
             </View>
 

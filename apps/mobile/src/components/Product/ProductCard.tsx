@@ -2,6 +2,7 @@ import { calculeCartInstallments, formatPrice, Product, splitPrice } from "@retr
 import { Image, View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { mockUsers } from "@/services/user.service"
+import { useCartStore } from '@retrovault/store'
 import StarRating from "../StarRating"
 import { Link } from "expo-router"
 
@@ -10,6 +11,7 @@ type Prop = {
 }
 
 export default function ProductCard({ product }: Prop) {
+    const addItem = useCartStore(state => state.addItem)
     const seller = mockUsers.find(user => user.id === product.seller_id)
 
     const installments = calculeCartInstallments([{
@@ -69,7 +71,7 @@ export default function ProductCard({ product }: Prop) {
                 >
                     Compra Agora
                 </Link>
-                <TouchableOpacity className="bg-third p-1 rounded-md">
+                <TouchableOpacity className="bg-third p-1 rounded-md" onPress={() => addItem(product)}>
                     <MaterialCommunityIcons name="cart-plus" size={15} color="#000" />
                 </TouchableOpacity>
             </View>
@@ -85,7 +87,7 @@ const styles = StyleSheet.create({
     },
     price: {
         fontFamily: 'Chackra-Bold',
-        fontSize: 22
+        fontSize: 22,
     },
     installment_amount: {
         fontFamily: 'Chackra-Bold',
