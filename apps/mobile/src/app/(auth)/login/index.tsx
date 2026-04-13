@@ -138,7 +138,9 @@ const styles = StyleSheet.create({
         flex: 1,
         marginLeft: 12,
         fontSize: 16,
-        color: '#000'
+        color: '#000',
+        backgroundColor: 'transparent',
+        outlineColor: 'transparent'
     },
     eyeIcon: {
         paddingRight: 15,
