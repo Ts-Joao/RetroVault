@@ -42,9 +42,9 @@ export const useCartStore = create<CartStore>((set, get) => ({
     decrement: (productId) => set((state) => ({
         items: state.items.map((item) =>
             item.product.id === productId
-                ? { ...item, quantity: Math.max(1, item.quantity - 1) }
+                ? { ...item, quantity: item.quantity - 1 }
                 : item
-        ),
+        ).filter((item) => item.quantity > 0),
     })),
 
     total: () =>
