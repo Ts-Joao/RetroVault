@@ -3,8 +3,10 @@
     "name": "RetroVault",
     "slug": "retrovault",
     "version": "1.0.0",
-    "schema": "retrovault",
-    "plugins": ["expo-router"],
+    "scheme": "retrovault",
+    "plugins": [
+      "expo-router"
+    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -18,15 +20,26 @@
       "supportsTablet": true
     },
     "android": {
+      "androidNavigationBar": {
+        "backgroundColor": "#000000"
+      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.retrovault"
     },
     "web": {
+      "bundler": "metro",
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ab1c41fd-cab8-4726-947e-a0eb66382f30"
+      }
     }
   }
 }
