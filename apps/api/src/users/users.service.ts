@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateUserDto } from './dto/create.user.dto';
+import { UpdateUserDto } from './dto/update.user.dto';
 
 @Injectable()
 export class UsersService {
@@ -18,6 +19,30 @@ export class UsersService {
             return newUser
         } catch (error) {
             throw error
+        }
+    }
+
+    async update(id: string, updateUserDto: UpdateUserDto) {
+        try {
+            const findUser = await this.databaseService.user.findUnique({
+                where: { id }
+            })
+
+            if (!findUser) {
+                throw new NotFoundException('User not found!')
+            }
+
+            const updateUser = await this.databaseService.user.update({
+                where: { id },
+                data: updateUserDto
+            })
+
+            return updateUser
+        } catch (error) {
+            throw new HttpException(
+                'Error updating user!',
+                HttpStatus.INTERNAL_SERVER_ERROR
+            )
         }
     }
 }
