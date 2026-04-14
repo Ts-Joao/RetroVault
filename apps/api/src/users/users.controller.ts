@@ -4,10 +4,10 @@ import { CreateUserDto } from './dto/create.user.dto';
 
 @Controller('users')
 export class UsersController {
-    constructor(private readonly UsersService: UsersService) {}
+    constructor(private readonly usersService: UsersService) {}
 
     @Post()
     createUser(@Body() createUser: CreateUserDto){
-        return this.UsersService.create(createUser)
+        return this.usersService.create(createUser)
     }
 }
