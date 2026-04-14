@@ -22,7 +22,7 @@ export class UsersService {
         }
     }
 
-    async getUsers() {
+    async get() {
         try {
             const findUsers = await this.databaseService.user.findMany()
 
@@ -35,7 +35,7 @@ export class UsersService {
         }
     }
 
-    async getUserById(id: string) {
+    async getById(id: string) {
         try {
             const findUser = await this.databaseService.user.findUnique({
                 where: { id }
@@ -73,6 +73,29 @@ export class UsersService {
         } catch (error) {
             throw new HttpException(
                 'Error updating user!',
+                HttpStatus.INTERNAL_SERVER_ERROR
+            )
+        }
+    }
+
+    async delete(id: string) {
+        try {
+            const findUser = await this.databaseService.user.findUnique({
+                where: { id }
+            })
+
+            if (!findUser) {
+                throw new NotFoundException('User not found!')
+            }
+
+            const deleteUser = await this.databaseService.user.delete({
+                where: { id }
+            })
+
+            return deleteUser
+        } catch (error) {
+            throw new HttpException(
+                'Error deleting user!',
                 HttpStatus.INTERNAL_SERVER_ERROR
             )
         }
