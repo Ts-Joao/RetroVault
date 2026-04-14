@@ -22,6 +22,38 @@ export class UsersService {
         }
     }
 
+    async getUsers() {
+        try {
+            const findUsers = await this.databaseService.user.findMany()
+
+            return findUsers
+        } catch (error) {
+            throw new HttpException(
+                'Error getting users!',
+                HttpStatus.INTERNAL_SERVER_ERROR
+            )
+        }
+    }
+
+    async getUserById(id: string) {
+        try {
+            const findUser = await this.databaseService.user.findUnique({
+                where: { id }
+            })
+
+            if (!findUser) {
+                throw new NotFoundException('User not found!')
+            }
+
+            return findUser
+        } catch (error) {
+            throw new HttpException(
+                'Error finding user',
+                HttpStatus.INTERNAL_SERVER_ERROR
+            )
+        }
+    }
+
     async update(id: string, updateUserDto: UpdateUserDto) {
         try {
             const findUser = await this.databaseService.user.findUnique({
