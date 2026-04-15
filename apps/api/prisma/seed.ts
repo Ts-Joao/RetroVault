@@ -1,10 +1,10 @@
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../src/app/app.module';
 import { NestFactory } from '@nestjs/core';
-import { PrismaService } from '../src/database/prisma.service';
+import { DatabaseService } from '../src/database/database.service';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
-  const prisma = app.get<PrismaService>(PrismaService);
+  const prisma = app.get<DatabaseService>(DatabaseService);
 
   await prisma.user.upsert({
     where: {
