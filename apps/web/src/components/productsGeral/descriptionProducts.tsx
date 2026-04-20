@@ -1,28 +1,12 @@
+'use client'
 
 import Link from "next/link"
-import { Product, formatPrice, splitPrice } from "@/../../packages/core"
+import { formatPrice, Product, splitPrice } from '@retrovault/core'
 import { PiBag } from "react-icons/pi";
 
-type Props = {
-    product: Product
-}
 
 
-
-type Description = {
-    titulo: string,
-    ano: string,
-    tipo: string,
-    genero: string,
-    situacao: string,
-    description: string
-    preco: number,
-    descont: boolean
-    numparcelas: number,
-    parcelas: number
-}
-
-export default  function DescriptionProducts({titulo, ano, tipo, genero, situacao, description, preco, descont, numparcelas, parcelas}: Description){
+export default  function DescriptionProducts({product}: { products : Product}){
     
 
     
@@ -34,15 +18,13 @@ export default  function DescriptionProducts({titulo, ano, tipo, genero, situaca
                 {/* description geral */}
                 <div className="h-[365] w-[600] bg-[#e0e0e0] rounded-xl p-5">
                     <div> 
-                        <span className={' text-3xl font-medium'}>{titulo} - {ano}</span>
+                        <span className={' text-3xl font-medium'}>{product.name} </span>
                         <div className={"flex gap-3 text-xl mt-2 mb-2"}>
-                            <span>Tipo: {tipo}</span> 
-                            <span>Gênero: {genero}</span>
-                            <span>Situação: {situacao}</span>
+                            
                         </div>
 
                         <div className={'flex gap-3 text-xl text-justify'} >
-                            <span>{description}</span>
+                            
                         </div>
                     </div>
                 </div>
@@ -55,13 +37,13 @@ export default  function DescriptionProducts({titulo, ano, tipo, genero, situaca
 
                         <div className="flex gap-2">
 
-                            <span className="text-2xl font-bold">R$ {preco},00</span>
+                            <span className="text-2xl font-bold">R$ {product.price},00</span>
                             <span className="text-xl">Á vista</span>
 
                         </div>
 
                         <div>
-                            <span>OU {numparcelas}x de {parcelas}</span>
+                            <span>OU </span>
                         </div>
 
                         <div className="flex gap-4 m-40">
