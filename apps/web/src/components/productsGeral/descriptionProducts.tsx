@@ -41,7 +41,7 @@ export default  function DescriptionProducts({titulo, ano, tipo, genero, situaca
                             <span>Situação: {situacao}</span>
                         </div>
 
-                        <div className={'flex gap-3 text-2xl mt-2 mb-2 text-justify'} >
+                        <div className={'flex gap-3 text-xl text-justify'} >
                             <span>{description}</span>
                         </div>
                     </div>
@@ -69,7 +69,7 @@ export default  function DescriptionProducts({titulo, ano, tipo, genero, situaca
                                 <span>Comprar</span>
                             </button>
 
-                            <button className="flex items-center bg-third text-white text-2xl px-10 py-6 rounded-lg mt-5">
+                            <button className="flex items-center bg-third text-white bg-[#c0c0c0] text-2xl px-10 py-6 rounded-lg mt-5">
                                 <PiBag/>
                             </button>
 

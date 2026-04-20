@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, Image } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ScreenContainer from '@/components/ScreenContainer';
 import { StatusBar } from 'expo-status-bar';
@@ -6,6 +6,7 @@ import ProductGrid from '@/components/Product/ProductGrid';
 import { useState } from 'react';
 import FilterSheet from '@/components/FilterSheet';
 import { useFilters } from '@retrovault/ui-hooks';
+import {banner} from '@/../assets/image/banner.jpg'
 
 export default function Home() {
   const [recentlySeen, setRecentlySeen] = useState(false)
@@ -17,7 +18,9 @@ export default function Home() {
       <StatusBar style="auto" />
 
       {/* Banner */}
-      <View style={{height: 150, backgroundColor: '#43464B', borderRadius: 8, marginBottom: 20}}></View>
+      <View style={{height: 150, backgroundColor: '#43464B', borderRadius: 8, marginBottom: 20}}>
+        <Image source={banner} style={{width: '100%', height: '100%', borderRadius: 8}} resizeMode='cover' />
+      </View>
 
       {/* Recently Seen */}
       { recentlySeen == true ? (
