@@ -1,21 +1,17 @@
 
 import Link from "next/link";
-import Image, { StaticImageData } from "next/image"
+import Image from "next/image"
 import { PiBag } from "react-icons/pi";
+import { Product } from "@retrovault/core";
 
-
-
-type RecommentsProductsProps = {
-    imgcapa: (string | StaticImageData),
-    price: number,
-    title: string,
-    parcelas: number
-    numparcelas: number
+type Props = {
+    product : Product
 }
 
 
 
-export default function RecommentsProducts({ imgcapa, price, title, parcelas, numparcelas }: RecommentsProductsProps){
+export default function RecommentsProducts({ product }: Props){
+    
     
    
     
@@ -28,16 +24,16 @@ export default function RecommentsProducts({ imgcapa, price, title, parcelas, nu
             <div className="w-[180] h-[230] bg-amber-100 rounded-xl m-4 flex flex-col">
                 
                 <div className="w-[160] h-[120] rounded-xl bg-white flex m-auto" >
-                      <Image src={imgcapa} alt={title} className="w-[130] h-[100] bg-cover m-auto" />
+                      <Image src={product.photo} alt={product.name} className="w-[130] h-[100] bg-cover m-auto" />
                 </div>
 
                 <div className="flex flex-col ml-4">
 
-                    <span className="text-md font-bold">{title}</span>
+                    <span className="text-md font-bold">{product.name}</span>
 
                    <div className="flex gap-2"> 
-                    <span className="text-md font-bold">R${price}</span>
-                    <span className="text-sm">ou {numparcelas}x de {parcelas}</span>
+                    <span className="text-md font-bold">R${product.price.toFixed(2)}</span>
+                    <span className="text-sm">ou {product.max_installments}x de {product.min_installment_amount.toFixed(2)}</span>
                    </div> 
                 </div>
 

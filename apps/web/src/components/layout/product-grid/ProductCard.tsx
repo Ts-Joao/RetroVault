@@ -5,6 +5,8 @@ import StarRating from "@/components/StarRating";
 import { Product, calculeCartInstallments, formatPrice, splitPrice } from "@retrovault/core"
 import { mockUsers } from "@/services/user";
 
+
+
 type Props = {
     product: Product
 }
