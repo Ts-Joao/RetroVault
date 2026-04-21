@@ -13,7 +13,7 @@ export class ProductService {
                 data: {
                     name: createProductDto.name,
                     price: createProductDto.price,
-                    description: createProductDto.description
+                    description: createProductDto.description,
                 }
             });
             return newProduct;

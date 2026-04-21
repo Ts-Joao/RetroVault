@@ -1,6 +1,5 @@
 import {
     IsString,
-    IsOptional,
     IsNotEmpty,
     IsNumber
 } from 'class-validator';
@@ -14,7 +13,7 @@ export class CreateProductDto {
     @IsNotEmpty({ message: 'price is required'})  
     readonly price: number; 
 
-    @IsString({ message: 'the descriptio to be a have string'})
-    @IsOptional()
-    readonly description?: string
+    @IsString({ message: 'the description to be a have string'})
+    @IsNotEmpty({ message: 'description is required'})
+    readonly description: string;
 }
