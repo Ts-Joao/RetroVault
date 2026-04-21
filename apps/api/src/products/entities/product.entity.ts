@@ -1,6 +1,6 @@
 export class Product {
     id: string
-    price: decimal
+    price: number
     name: string
     description: string
 }
