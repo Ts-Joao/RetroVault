@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, Param, ParseUUIDPipe, Patch, Post, UnauthorizedException } from '@nestjs/common';
 import { ProductService } from './products.service';
 import { CreateProductDto } from './dto/create.product.dto';
 import { UpdateProductDto } from './dto/update.product.dto';
@@ -8,12 +8,16 @@ export class ProductsController {
     constructor(private readonly productsService: ProductService) {}
 
     @Post()
-    createProduct(@Body() createProduct: CreateProductDto) {
-        return this.productsService.create(createProduct)
+    createProduct(@Headers('user-id') sellerId: string, @Body() createProduct: CreateProductDto) {
+        if (!sellerId) {
+            throw new UnauthorizedException('Seller ID is required');
+        }
+
+        return this.productsService.create(createProduct, sellerId)
     }
 
     @Get()
-    getproducts() {
+    getProducts() {
         return this.productsService.get()
     }
 
@@ -23,12 +27,20 @@ export class ProductsController {
     }
 
     @Patch(':id')
-    updateProduct(@Param('id', ParseUUIDPipe) id: string, @Body() updateProduct: UpdateProductDto) {
+    updateProduct(@Headers('user-id') sellerId: string, @Param('id', ParseUUIDPipe) id: string, @Body() updateProduct: UpdateProductDto) {
+        if (!sellerId) {
+            throw new UnauthorizedException('Seller ID is required');
+        }
+
         return this.productsService.update(id, updateProduct)
     } 
 
     @Delete(':id')
-    deleteProduct(@Param('id', ParseUUIDPipe) id: string) {
+    deleteProduct(@Headers('user-id') sellerId: string, @Param('id', ParseUUIDPipe) id: string) {
+        if (!sellerId) {
+            throw new UnauthorizedException('Seller ID is required');
+        }
+
         return this.productsService.delete(id)
     }
 }

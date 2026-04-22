@@ -7,13 +7,16 @@ import { UpdateProductDto } from './dto/update.product.dto';
 export class ProductService {
     constructor(private readonly databaseService: DatabaseService) {}
 
-    async create(createProductDto: CreateProductDto) {
+    async create(createProductDto: CreateProductDto, sellerId: string) {
         try {
             const newProduct = await this.databaseService.product.create({
                 data: {
                     name: createProductDto.name,
                     price: createProductDto.price,
                     description: createProductDto.description,
+                    amount: createProductDto.amount,
+                    mediaTypeId: createProductDto.mediaTypeId,
+                    sellerId: sellerId
                 }
             });
             return newProduct;

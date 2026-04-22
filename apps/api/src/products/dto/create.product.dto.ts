@@ -1,7 +1,8 @@
 import {
     IsString,
     IsNotEmpty,
-    IsNumber
+    IsNumber,
+    IsDate,
 } from 'class-validator';
 
 export class CreateProductDto {
@@ -10,10 +11,22 @@ export class CreateProductDto {
     readonly name: string;
 
     @IsNumber()
-    @IsNotEmpty({ message: 'price is required'})  
-    readonly price: number; 
+    @IsNotEmpty({ message: 'price is required'})
+    readonly price: number;
 
     @IsString({ message: 'the description to be a have string'})
     @IsNotEmpty({ message: 'description is required'})
     readonly description: string;
+
+    @IsNumber()
+    @IsNotEmpty({ message: 'amount is required'})
+    readonly amount: number;
+
+    @IsNumber()
+    @IsNotEmpty({ message: 'media type is required'})
+    readonly mediaTypeId: number;
+
+    @IsString({ message: 'seller id must be a string' })
+    @IsNotEmpty({ message: 'seller id is required'})
+    readonly sellerId: string;
 }
