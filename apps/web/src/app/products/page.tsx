@@ -9,9 +9,9 @@ import ReviewsProducts from "@/components/productsGeral/reviewsProducts"
 import NavBar from "@/components/layout/nav-bar/NavBar"
 import Footer from "@/components/layout/footer/Footer"
 
-import capajura from '@/../public/image/capajura.png'
-import contracapa from '@/../public/image/contracapajura.png'
-import frame from '@/../public/image/frame.png'
+import {capajura} from '@/../public/image/capajura.png'
+import {contracapa} from '@/../public/image/contracapajura.png'
+import {frame} from '@/../public/image/frame.png'
 
 const imagens = [
     capajura, contracapa, frame
