@@ -25,8 +25,4 @@ export class CreateProductDto {
     @IsNumber()
     @IsNotEmpty({ message: 'media type is required'})
     readonly mediaTypeId: number;
-
-    @IsString({ message: 'seller id must be a string' })
-    @IsNotEmpty({ message: 'seller id is required'})
-    readonly sellerId: string;
 }

@@ -21,6 +21,7 @@ export class ProductService {
             });
             return newProduct;
         } catch (err) {
+            console.error('Erro ao criar produto')
             throw err
         };
     }
