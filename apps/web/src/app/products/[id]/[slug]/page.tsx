@@ -1,37 +1,34 @@
 
-import PhotosProducts from "@/components/productsGeral/photosProducts"
-import DescriptionProducts from "@/components/productsGeral/descriptionProducts"
-import RecommentsProducts from "@/components/productsGeral/recommentsProducts"
-import ReviewsProducts from "@/components/productsGeral/reviewsProducts"
-import NavBar from "@/components/layout/nav-bar/NavBar"
-import Footer from "@/components/layout/footer/Footer"
+import DescriptionProductsGeral from "@/components/productsGeral/DescriptionProductsGeral"
+import Reviews from "@/components/productsGeral/Review";
+import { getProductById, getProducts } from '@/services/product'
+import { getReview } from "@/services/review";
 
-import { getProducts, getProductById } from '@/services/product';
-import { Product } from "@retrovault/core"
 
-interface ProductsProps {
+interface ProductsPageProps {
     params: Promise<{ id: string }>
 }
 
 
 
-export default async function PageGeralproducts({params}: ProductsProps){
+export default async function ProductPage({ params }: ProductsPageProps) {
+    const { id } = await params;
+    const products = await getProducts()
+    const product = await getProductById(id);
 
-        const { id } = await params
-        const products = await getProducts()
-        const product = await getProductById(id)
-    
-    
-    return(
+    if (!product) {
+        return <div>Produto não encontrado</div>;
+    }
+
+    const productReviews = await getReview();
+    const filteredReviews = productReviews.filter(
+        (review) => review.productId === product.id
+    );
+
+    return (
         <>
-            <NavBar/>
-          <div className="w-full flex gap-5 ">  
-
-            <DescriptionProducts key={product.id} product={product} />
-         </div>   
-
-            <ReviewsProducts/>
-            <Footer/>
+            <DescriptionProductsGeral product={product} key={product.id}/>
+            <Reviews reviews={filteredReviews} />
         </>
     )
 }
