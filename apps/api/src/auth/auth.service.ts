@@ -12,7 +12,7 @@ export class AuthService {
     ) {}
 
     async login(email: string, plainPassword: string) {
-        const user = await this.usersService.getById(email)
+        const user = await this.usersService.getByEmail(email)
 
         if (!user) throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED)
 
@@ -28,7 +28,7 @@ export class AuthService {
     async generateToken(sub: string, email: string, role: Role) {
         const [acess_token, refresh_token] = await Promise.all([
             this.jwtService.signAsync({ sub, email, role}, { expiresIn: '15min' }),
-            this.jwtService.signAsync({ sub, email, role }, { expiresIn: '7d', secret: process.env.JWT_REFRESH_SECRET })
+            this.jwtService.signAsync({ sub, email, role }, { expiresIn: '7d', secret: process.env.JWT_SECRET })
         ])
         return { acess_token, refresh_token }
     }

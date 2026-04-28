@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestj
 import { DatabaseService } from 'src/database/database.service';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
+import * as bcrypt from 'bcrypt'
 
 @Injectable()
 export class UsersService {
@@ -9,11 +10,21 @@ export class UsersService {
 
     async create(createUserDto: CreateUserDto) {
         try {
+            const existUser = await this.databaseService.user.findUnique({
+                where: { email: createUserDto.email }
+            })
+
+            if (existUser) {
+                throw new HttpException('Email already exists',HttpStatus.CONFLICT)
+            }
+
+            const hashed = await bcrypt.hash(createUserDto.password, 12)
+
             const newUser = await this.databaseService.user.create({
                 data: {
                     name: createUserDto.name,
                     email: createUserDto.email,
-                    password: createUserDto.password
+                    password: hashed
                 }
             })
             return newUser
@@ -39,6 +50,25 @@ export class UsersService {
         try {
             const findUser = await this.databaseService.user.findUnique({
                 where: { id }
+            })
+
+            if (!findUser) {
+                throw new NotFoundException('User not found!')
+            }
+
+            return findUser
+        } catch (error) {
+            throw new HttpException(
+                'Error finding user',
+                HttpStatus.INTERNAL_SERVER_ERROR
+            )
+        }
+    }
+
+    async getByEmail(email: string) {
+        try {
+            const findUser = await this.databaseService.user.findUnique({
+                where: { email }
             })
 
             if (!findUser) {
