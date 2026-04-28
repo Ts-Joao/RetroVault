@@ -131,7 +131,7 @@ export class UsersService {
         }
     }
 
-    async updateRefreshToken(userId: string, hash: string) {
+    async updateRefreshToken(userId: string, hash: string | null) {
         return this.databaseService.user.update({
             where: { id: userId },
             data: {refreshToken: hash}
