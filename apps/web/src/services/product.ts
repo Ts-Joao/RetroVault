@@ -13,6 +13,13 @@ export function getProductsByUserId(userId: string): Product[] {
     return mockProducts.filter((p) => p.seller_id === userId)
 }
 
+export async function searchProducts(query: string): Promise<Product[]> {
+  const products = await getProducts()
+  return products.filter((product) =>
+    product.name.toLowerCase().includes(query.toLowerCase())
+  );
+}
+
 export const mockProducts: Product[] = [
   {
     id: '1',
