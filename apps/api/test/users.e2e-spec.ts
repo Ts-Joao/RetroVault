@@ -8,6 +8,7 @@ describe('Users', () => {
     let app: INestApplication
     let prisma: DatabaseService
     let userId: string
+    let accessToken: string
 
     beforeAll(async () => {
         const moduleRef = await Test.createTestingModule({
@@ -16,6 +17,7 @@ describe('Users', () => {
 
         app = moduleRef.createNestApplication();
         prisma = moduleRef.get<DatabaseService>(DatabaseService);
+        console.log('TEST DB:', process.env.DATABASE_URL)
     
         await app.init();
         await prisma.user.deleteMany();
@@ -31,7 +33,7 @@ describe('Users', () => {
         const userData = {
             name: 'joao-ts',
             email: 'teixeira@example.com',
-            password: '12345678'
+            password: 'Strong123@'
         }
         const response = await request(app.getHttpServer())
             .post('/users')
@@ -39,10 +41,26 @@ describe('Users', () => {
             .expect(201)
 
         userId = response.body.id
-    
+
         console.log(response.body);
         expect(response.body.email).toBe(userData.email)
         expect(response.body).toHaveProperty('id')
+    })
+
+    it('/AUTH/LOGIN', async () => {
+        const userData = {
+            email: 'teixeira@example.com',
+            password: 'Strong123@'
+        }
+        
+        const response = await request(app.getHttpServer())
+            .post('/auth/login')
+            .send(userData)
+            .expect(201)
+
+        accessToken = response.body.refresh_token
+
+        return response
     })
 
     it('/GET', async () => {
@@ -67,11 +85,12 @@ describe('Users', () => {
         const userData = {
             name: 'Ts-João',
             email: 'teixeira.simoes@gmail.com',
-            password: '87654321'
+            password: 'gnortS321!'
         }
         
         const response = await request(app.getHttpServer())
             .patch(`/users/${userId}`)
+            .set('Authorization', `Bearer ${accessToken}`)
             .send(userData)
             .expect(200)
 
@@ -82,6 +101,7 @@ describe('Users', () => {
     it('/DELETE', async () => {
         const response = await request(app.getHttpServer())
             .delete(`/users/${userId}`)
+            .set('Authorization', `Bearer ${accessToken}`)
             .expect(200)
 
         console.log(response.body)
