@@ -14,7 +14,7 @@ import { SelfOrAdminGuard } from './guard/owner-or-admin.guard';
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET'),
+        secret: config.get<string>('JWT_ACCESS_SECRET'),
         signOptions: { expiresIn: '10m' }
       }),
     }),

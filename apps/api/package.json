@@ -18,7 +18,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "dotenv -e .env.test -- jest --config ./test/jest-e2e.json --forceExit",
+    "db:test:prepare": "NODE_ENV=test dotenv -e .env -- pnpm prisma migrate reset --force",
+    "test:e2e": "NODE_ENV=test jest --config ./test/jest-e2e.json --forceExit",
     "studio": "dotenv -e .env -- prisma@5 studio --schema prisma/schema.prisma"
   },
   "dependencies": {

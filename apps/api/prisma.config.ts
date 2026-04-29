@@ -7,6 +7,6 @@ export default defineConfig({
     seed: 'tsx prisma/seed.ts',
   },
   datasource: {
-    url: 'postgresql://retrovault:retrovault@localhost:5432/retrovault_db?schema=public',
+    url: process.env.NODE_ENV === 'test' ? process.env.DATABASE_URL_TEST : process.env.DATABASE_URL,
   },
 });
