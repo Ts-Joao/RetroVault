@@ -1,7 +1,7 @@
 import { IsInt, Min } from "class-validator";
 
-export class updatedItemDto {
+export class UpdatedItemDto {
     @IsInt()
-    @Min()
+    @Min(1)
     amount: number;
 }

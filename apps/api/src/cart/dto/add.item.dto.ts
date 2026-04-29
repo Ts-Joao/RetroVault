@@ -1,6 +1,6 @@
 import { IsString, IsInt, Min } from "class-validator";
 
-export class addItemDto {
+export class AddItemDto {
     @IsString()
     productID: string;
 
