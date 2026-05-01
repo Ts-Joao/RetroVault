@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CartService } from './cart.service';
+import { CartService } from './cart.service'
 
-describe('CartService', () => {
+describe('CartController', () => {
     let service: CartService;
-
+    
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule
         ({

@@ -26,7 +26,7 @@ export class CartService {
     async addItem(userId: string, dto: AddItemDto) {
         const cart = await this.getOrCreateCart(userId);
         const product = await this.db.product.findUnique({
-            where: { id: dto.productID }
+            where: { id: dto.productId }
         });
 
         if (!product) {
@@ -37,7 +37,7 @@ export class CartService {
             where: {
                 cartId_productId: {
                     cartId: cart.id,
-                    productId: dto.productID
+                    productId: dto.productId
                 }
             }
         });
@@ -53,7 +53,7 @@ export class CartService {
         return this.db.cartItem.create({
             data: {
                 cartId: cart.id,
-                productId: dto.productID,
+                productId: dto.productId,
                 amount: dto.amount,
                 price: product.price
             },
@@ -90,7 +90,8 @@ export class CartService {
             throw new NotFoundException('Item not found in cart');
         }
 
-        return this.db.cartItem.delete({ where: { id: itemId }});
+        await this.db.cartItem.delete({ where: { id: itemId }});
+        return ({ where: 'Item removed sucessfully' })
     }
 
     async clearCart(userId: string) {
