@@ -135,6 +135,9 @@ model Cart {
   user     User       @relation(fields: [userId], references: [id])
   cartItem CartItem[]
 
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   @@map("carts")
 }
 
@@ -143,11 +146,12 @@ model CartItem {
   amount Int
   price  Decimal @db.Decimal(8, 2)
 
-  cartId    String
-  cart      Cart    @relation(fields: [cartId], references: [id])
-  productId String
+  cartId    String  @map("cart_id")
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String  @map("product_id")
   product   Product @relation(fields: [productId], references: [id])
 
+  @@unique([cartId, productId])
   @@map("cart_items")
 }
 
