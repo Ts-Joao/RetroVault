@@ -146,10 +146,11 @@ model CartItem {
   price  Decimal @db.Decimal(8, 2)
 
   cartId    String  @map("cart_id")
-  cart      Cart    @relation(fields: [cartId], references: [id])
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
   productId String  @map("product_id")
   product   Product @relation(fields: [productId], references: [id])
 
+  @@unique([cartId, productId])
   @@map("cart_items")
 }
 

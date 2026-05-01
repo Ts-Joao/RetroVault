@@ -1,7 +1,6 @@
 import { 
     Injectable,
-    NotFoundException,
-    BadRequestException
+    NotFoundException
 } from "@nestjs/common";
 import { DatabaseService } from "src/database/database.service";
 import { AddItemDto } from "./dto/add.item.dto";
@@ -38,7 +37,7 @@ export class CartService {
             where: {
                 cartId_productId: {
                     cartId: cart.id,
-                    product: dto.productID
+                    productId: dto.productID
                 }
             }
         });
