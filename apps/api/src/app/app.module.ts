@@ -5,6 +5,7 @@ import { UsersModule } from 'src/users/users.module';
 import { ProductsModule } from 'src/products/products.module';
 import { CartModule } from 'src/cart/cart.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { OrdersModule } from 'src/orders/orders.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { AuthModule } from 'src/auth/auth.module';
     UsersModule,
     ProductsModule,
     CartModule,
-    AuthModule
+    AuthModule,
+    OrdersModule
   ],
   providers: [AppService],
 })

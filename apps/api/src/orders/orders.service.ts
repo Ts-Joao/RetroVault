@@ -6,7 +6,7 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrdersService {
-    constructor(private readonly databaseService: DatabaseService) {}
+    constructor(private readonly databaseService: DatabaseService) { }
 
     async checkout(userId: string, dto: CreateOrderDto) {
         const cart = await this.databaseService.cart.findUnique({
@@ -25,11 +25,19 @@ export class OrdersService {
             throw new BadRequestException('Cart Empty!')
         }
 
+        cart.cartItem.map((cartItem) => {
+            console.log(cartItem.product.amount)
+            console.log(cartItem.amount)
+            if (cartItem.amount > cartItem.product.amount) {
+                throw new BadRequestException('Product out of stock!')
+            }
+        })
+
         const totalAmount = cart.cartItem.reduce((sum, item) => {
             return sum.add(new Prisma.Decimal(item.price).mul(item.amount))
         }, new Prisma.Decimal(0))
 
-        const order = await this.databaseService.$transaction(async (tx) =>{
+        const order = await this.databaseService.$transaction(async (tx) => {
             const newOrder = await tx.order.create({
                 data: {
                     userId,
@@ -57,9 +65,22 @@ export class OrdersService {
                     payment: true
                 }
             })
-            tx.cartItem.deleteMany({
-                where: { cartId: cart.id}
+            await tx.cartItem.deleteMany({
+                where: { cartId: cart.id }
             })
+
+            await Promise.all(
+                cart.cartItem.map((item) =>
+                    tx.product.update({
+                        where: { id: item.productId },
+                        data: {
+                            amount: {
+                                decrement: item.amount
+                            }
+                        }
+                    })
+                )
+            )
 
             return newOrder
         })
