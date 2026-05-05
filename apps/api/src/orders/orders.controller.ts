@@ -14,18 +14,18 @@ export class OrdersController {
     constructor(private readonly ordersService: OrdersService) {}
 
     @Post()
-    async checkout(@CurrentUser() userId: string, @Body() dto: CreateOrderDto) {
-        return this.ordersService.checkout(userId, dto)
+    async checkout(@CurrentUser() user: any, @Body() dto: CreateOrderDto) {
+        return this.ordersService.checkout(user.sub, dto)
     }
 
     @Get()
-    async findAll(@CurrentUser() userId: string) {
-        return this.ordersService.findAllByUser(userId)
+    async findAll(@CurrentUser() user: any) {
+        return this.ordersService.findAllByUser(user.sub)
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: string, @CurrentUser() userId: string) {
-        return this.ordersService.findOne(id, userId)
+    async findOne(@Param('id') id: string, @CurrentUser() user: any) {
+        return this.ordersService.findOne(user.sub, id)
     }
 
     @Patch(':id/status')
