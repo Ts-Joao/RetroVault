@@ -1,10 +1,8 @@
-import { AppModule } from '../src/app/app.module';
-import { NestFactory } from '@nestjs/core';
 import { DatabaseService } from '../src/database/database.service';
 
 async function bootstrap() {
-  const app = await NestFactory.createApplicationContext(AppModule);
-  const prisma = app.get<DatabaseService>(DatabaseService);
+  const prisma = new DatabaseService();
+  await prisma.onModuleInit();
 
   await prisma.user.upsert({
     where: {
@@ -29,7 +27,7 @@ async function bootstrap() {
     skipDuplicates: true,
   });
 
-  await app.close();
+  await prisma.$disconnect();
 }
 
 void bootstrap();
