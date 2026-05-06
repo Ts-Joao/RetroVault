@@ -6,22 +6,23 @@ import Image from "next/image"
 
 type Props = {
     product: Product
+    photo: string[ ]
 }
 
 
 
-export default async function DescriptionProductsGeral({ product }: Props) {
+export default async function DescriptionProductsGeral({ product, photo }: Props) {
     return (
-        <div className="w-full flex gap-5 ">  
+        <div className=" flex justify-center ">  
 
-            {/* DIV das Imagens */}
-            <div className="">
-                <Image src={product.photo} alt={product.name} width={200} height={200}/>
+            <div className=' flex gap-5 m-10  '>
+                
+                <Image src={ product.photo[0] } alt={product.name} width={300} height={500} />
             </div>
-        
+
 
             {/* DIV da Descrição */}
-            <div className="">
+            <div className=" p-5 m-10 bg-gray-300 rounded-lg shadow-md w-[300px] h-[300px] ">
                 <h1> {product.name} </h1>
             </div>
 

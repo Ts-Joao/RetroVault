@@ -39,7 +39,7 @@ export default function ProductCard({ product }: Props) {
     return (
         <div className="p-2 bg-[#d9d9d9] max-w-40 min-w-40 md:max-w-55 rounded-2xl grid justify-center items-center justify-self-center gap-1 md:gap-2 font-chakra-petch text-xs md:text-lg cursor-pointer">
             <div  onClick={() => router.push(`/products/${product.id}/${product.name}`)} className="bg-white flex relative justify-center items-center h-35 w-35 md:w-full rounded-t-xl">
-                <Image src={product.photo} alt={product.name} fill className="object-contain"/>
+                <Image src={product.photo[0]} alt={product.name} fill className="object-contain"/>
             </div>
 
             <h1 onClick={() => router.push(`/products/${product.id}/${product.name}`)} className="font-barlow-condensed text-lg md:text-2xl leading-none">{product.name}</h1>

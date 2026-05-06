@@ -28,7 +28,7 @@ export default function CheckoutClient({product}: {product : Product}) {
                 {/* div principal */}
                 <div className='bg-[#d9d9d9] flex p-3 rounded-lg lg:rounded-2xl'>
                     <div className='bg-white flex relative items-center justify-center rounded-lg lg:rounded-2xl w-50 h-50 md:w-120 md:h-120'>
-                        <Image src={product.photo} alt={product.name} fill className='object-contain' />
+                        <Image src={product.photo[0]} alt={product.name} fill className='object-contain' />
                     </div>
                     <div className='flex flex-col lg:px-7 py-2 lg:py-5 gap-13'>
                         <div className='flex flex-col gap-4'>
