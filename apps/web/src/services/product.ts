@@ -38,7 +38,7 @@ export const mockProducts: Product[] = [
     id: '2',
     name: 'Shadow of the Colossus PS4 Remake',
     price: 154,
-    photo: ['/image/shadow-of-the-colossus.png', '/image/shadow-of-the-colossus.png', '/image/shadow-of-the-colossus.png' ],
+    photo: ['/image/shadow-of-the-colossus.png', '/image/sonic-x-shadow-generations.nintendo-switch.webp', '/image/shadow-of-the-colossus.png' ],
     seller_id: '2',
     rating: 4,
     max_installments: 6,
