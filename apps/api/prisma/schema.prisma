@@ -28,6 +28,7 @@ model User {
   profilePic Photo?
   cart       Cart?
   products   Product[]
+  wallet     Wallet?
 
   // map
   @@map("users")
@@ -163,6 +164,41 @@ enum OrderStatus {
   CANCELED  @map("canceled")
 }
 
+model Wallet {
+  id      String  @id @default(uuid())
+  balance Decimal @default(0) @db.Decimal(10, 2)
+
+  // relations
+  userId String @unique @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  walletTransactions WalletTransaction[]
+
+  // map
+  @@map("wallets")
+}
+
+enum TypeWalletTransaction {
+  DEPOSIT    @map("deposit")
+  WITHDRAWAL @map("withdrawal")
+}
+
+model WalletTransaction {
+  id          String                @id @default(cuid())
+  amount      Decimal               @db.Decimal(10, 2)
+  type        TypeWalletTransaction
+  description String                @default("")
+  createdAt   DateTime              @default(now()) @map("created_at")
+
+  walletId  String   @map("wallet_id")
+  wallet    Wallet   @relation(fields: [walletId], references: [id])
+  paymentId Int?     @map("payment_id")
+  payment   Payment? @relation(fields: [paymentId], references: [id])
+
+  // map
+  @@map("wallet_transactions")
+}
+
 model Order {
   id          String      @id @default(cuid())
   status      OrderStatus @default(PENDING)
@@ -200,6 +236,7 @@ enum PaymentMethod {
   BOLETO      @map("boleto")
   DEBIT_CARD  @map("debit_card")
   CREDIT_CARD @map("credit_card")
+  WALLET      @map("wallet")
 }
 
 enum PaymentStatus {
@@ -215,11 +252,13 @@ model Payment {
   paidAt        DateTime      @default(now()) @map("paid_at")
   status        PaymentStatus
   paymentMethod PaymentMethod @map("payment_method")
-  installments  Int           @default(1)
+  installments  Int?
 
   // relations
   orderId String @unique @map("order_id")
   order   Order  @relation(fields: [orderId], references: [id])
+
+  walletTransactions WalletTransaction[]
 
   // map
   @@map("payments")
