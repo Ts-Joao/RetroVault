@@ -141,7 +141,7 @@ export class OrdersService {
     async updateStatus(id: string, dto: UpdateOrderDto) {
         const order = await this.databaseService.order.findUnique({
             where: { id },
-            include: { payment: true }
+            include: { payment: true, orderItems: true }
         })
 
         if (!order) {
@@ -155,7 +155,9 @@ export class OrdersService {
         return this.databaseService.$transaction(async (tx) => {
             const updateOrder = await tx.order.update({
                 where: { id },
-                data: dto
+                data: {
+                    status: dto.status
+                }
             })
 
             const isCaptured = order.payment?.status === 'CAPTURED'
@@ -182,6 +184,17 @@ export class OrdersService {
                         walletId: wallet.id
                     }
                 })
+                
+                await Promise.all(
+                    order.orderItems.map(async (item) => {
+                        await tx.product.update({
+                            where: { id: item.productId },
+                            data: {
+                                amount: { increment: item.amount }
+                            }
+                        })
+                    })
+                )
             }
             
             return updateOrder
