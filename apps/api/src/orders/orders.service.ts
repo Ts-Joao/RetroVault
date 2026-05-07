@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { PaymentStatus, Prisma } from '@prisma/client';
+import { OrderStatus, PaymentMethod, PaymentStatus, Prisma } from '@prisma/client';
 import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
@@ -30,6 +30,30 @@ export class OrdersService {
         }, new Prisma.Decimal(0))
 
         const order = await this.databaseService.$transaction(async (tx) =>{
+            if (dto.paymentMethod === PaymentMethod.WALLET) {
+                const wallet = await tx.wallet.findUnique({ where: { userId } })
+
+                if (!wallet) {
+                    throw new NotFoundException('Wallet Not Found!')
+                }
+                if (wallet.balance.lessThan(totalAmount)) {
+                    throw new UnprocessableEntityException('Saldo insuficiente na wallet')
+                }
+
+                await tx.wallet.update({
+                    where: { userId },
+                    data: { balance: { decrement: totalAmount } }
+                })
+
+                await tx.walletTransaction.create({
+                    data: {
+                        type: 'DEPOSIT',
+                        amount: totalAmount,
+                        description: 'Pagamento do pedido com wallet',
+                        walletId: wallet.id
+                    }
+                })
+            }
             const newOrder = await tx.order.create({
                 data: {
                     userId,
@@ -44,20 +68,20 @@ export class OrdersService {
                     },
                     payment: {
                         create: {
-                            status: PaymentStatus.PENDING,
+                            status: dto.paymentMethod === PaymentMethod.WALLET
+                                ? PaymentStatus.CAPTURED
+                                : PaymentStatus.PENDING,
                             paymentMethod: dto.paymentMethod,
                             installments: dto.installments ?? 1
                         }
                     }
                 },
                 include: {
-                    orderItems: {
-                        include: { product: true }
-                    },
+                    orderItems: { include: { product: true } },
                     payment: true
                 }
             })
-            tx.cartItem.deleteMany({
+            await tx.cartItem.deleteMany({
                 where: { cartId: cart.id}
             })
 
@@ -94,9 +118,52 @@ export class OrdersService {
     }
 
     async updateStatus(id: string, dto: UpdateOrderDto) {
-        return await this.databaseService.order.update({
+        const order = await this.databaseService.order.findUnique({
             where: { id },
-            data: { status: dto.status }
+            include: { payment: true }
+        })
+
+        if (!order) {
+            throw new NotFoundException('Order Not Found!')
+        }
+
+        if (order.status === 'CANCELED') {
+            throw new BadRequestException('Order Already Canceled!')
+        }
+
+        return this.databaseService.$transaction(async (tx) => {
+            const updateOrder = await tx.order.update({
+                where: { id },
+                data: dto
+            })
+
+            const isCaptured = order.payment?.status === 'CAPTURED'
+            const isCanceled = dto.status === 'CANCELED'
+            if (isCanceled && isCaptured) {
+                const wallet = await tx.wallet.findUnique({
+                    where: { userId: order.userId }
+                })
+
+                if (!wallet) {
+                    throw new NotFoundException('Wallet Not Found!')
+                }
+    
+                await tx.wallet.update({
+                    where: { userId: order.userId },
+                    data: { balance: { increment: order.totalAmount } }
+                })
+    
+                await tx.walletTransaction.create({
+                    data: {
+                        type: 'DEPOSIT',
+                        amount: order.totalAmount,
+                        description: `Estorno do pedido #${id}`,
+                        walletId: wallet.id
+                    }
+                })
+            }
+            
+            return updateOrder
         })
     }
 }
