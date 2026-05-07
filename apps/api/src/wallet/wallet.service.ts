@@ -41,7 +41,7 @@ export class WalletService {
             await tx.walletTransaction.create({
                 data: {
                     type: 'DEPOSIT',
-                    description: 'Depósito',
+                    description: `Depósito de R$ ${dto.amount.toFixed(2)} realizado!`,
                     amount: dto.amount,
                     walletId: wallet.id
                 }

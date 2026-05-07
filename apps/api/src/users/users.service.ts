@@ -28,7 +28,7 @@ export class UsersService {
                     }
                 })
                 
-                await  tx.wallet.create({
+                await tx.wallet.create({
                     data: {
                         userId: newUser.id
                     }
