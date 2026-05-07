@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { PaymentMethod, PaymentStatus, Prisma } from '@prisma/client';
+import { OrderStatus, PaymentMethod, PaymentStatus, Prisma } from '@prisma/client';
 import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
@@ -118,9 +118,52 @@ export class OrdersService {
     }
 
     async updateStatus(id: string, dto: UpdateOrderDto) {
-        return await this.databaseService.order.update({
+        const order = await this.databaseService.order.findUnique({
             where: { id },
-            data: { status: dto.status }
+            include: { payment: true }
+        })
+
+        if (!order) {
+            throw new NotFoundException('Order Not Found!')
+        }
+
+        if (order.status === 'CANCELED') {
+            throw new BadRequestException('Order Already Canceled!')
+        }
+
+        return this.databaseService.$transaction(async (tx) => {
+            const updateOrder = await tx.order.update({
+                where: { id },
+                data: dto
+            })
+
+            const isCaptured = order.payment?.status === 'CAPTURED'
+            const isCanceled = dto.status === 'CANCELED'
+            if (isCanceled && isCaptured) {
+                const wallet = await tx.wallet.findUnique({
+                    where: { userId: order.userId }
+                })
+
+                if (!wallet) {
+                    throw new NotFoundException('Wallet Not Found!')
+                }
+    
+                await tx.wallet.update({
+                    where: { userId: order.userId },
+                    data: { balance: { increment: order.totalAmount } }
+                })
+    
+                await tx.walletTransaction.create({
+                    data: {
+                        type: 'DEPOSIT',
+                        amount: order.totalAmount,
+                        description: `Estorno do pedido #${id}`,
+                        walletId: wallet.id
+                    }
+                })
+            }
+            
+            return updateOrder
         })
     }
 }
