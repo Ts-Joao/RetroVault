@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { PaymentStatus, Prisma } from '@prisma/client';
+import { PaymentMethod, PaymentStatus, Prisma } from '@prisma/client';
 import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
@@ -30,6 +30,30 @@ export class OrdersService {
         }, new Prisma.Decimal(0))
 
         const order = await this.databaseService.$transaction(async (tx) =>{
+            if (dto.paymentMethod === PaymentMethod.WALLET) {
+                const wallet = await tx.wallet.findUnique({ where: { userId } })
+
+                if (!wallet) {
+                    throw new NotFoundException('Wallet Not Found!')
+                }
+                if (wallet.balance.lessThan(totalAmount)) {
+                    throw new UnprocessableEntityException('Saldo insuficiente na wallet')
+                }
+
+                await tx.wallet.update({
+                    where: { userId },
+                    data: { balance: { decrement: totalAmount } }
+                })
+
+                await tx.walletTransaction.create({
+                    data: {
+                        type: 'DEPOSIT',
+                        amount: totalAmount,
+                        description: 'Pagamento do pedido com wallet',
+                        walletId: wallet.id
+                    }
+                })
+            }
             const newOrder = await tx.order.create({
                 data: {
                     userId,
@@ -44,20 +68,20 @@ export class OrdersService {
                     },
                     payment: {
                         create: {
-                            status: PaymentStatus.PENDING,
+                            status: dto.paymentMethod === PaymentMethod.WALLET
+                                ? PaymentStatus.CAPTURED
+                                : PaymentStatus.PENDING,
                             paymentMethod: dto.paymentMethod,
                             installments: dto.installments ?? 1
                         }
                     }
                 },
                 include: {
-                    orderItems: {
-                        include: { product: true }
-                    },
+                    orderItems: { include: { product: true } },
                     payment: true
                 }
             })
-            tx.cartItem.deleteMany({
+            await tx.cartItem.deleteMany({
                 where: { cartId: cart.id}
             })
 
