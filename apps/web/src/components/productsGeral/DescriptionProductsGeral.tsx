@@ -1,4 +1,4 @@
-import { getProductById, getProducts } from '@/services/product'
+
 import { Product} from "@retrovault/core"
 import Image from "next/image"
 
@@ -25,7 +25,7 @@ export default async function DescriptionProductsGeral({ product }: Props) {
                 <h1> {product.name} </h1>
             </div>
 
-        </div>   
+        </div>
     )
 
 

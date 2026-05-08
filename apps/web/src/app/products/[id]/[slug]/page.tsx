@@ -1,5 +1,6 @@
 
 import DescriptionProductsGeral from "@/components/productsGeral/DescriptionProductsGeral"
+import RecomentsProducts from "@/components/productsGeral/RecomentsProducts";
 import Reviews from "@/components/productsGeral/Review";
 import { getProductById, getProducts } from '@/services/product'
 import { getReview } from "@/services/review";
@@ -28,6 +29,7 @@ export default async function ProductPage({ params }: ProductsPageProps) {
     return (
         <>
             <DescriptionProductsGeral product={product} key={product.id}/>
+            <RecomentsProducts/>
             <Reviews reviews={filteredReviews} />
         </>
     )
