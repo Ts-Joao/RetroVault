@@ -7,6 +7,9 @@ import { PiBag } from "react-icons/pi";
 import StarRating from "@/components/StarRating";
 import { Product, calculeCartInstallments, formatPrice, splitPrice } from "@retrovault/core"
 import { mockUsers } from "@/services/user";
+import ButtonFavorites from "@/components/Favoritos/ButtonFavorites";
+import { getFavorites } from "@/services/favorites";
+
 
 
 
@@ -51,6 +54,10 @@ export default function ProductCard({ product }: Props) {
                     <p className="text-sm md:text-xl">{product.max_installments}x</p>
                     <span className="text-xs md:text-sm flex">R$ {units}, <p className="text-[10px] flex items-stretch">{cents}</p></span>
                 </div>
+            </div>
+
+            <div>
+                <ButtonFavorites productId={product.id}/>
             </div>
 
             <div className="flex items-center justify-center gap-1 md:gap-2 text-center">
