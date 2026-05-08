@@ -20,12 +20,12 @@ export default function DescriptionProductsGeral({ product }: Props) {
 
 
     return (
-        <div className="flex justify-center">
+        <div className="flex justify-evenly  ">
 
-            <div className="flex gap-5 m-10">
+            <div className="flex gap-20 m-10">
 
                 {/* MINIATURAS */}
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-5">
                     {images.map((img, index) => (
                         <button
                             key={index}
@@ -61,8 +61,8 @@ export default function DescriptionProductsGeral({ product }: Props) {
 
 
             {/* DIV da Descrição */}
-            <div className=" p-5 m-10 bg-gray-300 rounded-lg shadow-md w-[300px] h-[300px] ">
-                <h1> {product.name} </h1>
+            <div className=" p-5 m-10 bg-gray-300 rounded-lg shadow-md w-[500px] h-[300px]  ">
+                <h1 className=" font-barlow-condensed font-semibold text-xl " > {product.name} </h1>
             </div>
 
         </div>   
