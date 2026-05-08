@@ -138,6 +138,28 @@ export class OrdersService {
         return order
     }
 
+    async updatePaymentStatus(id: string, dto: UpdateOrderDto) {
+        const order = await this.databaseService.order.findUnique({
+            where: { id },
+            include: { payment: true }
+        })
+
+        if (!order) {
+            throw new NotFoundException('Order Not Found!')
+        }
+
+        return this.databaseService.order.update({
+            where: { id },
+            data: {
+                payment: {
+                    update: {
+                        status: dto.paymentStatus
+                    }
+                }
+            }
+        })
+    }
+
     async updateStatus(id: string, dto: UpdateOrderDto) {
         const order = await this.databaseService.order.findUnique({
             where: { id },

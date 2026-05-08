@@ -28,6 +28,11 @@ export class OrdersController {
         return this.ordersService.findOne(user.sub, id)
     }
 
+    @Patch(':id')
+    async changePaymentStatus(@Param('id') id: string, @Body() dto: UpdateOrderDto) {
+        return this.ordersService.updatePaymentStatus(id, dto)
+    }
+
     @Patch(':id/status')
     @UseGuards(RolesGuard)
     @Roles(Role.ADMIN)
