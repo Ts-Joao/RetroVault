@@ -10,6 +10,8 @@ export interface Product {
     monthly_interest_rate: number
     min_installment_amount: number
     shipping_cost: number
+    type: string[]
+    genre: string[]
 }
 
 export interface ProductDetails extends Product {

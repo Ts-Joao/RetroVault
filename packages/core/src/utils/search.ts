@@ -1,13 +1,55 @@
 import { Product } from "../types/product"
-import { mockProducts } from "../../../../apps/web/src/services/product"
 
-export function searchProducts(query: string): Product[] {
-  if (!query) return mockProducts
+type SearchFilters = {
+  query?: string
+  minPrice?: number
+  maxPrice?: number
+  type?: string
+  genre?: string
+}
 
-  const q = query.toLowerCase()
+export function searchProducts(
+  products: Product[],
+  filters: SearchFilters
+): Product[] {
 
-  return mockProducts.filter((product: Product) =>
-    product.name.toLowerCase().includes(q) ||
-    product.seller_id.toLowerCase().includes(q)
-  )
+  const {
+    query,
+    minPrice,
+    maxPrice,
+    type,
+    genre
+  } = filters
+
+  return products.filter((product: Product) => {
+
+    const matchQuery =
+      !query ||
+      product.name.toLowerCase().includes(query.toLowerCase()) ||
+      product.seller_id.toLowerCase().includes(query.toLowerCase())
+
+    const matchMinPrice =
+      minPrice === undefined ||
+      product.price >= minPrice
+
+    const matchMaxPrice =
+      maxPrice === undefined ||
+      product.price <= maxPrice
+
+    const matchType =
+      !type ||
+      product.type.includes(type)
+
+    const matchGenre =
+      !genre ||
+      product.genre.includes(genre)
+
+    return (
+      matchQuery &&
+      matchMinPrice &&
+      matchMaxPrice &&
+      matchType &&
+      matchGenre
+    )
+  })
 }

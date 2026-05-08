@@ -32,7 +32,9 @@ export const mockProducts: Product[] = [
     free_installments: 10,
     min_installment_amount: 20,
     monthly_interest_rate: 0.02,
-    shipping_cost: 0
+    shipping_cost: 0,
+    type: ['game'],
+    genre: ['racing', 'sports']
   },
   {
     id: '2',
@@ -45,7 +47,9 @@ export const mockProducts: Product[] = [
     free_installments: 3,
     min_installment_amount: 10,
     monthly_interest_rate: 0.03,
-    shipping_cost: 20
+    shipping_cost: 20,
+    type: ['game'],
+    genre: ['action', 'adventure']
   },
   {
     id: '3',
@@ -58,7 +62,9 @@ export const mockProducts: Product[] = [
     free_installments: 8,
     min_installment_amount: 20,
     monthly_interest_rate: 0.05,
-    shipping_cost: 10
+    shipping_cost: 10,
+    type: ['game'],
+    genre: ['rpg', 'adventure']
   },
   {
     id: '4',
@@ -71,7 +77,9 @@ export const mockProducts: Product[] = [
     monthly_interest_rate: 0.02,
     seller_id: '3',
     rating: 5,
-    shipping_cost: 10
+    shipping_cost: 10,
+    type: ['game'],
+    genre: ['action', 'adventure']
   },
   {
     id: '5',
@@ -84,7 +92,9 @@ export const mockProducts: Product[] = [
     monthly_interest_rate: 0.04,
     seller_id: '2',
     rating: 4.5,
-    shipping_cost: 10
+    shipping_cost: 10,
+    type: ['game'],
+    genre: ['action', 'stealth']
   },
   {
     id: '6',
@@ -97,6 +107,8 @@ export const mockProducts: Product[] = [
     monthly_interest_rate: 0.05,
     seller_id: '3',
     rating: 5,
-    shipping_cost: 10
+    shipping_cost: 10,
+    type: ['game'],
+    genre: ['action', 'adventure']
   },
 ]
