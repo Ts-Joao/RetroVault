@@ -1,5 +1,6 @@
 
 import DescriptionProductsGeral from "@/components/productsGeral/DescriptionProductsGeral"
+import RecomentsProducts from "@/components/productsGeral/RecomentsProducts";
 import Reviews from "@/components/productsGeral/Review";
 import NavBar from "@/components/layout/nav-bar/NavBar";
 import Footer from "@/components/layout/footer/Footer";
@@ -31,6 +32,7 @@ export default async function ProductPage({ params }: ProductsPageProps) {
         <>
             <NavBar/>
             <DescriptionProductsGeral product={product} key={product.id}/>
+            <RecomentsProducts/>
             <Reviews reviews={filteredReviews} />
             <Footer />
         </>

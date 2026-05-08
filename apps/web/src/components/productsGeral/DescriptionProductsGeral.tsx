@@ -1,3 +1,4 @@
+
 'use client'
 
 import { Product } from "@retrovault/core"
@@ -65,7 +66,7 @@ export default function DescriptionProductsGeral({ product }: Props) {
                 <h1 className=" font-barlow-condensed font-semibold text-xl " > {product.name} </h1>
             </div>
 
-        </div>   
+        </div>
     )
 
 
