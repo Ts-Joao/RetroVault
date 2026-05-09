@@ -23,7 +23,7 @@ export default function SearchFilters({
   setGenre
 }: Props) {
   return (
-    <div className="flex flex-col gap-5 p-4 rounded-2xl border border-gray-500 relative bottom-0 ">
+    <div className="flex flex-col gap-5 p-4 rounded-2xl border border-gray-200 bg-gray-200 relative bottom-0 ">
 
       <h1 className=" text-2xl font-barlow-condensed font-bold text-red-600 " >Filtros</h1>
 
