@@ -40,37 +40,33 @@ export default function SearchPage() {
   }, [query, minPrice, maxPrice, type, genre]);
 
   return (
-    <div>
+    <div className="min-h-screen flex flex-col">
+      <NavBar />
 
-      <div>
-        <NavBar />
-      </div>
+      <main className="flex-1">
+        <h1 className="text-2xl font-bold m-6">Resultados para: "{query}"</h1>
 
-      <h1 className="text-2xl font-bold m-6">Resultados para: "{query}"</h1>
+        <section className="flex gap-5 m-6 items-start">
+          <SearchFilters
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            type={type}
+            genre={genre}
+            setMinPrice={setMinPrice}
+            setMaxPrice={setMaxPrice}
+            setType={setType}
+            setGenre={setGenre}
+          />
 
+          {results.length === 0 && <p>Nenhum resultado encontrado</p>}
 
-     <section className="flex gap-5 ml-3 p-3">
+          <div>
+            <ProductGrid products={results} />
+          </div>
+        </section>
+      </main>
 
-      <SearchFilters
-        minPrice={minPrice}
-        maxPrice={maxPrice}
-        type={type}
-        genre={genre}
-        setMinPrice={setMinPrice}
-        setMaxPrice={setMaxPrice}
-        setType={setType}
-        setGenre={setGenre}
-      />
-
-      {results.length === 0 && <p>Nenhum resultado encontrado</p>}
-
-    <div>
-      <ProductGrid products={results} />
-    </div>
-
-    </section>
       <Footer />
-
     </div>
   );
 }
