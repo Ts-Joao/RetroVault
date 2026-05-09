@@ -23,15 +23,17 @@ export default function SearchFilters({
   setGenre
 }: Props) {
   return (
-    <div className="flex flex-col gap-4 mb-8">
+    <div className="flex flex-col gap-5 mb-8  p-4 rounded-2xl border border-gray-500 bg-[#FEC41A] ">
 
-      <div className="flex gap-4">
+      <h1 className=" text-2xl font-barlow-condensed font-bold text-red-600 " >Filtros</h1>
+
+      <div className="flex gap-4 ">
         <input
           type="number"
           placeholder="Preço mínimo"
           value={minPrice}
           onChange={(e) => setMinPrice(e.target.value)}
-          className="border p-2 rounded"
+          className="border p-2 rounded font-barlow-condensed text-xl border-red-700 text-red-600 font-semibold"
         />
 
         <input
@@ -39,16 +41,18 @@ export default function SearchFilters({
           placeholder="Preço máximo"
           value={maxPrice}
           onChange={(e) => setMaxPrice(e.target.value)}
-          className="border p-2 rounded"
+          className="border p-2 rounded font-barlow-condensed border-red-700 text-red-600 text-xl font-semibold "
         />
       </div>
 
-      <div className="flex gap-4">
+
+
+      <div className="flex flex-col gap-5">
 
         <select
           value={type}
           onChange={(e) => setType(e.target.value)}
-          className="border p-2 rounded"
+          className="border border-red-700 text-red-600 p-2 rounded font-barlow-condensed text-xl font-semibold "
         >
           <option value="">Todos os tipos</option>
           <option value="game">Jogo</option>
@@ -58,7 +62,7 @@ export default function SearchFilters({
         <select
           value={genre}
           onChange={(e) => setGenre(e.target.value)}
-          className="border p-2 rounded"
+          className="border border-red-700 text-red-600 p-2 rounded font-barlow-condensed text-xl font-semibold "
         >
           <option value="">Todos os gêneros</option>
           <option value="action">Ação</option>

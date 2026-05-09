@@ -6,6 +6,9 @@ import { Product } from "@retrovault/core";
 import { searchProducts } from "../../../../../packages/core/src/utils/search";
 import SearchFilters from "@/components/SearchFilters/SearchFilters";
 import { mockProducts } from "@/services/product";
+import ProductGrid from "@/components/layout/product-grid/ProductGrid";
+import NavBar from "@/components/layout/nav-bar/NavBar";
+import Footer from "@/components/layout/footer/Footer";
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
@@ -37,8 +40,16 @@ export default function SearchPage() {
   }, [query, minPrice, maxPrice, type, genre]);
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">Resultados para: "{query}"</h1>
+    <div>
+
+      <div>
+        <NavBar />
+      </div>
+
+      <h1 className="text-2xl font-bold m-6">Resultados para: "{query}"</h1>
+
+
+     <section className="flex gap-5 ml-3 p-3">
 
       <SearchFilters
         minPrice={minPrice}
@@ -53,19 +64,13 @@ export default function SearchPage() {
 
       {results.length === 0 && <p>Nenhum resultado encontrado</p>}
 
-      <div className="flex flex-col gap-4">
-        {results.map((product) => (
-          <div key={product.id} className="border p-4 rounded">
-            <h2 className="font-bold">{product.name}</h2>
+    <div>
+      <ProductGrid products={results} />
+    </div>
 
-            <p>R$ {product.price}</p>
+    </section>
+      <Footer />
 
-            <p>Tipo: {product.type.join(", ")}</p>
-
-            <p>Gênero: {product.genre.join(", ")}</p>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

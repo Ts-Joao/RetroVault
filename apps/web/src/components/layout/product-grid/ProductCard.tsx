@@ -41,7 +41,15 @@ export default function ProductCard({ product }: Props) {
 
     return (
         <div className="p-2 bg-[#d9d9d9] max-w-40 min-w-40 md:max-w-55 rounded-2xl grid justify-center items-center justify-self-center gap-1 md:gap-2 font-chakra-petch text-xs md:text-lg cursor-pointer">
+
+                
+            
             <div  onClick={() => router.push(`/products/${product.id}/${product.name}`)} className="bg-white flex relative justify-center items-center h-35 w-35 md:w-full rounded-t-xl">
+
+               <div className="z-1 absolute right-2 top-2 "> 
+                <ButtonFavorites productId={product.id}/>
+                </div>
+
                 <Image src={product.photo[0]} alt={product.name} fill className="object-contain"/>
             </div>
 
@@ -54,10 +62,6 @@ export default function ProductCard({ product }: Props) {
                     <p className="text-sm md:text-xl">{product.max_installments}x</p>
                     <span className="text-xs md:text-sm flex">R$ {units}, <p className="text-[10px] flex items-stretch">{cents}</p></span>
                 </div>
-            </div>
-
-            <div>
-                <ButtonFavorites productId={product.id}/>
             </div>
 
             <div className="flex items-center justify-center gap-1 md:gap-2 text-center">
