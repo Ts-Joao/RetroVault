@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { validateImageFile } from './validators/file.validator';
+import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 
 @Injectable()
 export class UploadService {
@@ -19,6 +20,28 @@ export class UploadService {
             create: { userId, url},
             update: { url },
         });
+    }
+
+    async getProfilePhoto(userId: string) {
+        const userPhoto = await this.db.profilePhoto.findUnique({
+            where: { userId },
+        });
+
+        if (!userPhoto) {
+            throw new NotFoundException('the profile photo not found');
+        }
+        return userPhoto
+    }
+
+    async deleteProfilePhoto(userId: string) {
+        const userPhoto = await this.db.profilePhoto.findUnique({
+            where: { userId },
+        });
+
+        if (!userPhoto) {
+            throw new NotFoundException('Error in delete profile photo')
+        }
+        return this.db.profilePhoto.delete({ where: { userId }});
     }
 
     async uploadProductPhoto(

@@ -11,7 +11,6 @@ import {
 import { UploadService } from './upload.service';
 import { ProfilePhotoInterceptor } from './interceptors/profile-photo.interceptor';
 import { ProductPhotoInterceptor } from './interceptors/product-photo.interceptor';
-import { Product } from 'src/products/entities/product.entity';
 
 @Controller('uploads')
 export class UploadController {
@@ -24,6 +23,16 @@ export class UploadController {
         @UploadedFile() file: Express.Multer.File,
     ) {
         return this.uploadService.uploadProfilePhoto(userId, file);
+    }
+
+    @Get('profile')
+    getProfilesPhoto(@Headers('user-id') userId: string) {
+        return this.uploadService.getProfilePhoto(userId);
+    }
+
+    @Delete('profile')
+    deleteProfilePhoto(@Headers('user-id') userId: string) {
+        return this.uploadService.deleteProfilePhoto(userId);
     }
 
     @Post('products/:productId')
