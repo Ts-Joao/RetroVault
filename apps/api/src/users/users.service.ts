@@ -148,7 +148,7 @@ export class UsersService {
                     await tx.cart.delete({ where: { userId: id } })
                 }
                 if (findUser.profilePic) {
-                    await tx.photo.delete({ where: { userId: id } })
+                    await tx.profilePhoto.delete({ where: { userId: id } })
                 }
 
                 return await tx.user.delete({
