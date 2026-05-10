@@ -17,14 +17,13 @@ describe('Users', () => {
 
         app = moduleRef.createNestApplication();
         prisma = moduleRef.get<DatabaseService>(DatabaseService);
-        console.log('TEST DB:', process.env.DATABASE_URL)
     
         await app.init();
-        await prisma.user.deleteMany();
+        await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
     })
 
     afterAll(async () => {
-        await prisma.user.deleteMany();
+        await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
         await prisma.$disconnect();
         await app.close();
     });
@@ -40,11 +39,11 @@ describe('Users', () => {
             .send(userData)
             .expect(201)
 
-        userId = response.body.id
+        userId = response.body.newUser.id
 
         console.log(response.body);
-        expect(response.body.email).toBe(userData.email)
-        expect(response.body).toHaveProperty('id')
+        expect(response.body.newUser.email).toBe(userData.email)
+        expect(response.body.newUser).toHaveProperty('id')
     })
 
     it('/AUTH/LOGIN', async () => {
@@ -58,7 +57,7 @@ describe('Users', () => {
             .send(userData)
             .expect(201)
 
-        accessToken = response.body.refresh_token
+        accessToken = response.body.acess_token
 
         return response
     })
