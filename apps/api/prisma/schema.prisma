@@ -83,6 +83,7 @@ model Product {
   amount       Int
   rating       Decimal? @default(0.0) @db.Decimal(2, 1)
   shippingCost Decimal? @map("shipping_cost") @db.Decimal(3, 2)
+  isActive     Boolean  @default(true) @map("is_active")
 
   maxInstallments      Int?     @default(1) @map("max_intallments")
   freeInstallments     Int?     @default(1) @map("free_intalments")

@@ -33,6 +33,14 @@ export class ProductsController {
         return this.productsService.update(id, updateProduct)
     } 
 
+    @Patch('soft-delete/:id')
+    softDeleteProduct(@Headers('user-id') sellerId: string, @Param('id') id: string) {
+        if (!sellerId) {
+            throw new UnauthorizedException('Seller ID is required');
+        }
+        return this.productsService.softDelete(id)
+    }
+
     @Delete(':id')
     deleteProduct(@Headers('user-id') sellerId: string, @Param('id') id: string) {
         if (!sellerId) {
