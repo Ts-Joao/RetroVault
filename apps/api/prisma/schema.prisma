@@ -25,7 +25,7 @@ model User {
 
   // relations
   order      Order[]
-  profilePic Photo?
+  profilePic ProfilePhoto?
   cart       Cart?
   products   Product[]
   wallet     Wallet?
@@ -34,20 +34,25 @@ model User {
   @@map("users")
 }
 
-model Photo {
+model ProfilePhoto {
+  id  String  @id @default(cuid())
+  url String
+
+  userId String @unique @map("user_id")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profile_photos")
+}
+
+model ProductPhoto {
   id  String @id @default(cuid())
   url String
 
-  // relations
-  productId String  @map("product_id")
-  product   Product @relation(fields: [productId], references: [id])
-  userId    String  @unique @map("user_id")
-  user      User    @relation(fields: [userId], references: [id])
+  productId String @map("product_id")
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  // map
-  @@map("photos")
+  @@map("product_photos")
 }
-
 model Genre {
   id   Int    @id @default(autoincrement())
   name String @unique
@@ -98,7 +103,7 @@ model Product {
   // relations
   mediaTypeId Int           @map("media_type_id")
   mediaType   MediaType     @relation(fields: [mediaTypeId], references: [id])
-  photos      Photo[]
+  photos      ProductPhoto[]
   orderItems  OrderItem[]
   genre       Genre[]
   cartItems   CartItem[]
