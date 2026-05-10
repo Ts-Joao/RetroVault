@@ -255,10 +255,12 @@ enum PaymentStatus {
 
 model Payment {
   id            Int           @id @default(autoincrement())
-  paidAt        DateTime      @default(now()) @map("paid_at")
-  status        PaymentStatus
-  paymentMethod PaymentMethod @map("payment_method")
+  paidAt        DateTime?     @map("paid_at")
+  status        PaymentStatus @default(PENDING)
+  paymentMethod PaymentMethod? @map("payment_method")
   installments  Int?
+  confirmationCode String? @unique @map("confirmation_code")
+  tokenExpiresAt DateTime? @map("token_expires_at")
 
   // relations
   orderId String @unique @map("order_id")

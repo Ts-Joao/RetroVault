@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+import { DatabaseService } from '../src/database/database.service';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 import { Pool } from 'pg';
@@ -13,13 +13,6 @@ const prisma = new PrismaClient({ adapter });
 
 async function bootstrap() {
   const hashedPassword = await bcrypt.hash('Admin@123456', 12);
-=======
-import { DatabaseService } from '../src/database/database.service';
-
-async function bootstrap() {
-  const prisma = new DatabaseService();
-  await prisma.onModuleInit();
->>>>>>> origin/develop
 
   await prisma.user.upsert({
     where: { email: 'admin@retrovault.com' },
@@ -38,10 +31,7 @@ async function bootstrap() {
   });
 
   await prisma.$disconnect();
-<<<<<<< HEAD
   await pool.end();
-=======
->>>>>>> origin/develop
 }
 
 void bootstrap();
