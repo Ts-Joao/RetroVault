@@ -18,9 +18,9 @@ jobs:
       postgres:
         image: postgres:17
         env:
-          POSTGRES_DB: test
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
+          POSTGRES_DB: retrovault_db_test
+          POSTGRES_USER: retrovault
+          POSTGRES_PASSWORD: retrovault
         ports:
           - 5433:5432
         options: >-
