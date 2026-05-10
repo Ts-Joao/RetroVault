@@ -4,9 +4,6 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CurrentUser } from 'src/auth/decorator/current-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from 'src/auth/guard/roles.guard';
-import { Roles } from 'src/auth/decorator/roles.decorator';
-import { Role } from '@prisma/client';
 
 @Controller('orders')
 @UseGuards(AuthGuard('jwt'))
@@ -34,9 +31,7 @@ export class OrdersController {
     }
 
     @Patch(':id/status')
-    @UseGuards(RolesGuard)
-    @Roles(Role.ADMIN)
-    async update(@Param('id') id: string, @Body() dto: UpdateOrderDto) {
-        return this.ordersService.updateStatus(id, dto)
+    async update(@CurrentUser() user: any, @Param('id') id: string, @Body() dto: UpdateOrderDto) {
+        return this.ordersService.updateStatus(user, id, dto)
     }
 }

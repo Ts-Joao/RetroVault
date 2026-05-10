@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderStatus, PaymentMethod, PaymentStatus, Prisma } from '@prisma/client';
@@ -160,14 +160,22 @@ export class OrdersService {
         })
     }
 
-    async updateStatus(id: string, dto: UpdateOrderDto) {
+    async updateStatus(user: any, id: string, dto: UpdateOrderDto) {
         const order = await this.databaseService.order.findUnique({
             where: { id },
-            include: { payment: true, orderItems: true }
+            include: { payment: true, orderItems: { include: { product: true } } }
         })
 
         if (!order) {
             throw new NotFoundException('Order Not Found!')
+        }
+
+        const isBuyer = order.userId === user.sub;
+        const isAdmin = user.role === 'ADMIN';
+        const isSeller = order.orderItems.some(item => item.product.sellerId === user.sub);
+
+        if (!isBuyer && !isAdmin && !isSeller) {
+            throw new ForbiddenException('Não autorizado a alterar o status deste pedido');
         }
 
         if (order.status === 'CANCELED') {
@@ -184,6 +192,20 @@ export class OrdersService {
 
             const isCaptured = order.payment?.status === 'CAPTURED'
             const isCanceled = dto.status === 'CANCELED'
+            
+            if (isCanceled) {
+                await Promise.all(
+                    order.orderItems.map(async (item) => {
+                        await tx.product.update({
+                            where: { id: item.productId },
+                            data: {
+                                amount: { increment: item.amount }
+                            }
+                        })
+                    })
+                )
+            }
+
             if (isCanceled && isCaptured) {
                 const wallet = await tx.wallet.findUnique({
                     where: { userId: order.userId }

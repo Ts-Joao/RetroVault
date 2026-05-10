@@ -28,13 +28,19 @@ export class UsersService {
                     }
                 })
                 
-                await tx.wallet.create({
+                const userWallet = await tx.wallet.create({
                     data: {
                         userId: newUser.id
                     }
                 })
 
-                return newUser
+                const userCart = await tx.cart.create({
+                    data: {
+                        userId: newUser.id
+                    }
+                })
+
+                return { newUser, userWallet, userCart }
             })
 
             return user
