@@ -79,18 +79,18 @@ export class CartService {
         });
     }
 
-    async removeItem(userId: string, itemId: string) {
+    async removeItem(userId: string, id: string, itemId: string) {
         const cart = await this.getOrCreateCart(userId);
 
         const item = await this.db.cartItem.findFirst({
-            where: { id: itemId, cartId: cart.id }
+            where: { id: itemId, cartId: id }
         });
 
         if (!item) {
             throw new NotFoundException('Item not found in cart');
         }
 
-        await this.db.cartItem.delete({ where: { id: itemId }});
+        await this.db.cartItem.delete({ where: { id: itemId, cartId: id }});
         return ({ where: 'Item removed sucessfully' })
     }
 

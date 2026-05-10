@@ -39,8 +39,8 @@ export class CartController {
     }
 
     @Delete(':id')
-    removeItem(@Headers('user-id') userId: string, @Param('id') id: string) {
-        return this.cartService.removeItem(userId, id);
+    removeItem(@Headers('user-id') userId: string, @Param('id') id: string, @Body() itemId: {id: string}) {
+        return this.cartService.removeItem(userId, id, itemId.id);
     }
 
     @Delete()

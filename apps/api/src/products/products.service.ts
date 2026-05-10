@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateProductDto } from './dto/create.product.dto';
 import { UpdateProductDto } from './dto/update.product.dto';
@@ -9,13 +9,21 @@ export class ProductService {
 
     async create(createProductDto: CreateProductDto, sellerId: string) {
         try {
+            const findSeller = await this.databaseService.user.findUnique({
+                where: { id: sellerId }
+            });
+
+            if (!findSeller) {
+                throw new NotFoundException('Seller not found');
+            }
+
+            if (findSeller.role != 'SELLER') {
+                throw new UnauthorizedException('User is not a seller');
+            }
+
             const newProduct = await this.databaseService.product.create({
                 data: {
-                    name: createProductDto.name,
-                    price: createProductDto.price,
-                    description: createProductDto.description,
-                    amount: createProductDto.amount,
-                    mediaTypeId: createProductDto.mediaTypeId,
+                    ...createProductDto,
                     sellerId: sellerId
                 }
             });
@@ -28,7 +36,11 @@ export class ProductService {
 
     async get() {
         try {
-            const findProduct = await this.databaseService.product.findMany()
+            const findProduct = await this.databaseService.product.findMany({
+                where: {
+                    isActive: true
+                }
+            })
 
             return findProduct;
         } catch (err) {
@@ -76,6 +88,30 @@ export class ProductService {
         } catch (err) {
             throw new HttpException(
                 'Error updating product!',
+                HttpStatus.INTERNAL_SERVER_ERROR
+            )
+        };
+    }
+
+    async softDelete(id: string) {
+        try {
+            const findProduct = await this.databaseService.product.findUnique({
+                where: { id }
+            });
+
+            if (!findProduct) {
+                throw new NotFoundException('Product not found');
+            }
+
+            const softDeleteProduct = await this.databaseService.product.update({
+                where: { id },
+                data: { isActive: false }
+            });
+
+            return softDeleteProduct;
+        } catch (err) {
+            throw new HttpException(
+                'Error soft deleting product!',
                 HttpStatus.INTERNAL_SERVER_ERROR
             )
         };

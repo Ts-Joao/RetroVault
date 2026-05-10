@@ -28,13 +28,19 @@ export class UsersService {
                     }
                 })
                 
-                await tx.wallet.create({
+                const userWallet = await tx.wallet.create({
                     data: {
                         userId: newUser.id
                     }
                 })
 
-                return newUser
+                const userCart = await tx.cart.create({
+                    data: {
+                        userId: newUser.id
+                    }
+                })
+
+                return { newUser, userWallet, userCart }
             })
 
             return user
@@ -121,15 +127,33 @@ export class UsersService {
     async delete(id: string) {
         try {
             const findUser = await this.databaseService.user.findUnique({
-                where: { id }
+                where: { id },
+                include: {
+                    wallet: true,
+                    profilePic: true,
+                    cart: true,
+                }
             })
 
             if (!findUser) {
                 throw new NotFoundException('User not found!')
             }
 
-            const deleteUser = await this.databaseService.user.delete({
-                where: { id }
+            const deleteUser = await this.databaseService.$transaction(async (tx) => {
+                if (findUser.wallet) {
+                    await tx.walletTransaction.deleteMany({ where: { walletId: findUser.wallet.id } })
+                    await tx.wallet.delete({ where: { userId: id } })
+                }
+                if (findUser.cart) {
+                    await tx.cart.delete({ where: { userId: id } })
+                }
+                if (findUser.profilePic) {
+                    await tx.photo.delete({ where: { userId: id } })
+                }
+
+                return await tx.user.delete({
+                    where: { id }
+                })
             })
 
             return deleteUser
