@@ -20,14 +20,24 @@ export class UsersService {
 
             const hashed = await bcrypt.hash(createUserDto.password, 12)
 
-            const newUser = await this.databaseService.user.create({
-                data: {
-                    name: createUserDto.name,
-                    email: createUserDto.email,
-                    password: hashed
-                }
+            const user = await this.databaseService.$transaction(async (tx) => {
+                const newUser = await tx.user.create({
+                    data: {
+                        ...createUserDto,
+                        password: hashed
+                    }
+                })
+                
+                await tx.wallet.create({
+                    data: {
+                        userId: newUser.id
+                    }
+                })
+
+                return newUser
             })
-            return newUser
+
+            return user
         } catch (error) {
             throw error
         }
