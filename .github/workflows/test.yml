@@ -47,6 +47,7 @@ jobs:
 
       - name: Create .env file
         run: |
+          echo "NODE_ENV=test" > apps/api/.env
           echo "DATABASE_URL_TEST=${{ secrets.DATABASE_URL_TEST }}" > apps/api/.env
           echo "JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}" >> apps/api/.env
           echo "JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}" >> apps/api/.env
