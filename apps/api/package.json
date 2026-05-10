@@ -19,7 +19,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "db:test:prepare": "cross-env NODE_ENV=test dotenv -e .env -- pnpm prisma migrate reset --force",
-    "test:e2e": "cross-env NODE_ENV=test jest --config ./test/jest-e2e.json --forceExit",
+    "test:e2e": "pnpm db:test:prepare && cross-env NODE_ENV=test jest --config ./test/jest-e2e.json --forceExit --runInBand",
     "studio": "dotenv -e .env -- prisma@5 studio --schema prisma/schema.prisma"
   },
   "dependencies": {
