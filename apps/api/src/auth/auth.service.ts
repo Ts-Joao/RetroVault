@@ -20,19 +20,24 @@ export class AuthService {
 
         if (!passwordMatch) throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED)
 
-        const tokens = await this.generateToken(user.id, user.email, user.role)
+        const tokens = await this.generateTokens(user.id, user.email, user.role)
         await this.saveRefreshToken(user.id, tokens.refresh_token)
         return tokens
     }
-
-    async generateToken(sub: string, email: string, role: Role) {
-        const [acess_token, refresh_token] = await Promise.all([
-            this.jwtService.signAsync({ sub, email, role}, { expiresIn: '15min', secret: process.env.JWT_ACCESS_SECRET! }),
-            this.jwtService.signAsync({ sub, email, role }, { expiresIn: '7d', secret: process.env.REFRESH_SECRET! })
-        ])
-        return { acess_token, refresh_token }
+    
+    async generateAccessToken(sub: string, email: string, role: Role) {
+        return this.jwtService.signAsync({ sub, email, role }, { expiresIn: '15m', secret: process.env.JWT_ACCESS_SECRET! })
     }
 
+    async generateTokens(sub: string, email: string, role: Role) {
+        const [access_token, refresh_token] = await Promise.all([
+            this.generateAccessToken(sub, email, role),
+            this.jwtService.signAsync({ sub, email, role }, { expiresIn: '7d', secret: process.env.REFRESH_SECRET! })
+        ])
+
+        return { access_token, refresh_token }
+    }
+    
     async saveRefreshToken(userId: string, refresh_token: string) {
         const hash = await bcrypt.hash(refresh_token, 12)
         return this.usersService.updateRefreshToken(userId, hash)
