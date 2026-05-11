@@ -1,12 +1,19 @@
 import { Product, ProductDetails } from "@retrovault/core"
+import api from "../axios"
 
-export async function getProducts(): Promise<Product[]> {
-    return mockProducts
+export async function createProduct(body: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) {
+  const { data } = await api.post<Product>('/products', body)
+  return data
 }
 
-export async function getProductById(id: string): Promise<Product | undefined> {
-    const products = await getProducts()
-    return products.find(product => product.id === id)
+export async function getProducts() {
+  const { data } = await api.get<Product[]>('/products')
+  return data
+}
+
+export async function getProductById(id: string) {
+  const data = await api.get<Product>(`products/${id}`)
+  return data
 }
 
 export function getProductsByUserId(userId: string): Product[] {

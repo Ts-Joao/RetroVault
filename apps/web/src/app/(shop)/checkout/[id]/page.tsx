@@ -1,4 +1,4 @@
-import { getProductById } from "@/services/product"
+import { getProductById } from "@/lib/services/product.service"
 import { notFound } from "next/navigation"
 import CheckoutClient from "@/components/checkout/checkoutProducts"
 

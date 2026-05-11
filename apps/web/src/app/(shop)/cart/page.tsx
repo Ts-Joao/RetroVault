@@ -1,4 +1,4 @@
-import { getCart } from "@/services/cart";
+import { getCart } from "@/lib/services/cart.service";
 import CartClient from "./CartClient";
 
 export default async function Shopping() {
@@ -8,7 +8,7 @@ export default async function Shopping() {
     <>
       <div className="flex w-full justify-center items-start font-chakra-petch gap-20 mt-10">
         <div className="flex gap-3">
-          <CartClient cart={cart}/>
+          <CartClient cart={cart} />
         </div>
       </div>
     </>

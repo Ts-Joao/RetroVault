@@ -7,128 +7,81 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Role {
-  ADMIN  @map("admin")
-  SELLER @map("seller")
-  USER   @map("user")
-}
-
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
+  id           String    @id @default(uuid())
+  email        String    @unique
   name         String
   password     String
+  role         Role      @default(USER)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
   refreshToken String?
-  role         Role     @default(USER)
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  cart         Cart?
+  order        Order[]
+  photos       photos?
+  products     Product[]
+  wallet       Wallet?
 
-  // relations
-  order      Order[]
-  profilePic ProfilePhoto?
-  cart       Cart?
-  products   Product[]
-  wallet     Wallet?
-
-  // map
   @@map("users")
 }
 
-model ProfilePhoto {
-  id  String  @id @default(cuid())
-  url String
-
-  userId String @unique @map("user_id")
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("profile_photos")
-}
-
-model ProductPhoto {
-  id  String @id @default(cuid())
-  url String
-
-  productId String @map("product_id")
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@map("product_photos")
-}
 model Genre {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[] @relation("GenreToProduct")
 
-  // relations
-  products Product[]
-
-  // index
   @@index([name])
-  // map
   @@map("genres")
 }
 
-enum TypeMidia {
-  MOVIE @map("movie")
-  GAME  @map("game")
-}
-
 model MediaType {
-  id   Int       @id @default(autoincrement())
-  name TypeMidia @unique
-
+  id      Int       @id @default(autoincrement())
+  name    TypeMidia @unique
   product Product[]
 
   @@map("media_types")
 }
 
 model Product {
-  id           String   @id @default(cuid())
-  price        Decimal  @db.Decimal(5, 2)
-  name         String
-  description  String
-  amount       Int
-  rating       Decimal? @default(0.0) @db.Decimal(2, 1)
-  shippingCost Decimal? @map("shipping_cost") @db.Decimal(3, 2)
-  isActive     Boolean  @default(true) @map("is_active")
+  id                   String        @id @default(cuid())
+  price                Decimal       @db.Decimal(5, 2)
+  name                 String
+  description          String
+  amount               Int
+  rating               Decimal?      @default(0.0) @db.Decimal(2, 1)
+  mediaTypeId          Int           @map("media_type_id")
+  discountEnd          DateTime?     @map("discount_end")
+  discountPrice        Decimal?      @map("discount_price") @db.Decimal(5, 2)
+  discountStart        DateTime?     @map("discount_start")
+  shippingCost         Decimal?      @map("shipping_cost") @db.Decimal(3, 2)
+  viewCount            Int           @default(0) @map("view_count")
+  freeInstallments     Int?          @default(1) @map("free_intalments")
+  maxInstallments      Int?          @default(1) @map("max_intallments")
+  minInstallmentAmount Decimal?      @map("min_intallment_amount") @db.Decimal(6, 2)
+  monthlyInterestRate  Decimal?      @map("monthly_interest_rate") @db.Decimal(5, 4)
+  sellerId             String        @map("seller_id")
+  cartItems            CartItem[]
+  orderItems           OrderItem[]
+  photos               photos[]
+  view                 ProductView[]
+  mediaType            MediaType     @relation(fields: [mediaTypeId], references: [id])
+  seller               User          @relation(fields: [sellerId], references: [id])
+  genre                Genre[]       @relation("GenreToProduct")
 
-  maxInstallments      Int?     @default(1) @map("max_intallments")
-  freeInstallments     Int?     @default(1) @map("free_intalments")
-  monthlyInterestRate  Decimal? @map("monthly_interest_rate") @db.Decimal(5, 4)
-  minInstallmentAmount Decimal? @map("min_intallment_amount") @db.Decimal(6, 2)
-
-  discountPrice Decimal?  @map("discount_price") @db.Decimal(5, 2)
-  discountStart DateTime? @map("discount_start")
-  discountEnd   DateTime? @map("discount_end")
-
-  viewCount Int @default(0) @map("view_count")
-
-  // relations
-  mediaTypeId Int           @map("media_type_id")
-  mediaType   MediaType     @relation(fields: [mediaTypeId], references: [id])
-  photos      ProductPhoto[]
-  orderItems  OrderItem[]
-  genre       Genre[]
-  cartItems   CartItem[]
-  view        ProductView[]
-  sellerId    String        @map("seller_id")
-  seller      User          @relation(fields: [sellerId], references: [id])
-
-  // index
   @@index([name])
   @@index([mediaTypeId])
   @@index([price])
   @@index([discountEnd])
   @@index([rating])
   @@index([viewCount])
-  // map
   @@map("products")
 }
 
 model ProductView {
-  id     String   @id @default(cuid())
-  viewAt DateTime @default(now()) @map("view_at")
-
-  productId String  @map("product_id")
-  product   Product @relation(fields: [productId], references: [id])
+  id        String   @id @default(cuid())
+  viewAt    DateTime @default(now()) @map("view_at")
+  productId String   @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id])
 
   @@index([productId])
   @@index([viewAt])
@@ -136,30 +89,110 @@ model ProductView {
 }
 
 model Cart {
-  id String @id @default(cuid())
-
-  userId   String     @unique @map("user_id")
-  user     User       @relation(fields: [userId], references: [id])
-  cartItem CartItem[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id        String     @id @default(cuid())
+  userId    String     @unique @map("user_id")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  cartItem  CartItem[]
+  user      User       @relation(fields: [userId], references: [id])
 
   @@map("carts")
 }
 
 model CartItem {
-  id     String  @id @default(cuid())
-  amount Int
-  price  Decimal @db.Decimal(8, 2)
-
+  id        String  @id @default(cuid())
+  amount    Int
+  price     Decimal @db.Decimal(8, 2)
   cartId    String  @map("cart_id")
-  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
   productId String  @map("product_id")
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
   product   Product @relation(fields: [productId], references: [id])
 
   @@unique([cartId, productId])
   @@map("cart_items")
+}
+
+model Wallet {
+  id                 String              @id @default(uuid())
+  balance            Decimal             @default(0) @db.Decimal(10, 2)
+  userId             String              @unique @map("user_id")
+  walletTransactions WalletTransaction[]
+  user               User                @relation(fields: [userId], references: [id])
+
+  @@map("wallets")
+}
+
+model WalletTransaction {
+  id          String                @id @default(cuid())
+  amount      Decimal               @db.Decimal(10, 2)
+  type        TypeWalletTransaction
+  description String                @default("")
+  createdAt   DateTime              @default(now()) @map("created_at")
+  walletId    String                @map("wallet_id")
+  paymentId   Int?                  @map("payment_id")
+  payment     Payment?              @relation(fields: [paymentId], references: [id])
+  wallet      Wallet                @relation(fields: [walletId], references: [id])
+
+  @@map("wallet_transactions")
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  status      OrderStatus @default(PENDING)
+  totalAmount Decimal     @map("total_amount") @db.Decimal(5, 2)
+  orderDate   DateTime    @default(now()) @map("order_date")
+  address     String
+  userId      String      @map("user_id")
+  orderItems  OrderItem[]
+  user        User        @relation(fields: [userId], references: [id])
+  payment     Payment?
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  amount    Int
+  price     Decimal @db.Decimal(5, 2)
+  orderId   String  @map("order_id")
+  productId String  @map("product_id")
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Payment {
+  id                 Int                 @id @default(autoincrement())
+  paidAt             DateTime            @default(now()) @map("paid_at")
+  status             PaymentStatus
+  paymentMethod      PaymentMethod       @map("payment_method")
+  installments       Int?
+  orderId            String              @unique @map("order_id")
+  order              Order               @relation(fields: [orderId], references: [id])
+  walletTransactions WalletTransaction[]
+
+  @@map("payments")
+}
+
+model photos {
+  id         String  @id
+  url        String
+  product_id String
+  user_id    String  @unique
+  products   Product @relation(fields: [product_id], references: [id])
+  users      User    @relation(fields: [user_id], references: [id])
+}
+
+enum Role {
+  ADMIN  @map("admin")
+  SELLER @map("seller")
+  USER   @map("user")
+}
+
+enum TypeMidia {
+  MOVIE @map("movie")
+  GAME  @map("game")
 }
 
 enum OrderStatus {
@@ -170,71 +203,9 @@ enum OrderStatus {
   CANCELED  @map("canceled")
 }
 
-model Wallet {
-  id      String  @id @default(uuid())
-  balance Decimal @default(0) @db.Decimal(10, 2)
-
-  // relations
-  userId String @unique @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
-
-  walletTransactions WalletTransaction[]
-
-  // map
-  @@map("wallets")
-}
-
 enum TypeWalletTransaction {
   DEPOSIT    @map("deposit")
   WITHDRAWAL @map("withdrawal")
-}
-
-model WalletTransaction {
-  id          String                @id @default(cuid())
-  amount      Decimal               @db.Decimal(10, 2)
-  type        TypeWalletTransaction
-  description String                @default("")
-  createdAt   DateTime              @default(now()) @map("created_at")
-
-  walletId  String   @map("wallet_id")
-  wallet    Wallet   @relation(fields: [walletId], references: [id])
-  paymentId Int?     @map("payment_id")
-  payment   Payment? @relation(fields: [paymentId], references: [id])
-
-  // map
-  @@map("wallet_transactions")
-}
-
-model Order {
-  id          String      @id @default(cuid())
-  status      OrderStatus @default(PENDING)
-  totalAmount Decimal     @map("total_amount") @db.Decimal(5, 2)
-  orderDate   DateTime    @default(now()) @map("order_date")
-  address     String
-
-  // relations
-  userId     String      @map("user_id")
-  user       User        @relation(fields: [userId], references: [id])
-  orderItems OrderItem[]
-  payment    Payment?
-
-  // map
-  @@map("orders")
-}
-
-model OrderItem {
-  id     String  @id @default(cuid())
-  amount Int
-  price  Decimal @db.Decimal(5, 2)
-
-  // relations
-  orderId   String  @map("order_id")
-  order     Order   @relation(fields: [orderId], references: [id])
-  productId String  @map("product_id")
-  product   Product @relation(fields: [productId], references: [id])
-
-  // map
-  @@map("order_items")
 }
 
 enum PaymentMethod {
@@ -251,23 +222,4 @@ enum PaymentStatus {
   CAPTURED   @map("captured")
   FAILED     @map("failed")
   REFUNDED   @map("refunded")
-}
-
-model Payment {
-  id            Int           @id @default(autoincrement())
-  paidAt        DateTime?     @map("paid_at")
-  status        PaymentStatus @default(PENDING)
-  paymentMethod PaymentMethod? @map("payment_method")
-  installments  Int?
-  confirmationCode String? @unique @map("confirmation_code")
-  tokenExpiresAt DateTime? @map("token_expires_at")
-
-  // relations
-  orderId String @unique @map("order_id")
-  order   Order  @relation(fields: [orderId], references: [id])
-
-  walletTransactions WalletTransaction[]
-
-  // map
-  @@map("payments")
 }

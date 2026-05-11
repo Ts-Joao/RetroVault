@@ -6,9 +6,9 @@ import Image from "next/image"
 import { PiBag } from "react-icons/pi";
 import StarRating from "@/components/StarRating";
 import { Product, calculeCartInstallments, formatPrice, splitPrice } from "@retrovault/core"
-import { mockUsers } from "@/services/user";
+import { mockUsers } from "@/lib/services/user.service";
 import ButtonFavorites from "@/components/Favoritos/ButtonFavorites";
-import { getFavorites } from "@/services/favorites";
+import { getFavorites } from "@/lib/services/favorites.service";
 
 
 
@@ -42,20 +42,20 @@ export default function ProductCard({ product }: Props) {
     return (
         <div className="p-2 bg-[#d9d9d9] max-w-40 min-w-40 md:max-w-55 rounded-2xl grid justify-center items-center justify-self-center gap-1 md:gap-2 font-chakra-petch text-xs md:text-lg cursor-pointer">
 
-                
-            
-            <div  onClick={() => router.push(`/products/${product.id}/${product.name}`)} className="bg-white flex relative justify-center items-center h-35 w-35 md:w-full rounded-t-xl">
 
-               <div className="z-1 absolute right-2 top-2 "> 
-                <ButtonFavorites productId={product.id}/>
+
+            <div onClick={() => router.push(`/products/${product.id}/${product.name}`)} className="bg-white flex relative justify-center items-center h-35 w-35 md:w-full rounded-t-xl">
+
+                <div className="z-1 absolute right-2 top-2 ">
+                    <ButtonFavorites productId={product.id} />
                 </div>
 
-                <Image src={product.photo[0]} alt={product.name} fill className="object-contain"/>
+                <Image src={product.photo[0]} alt={product.name} fill className="object-contain" />
             </div>
 
             <h1 onClick={() => router.push(`/products/${product.id}/${product.name}`)} className="font-barlow-condensed text-lg md:text-2xl leading-none">{product.name}</h1>
             <p>Por <Link href={`/profile/${seller?.id}/${seller?.slug}`} className="cursor-pointer">{seller?.name}</Link></p>
-            <span className="flex justify-end"><StarRating rating={product.rating}/></span>
+            <span className="flex justify-end"><StarRating rating={product.rating} /></span>
             <div className="text-[16px] flex justify-between">
                 <p className="font-medium text-sm md:font-semibold md:text-xl">R$ {formatPrice(product.price)}</p>
                 <div className="flex gap-1 justify-end items-baseline">
@@ -66,10 +66,10 @@ export default function ProductCard({ product }: Props) {
 
             <div className="flex items-center justify-center gap-1 md:gap-2 text-center">
                 <Link href={`/checkout/${product.id}`} className="bg-third rounded-md px-2 py-1 cursor-pointer w-full text-xs md:text-[14px]">
-                <p>Compra Agora</p>
+                    <p>Compra Agora</p>
                 </Link>
                 <button className="bg-third p-1 rounded-md md:rounded-lg cursor-pointer">
-                    <PiBag className="text-[15px] md:text-lg"/>
+                    <PiBag className="text-[15px] md:text-lg" />
                 </button>
             </div>
         </div>

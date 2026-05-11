@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Product } from "@retrovault/core";
 import { searchProducts } from "../../../../../packages/core/src/utils/search";
 import SearchFilters from "@/components/SearchFilters/SearchFilters";
-import { mockProducts } from "@/services/product";
+import { mockProducts } from "@/lib/services/product.service";
 import ProductGrid from "@/components/layout/product-grid/ProductGrid";
 import NavBar from "@/components/layout/nav-bar/NavBar";
 import Footer from "@/components/layout/footer/Footer";

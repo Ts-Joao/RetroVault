@@ -3,7 +3,7 @@ import Image from "next/image";
 import { IoAddCircleOutline } from "react-icons/io5";
 import { IoIosRemoveCircleOutline } from "react-icons/io";
 import { Product, splitPrice } from "@retrovault/core";
-import { mockUsers } from "@/services/user";
+import { mockUsers } from "@/lib/services/user.service";
 
 type Props = {
   product: Product
@@ -16,7 +16,7 @@ export default function ProductCart({ product, quantity, onIncrement, onDecremen
   const total = quantity * product.price
   const { units, cents } = splitPrice(total)
   const seller = mockUsers.find(user => user.id === product.seller_id)
-  
+
   return (
     <>
       <div className="w-250 h-30 bg-[#D9D9D9] rounded-lg flex items-center justify-between px-4">
