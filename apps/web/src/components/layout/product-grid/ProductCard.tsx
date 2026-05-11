@@ -45,12 +45,10 @@ export default function ProductCard({ product }: Props) {
                 
             
             <div  onClick={() => router.push(`/products/${product.id}/${product.name}`)} className="bg-white flex relative justify-center items-center h-35 w-35 md:w-full rounded-t-xl">
-
-               <div className="z-1 absolute right-2 top-2 "> 
-                <ButtonFavorites productId={product.id}/>
-                </div>
-
                 <Image src={product.photo[0]} alt={product.name} fill className="object-contain"/>
+            <div className="z-1 absolute right-2 top-2 " onClick={(e) => e.stopPropagation()}> 
+                <ButtonFavorites productId={product.id}/>
+            </div>
             </div>
 
             <h1 onClick={() => router.push(`/products/${product.id}/${product.name}`)} className="font-barlow-condensed text-lg md:text-2xl leading-none">{product.name}</h1>
@@ -72,6 +70,7 @@ export default function ProductCard({ product }: Props) {
                     <PiBag className="text-[15px] md:text-lg"/>
                 </button>
             </div>
+
         </div>
     )
 }
