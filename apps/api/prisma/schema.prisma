@@ -14,38 +14,45 @@ enum Role {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String
-  password  String
-  role      Role     @default(USER)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  password     String
+  refreshToken String?
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   // relations
   order      Order[]
-  profilePic Photo?
+  profilePic ProfilePhoto?
   cart       Cart?
   products   Product[]
+  wallet     Wallet?
 
   // map
   @@map("users")
 }
 
-model Photo {
+model ProfilePhoto {
+  id  String  @id @default(cuid())
+  url String
+
+  userId String @unique @map("user_id")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profile_photos")
+}
+
+model ProductPhoto {
   id  String @id @default(cuid())
   url String
 
-  // relations
-  productId String  @map("product_id")
-  product   Product @relation(fields: [productId], references: [id])
-  userId    String  @unique @map("user_id")
-  user      User    @relation(fields: [userId], references: [id])
+  productId String @map("product_id")
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  // map
-  @@map("photos")
+  @@map("product_photos")
 }
-
 model Genre {
   id   Int    @id @default(autoincrement())
   name String @unique
@@ -74,18 +81,19 @@ model MediaType {
 }
 
 model Product {
-  id           String  @id @default(cuid())
-  price        Decimal @db.Decimal(5, 2)
+  id           String   @id @default(cuid())
+  price        Decimal  @db.Decimal(5, 2)
   name         String
   description  String
   amount       Int
-  rating       Decimal @db.Decimal(2, 1)
-  shippingCost Decimal @map("shipping_cost") @db.Decimal(3, 2)
+  rating       Decimal? @default(0.0) @db.Decimal(2, 1)
+  shippingCost Decimal? @map("shipping_cost") @db.Decimal(3, 2)
+  isActive     Boolean  @default(true) @map("is_active")
 
-  maxInstallments      Int     @default(1) @map("max_intallments")
-  freeInstallments     Int     @default(1) @map("free_intalments")
-  monthlyInterestRate  Decimal @map("monthly_interest_rate") @db.Decimal(5, 4)
-  minInstallmentAmount Decimal @map("min_intallment_amount") @db.Decimal(6, 2)
+  maxInstallments      Int?     @default(1) @map("max_intallments")
+  freeInstallments     Int?     @default(1) @map("free_intalments")
+  monthlyInterestRate  Decimal? @map("monthly_interest_rate") @db.Decimal(5, 4)
+  minInstallmentAmount Decimal? @map("min_intallment_amount") @db.Decimal(6, 2)
 
   discountPrice Decimal?  @map("discount_price") @db.Decimal(5, 2)
   discountStart DateTime? @map("discount_start")
@@ -96,7 +104,7 @@ model Product {
   // relations
   mediaTypeId Int           @map("media_type_id")
   mediaType   MediaType     @relation(fields: [mediaTypeId], references: [id])
-  photos      Photo[]
+  photos      ProductPhoto[]
   orderItems  OrderItem[]
   genre       Genre[]
   cartItems   CartItem[]
@@ -134,6 +142,9 @@ model Cart {
   user     User       @relation(fields: [userId], references: [id])
   cartItem CartItem[]
 
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   @@map("carts")
 }
 
@@ -142,11 +153,12 @@ model CartItem {
   amount Int
   price  Decimal @db.Decimal(8, 2)
 
-  cartId    String
-  cart      Cart    @relation(fields: [cartId], references: [id])
-  productId String
+  cartId    String  @map("cart_id")
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String  @map("product_id")
   product   Product @relation(fields: [productId], references: [id])
 
+  @@unique([cartId, productId])
   @@map("cart_items")
 }
 
@@ -156,6 +168,41 @@ enum OrderStatus {
   SHIPPED   @map("shipped")
   DELIVERED @map("delivered")
   CANCELED  @map("canceled")
+}
+
+model Wallet {
+  id      String  @id @default(uuid())
+  balance Decimal @default(0) @db.Decimal(10, 2)
+
+  // relations
+  userId String @unique @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  walletTransactions WalletTransaction[]
+
+  // map
+  @@map("wallets")
+}
+
+enum TypeWalletTransaction {
+  DEPOSIT    @map("deposit")
+  WITHDRAWAL @map("withdrawal")
+}
+
+model WalletTransaction {
+  id          String                @id @default(cuid())
+  amount      Decimal               @db.Decimal(10, 2)
+  type        TypeWalletTransaction
+  description String                @default("")
+  createdAt   DateTime              @default(now()) @map("created_at")
+
+  walletId  String   @map("wallet_id")
+  wallet    Wallet   @relation(fields: [walletId], references: [id])
+  paymentId Int?     @map("payment_id")
+  payment   Payment? @relation(fields: [paymentId], references: [id])
+
+  // map
+  @@map("wallet_transactions")
 }
 
 model Order {
@@ -195,6 +242,7 @@ enum PaymentMethod {
   BOLETO      @map("boleto")
   DEBIT_CARD  @map("debit_card")
   CREDIT_CARD @map("credit_card")
+  WALLET      @map("wallet")
 }
 
 enum PaymentStatus {
@@ -207,14 +255,18 @@ enum PaymentStatus {
 
 model Payment {
   id            Int           @id @default(autoincrement())
-  paidAt        DateTime      @default(now()) @map("paid_at")
-  status        PaymentStatus
-  paymentMethod PaymentMethod @map("payment_method")
-  installments  Int           @default(1)
+  paidAt        DateTime?     @map("paid_at")
+  status        PaymentStatus @default(PENDING)
+  paymentMethod PaymentMethod? @map("payment_method")
+  installments  Int?
+  confirmationCode String? @unique @map("confirmation_code")
+  tokenExpiresAt DateTime? @map("token_expires_at")
 
   // relations
   orderId String @unique @map("order_id")
   order   Order  @relation(fields: [orderId], references: [id])
+
+  walletTransactions WalletTransaction[]
 
   // map
   @@map("payments")

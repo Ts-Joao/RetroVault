@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestj
 import { DatabaseService } from 'src/database/database.service';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
+import * as bcrypt from 'bcrypt'
 
 @Injectable()
 export class UsersService {
@@ -9,14 +10,40 @@ export class UsersService {
 
     async create(createUserDto: CreateUserDto) {
         try {
-            const newUser = await this.databaseService.user.create({
-                data: {
-                    name: createUserDto.name,
-                    email: createUserDto.email,
-                    password: createUserDto.password
-                }
+            const existUser = await this.databaseService.user.findUnique({
+                where: { email: createUserDto.email }
             })
-            return newUser
+
+            if (existUser) {
+                throw new HttpException('Email already exists',HttpStatus.CONFLICT)
+            }
+
+            const hashed = await bcrypt.hash(createUserDto.password, 12)
+
+            const user = await this.databaseService.$transaction(async (tx) => {
+                const newUser = await tx.user.create({
+                    data: {
+                        ...createUserDto,
+                        password: hashed
+                    }
+                })
+                
+                const userWallet = await tx.wallet.create({
+                    data: {
+                        userId: newUser.id
+                    }
+                })
+
+                const userCart = await tx.cart.create({
+                    data: {
+                        userId: newUser.id
+                    }
+                })
+
+                return { newUser, userWallet, userCart }
+            })
+
+            return user
         } catch (error) {
             throw error
         }
@@ -39,6 +66,25 @@ export class UsersService {
         try {
             const findUser = await this.databaseService.user.findUnique({
                 where: { id }
+            })
+
+            if (!findUser) {
+                throw new NotFoundException('User not found!')
+            }
+
+            return findUser
+        } catch (error) {
+            throw new HttpException(
+                'Error finding user',
+                HttpStatus.INTERNAL_SERVER_ERROR
+            )
+        }
+    }
+
+    async getByEmail(email: string) {
+        try {
+            const findUser = await this.databaseService.user.findUnique({
+                where: { email }
             })
 
             if (!findUser) {
@@ -81,15 +127,33 @@ export class UsersService {
     async delete(id: string) {
         try {
             const findUser = await this.databaseService.user.findUnique({
-                where: { id }
+                where: { id },
+                include: {
+                    wallet: true,
+                    profilePic: true,
+                    cart: true,
+                }
             })
 
             if (!findUser) {
                 throw new NotFoundException('User not found!')
             }
 
-            const deleteUser = await this.databaseService.user.delete({
-                where: { id }
+            const deleteUser = await this.databaseService.$transaction(async (tx) => {
+                if (findUser.wallet) {
+                    await tx.walletTransaction.deleteMany({ where: { walletId: findUser.wallet.id } })
+                    await tx.wallet.delete({ where: { userId: id } })
+                }
+                if (findUser.cart) {
+                    await tx.cart.delete({ where: { userId: id } })
+                }
+                if (findUser.profilePic) {
+                    await tx.profilePhoto.delete({ where: { userId: id } })
+                }
+
+                return await tx.user.delete({
+                    where: { id }
+                })
             })
 
             return deleteUser
@@ -99,5 +163,12 @@ export class UsersService {
                 HttpStatus.INTERNAL_SERVER_ERROR
             )
         }
+    }
+
+    async updateRefreshToken(userId: string, hash: string | null) {
+        return this.databaseService.user.update({
+            where: { id: userId },
+            data: {refreshToken: hash}
+        })
     }
 }

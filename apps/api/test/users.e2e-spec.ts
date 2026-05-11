@@ -8,6 +8,7 @@ describe('Users', () => {
     let app: INestApplication
     let prisma: DatabaseService
     let userId: string
+    let accessToken: string
 
     beforeAll(async () => {
         const moduleRef = await Test.createTestingModule({
@@ -18,11 +19,11 @@ describe('Users', () => {
         prisma = moduleRef.get<DatabaseService>(DatabaseService);
     
         await app.init();
-        await prisma.user.deleteMany();
+        await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
     })
 
     afterAll(async () => {
-        await prisma.user.deleteMany();
+        await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
         await prisma.$disconnect();
         await app.close();
     });
@@ -31,18 +32,34 @@ describe('Users', () => {
         const userData = {
             name: 'joao-ts',
             email: 'teixeira@example.com',
-            password: '12345678'
+            password: 'Strong123@'
         }
         const response = await request(app.getHttpServer())
             .post('/users')
             .send(userData)
             .expect(201)
 
-        userId = response.body.id
-    
+        userId = response.body.newUser.id
+
         console.log(response.body);
-        expect(response.body.email).toBe(userData.email)
-        expect(response.body).toHaveProperty('id')
+        expect(response.body.newUser.email).toBe(userData.email)
+        expect(response.body.newUser).toHaveProperty('id')
+    })
+
+    it('/AUTH/LOGIN', async () => {
+        const userData = {
+            email: 'teixeira@example.com',
+            password: 'Strong123@'
+        }
+        
+        const response = await request(app.getHttpServer())
+            .post('/auth/login')
+            .send(userData)
+            .expect(201)
+
+        accessToken = response.body.acess_token
+
+        return response
     })
 
     it('/GET', async () => {
@@ -67,11 +84,12 @@ describe('Users', () => {
         const userData = {
             name: 'Ts-João',
             email: 'teixeira.simoes@gmail.com',
-            password: '87654321'
+            password: 'gnortS321!'
         }
         
         const response = await request(app.getHttpServer())
             .patch(`/users/${userId}`)
+            .set('Authorization', `Bearer ${accessToken}`)
             .send(userData)
             .expect(200)
 
@@ -82,6 +100,7 @@ describe('Users', () => {
     it('/DELETE', async () => {
         const response = await request(app.getHttpServer())
             .delete(`/users/${userId}`)
+            .set('Authorization', `Bearer ${accessToken}`)
             .expect(200)
 
         console.log(response.body)

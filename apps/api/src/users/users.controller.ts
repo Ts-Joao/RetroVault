@@ -1,14 +1,17 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
+import { SelfOrAdminGuard } from 'src/auth/guard/owner-or-admin.guard';
+import { JwtStrategy } from 'src/auth/jwt/jwt.strategy';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
 export class UsersController {
-    constructor(private readonly usersService: UsersService) {}
+    constructor(private readonly usersService: UsersService) { }
 
     @Post()
-    createUser(@Body() createUser: CreateUserDto){
+    createUser(@Body() createUser: CreateUserDto) {
         return this.usersService.create(createUser)
     }
 
@@ -23,11 +26,13 @@ export class UsersController {
     }
 
     @Patch(':id')
+    @UseGuards(AuthGuard('jwt'), SelfOrAdminGuard)
     updateUser(@Param('id', ParseUUIDPipe) id: string, @Body() updateUser: UpdateUserDto) {
         return this.usersService.update(id, updateUser)
     }
 
     @Delete(':id')
+    @UseGuards(AuthGuard('jwt'), SelfOrAdminGuard)
     deleteUser(@Param('id', ParseUUIDPipe) id: string) {
         return this.usersService.delete(id)
     }

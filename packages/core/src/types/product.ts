@@ -2,7 +2,7 @@ export interface Product {
     id: string
     name: string
     price: number
-    photo: string | number
+    photo: string[]
     seller_id: string
     rating: number
     max_installments: number
@@ -10,6 +10,8 @@ export interface Product {
     monthly_interest_rate: number
     min_installment_amount: number
     shipping_cost: number
+    type: string[]
+    genre: string[]
 }
 
 export interface ProductDetails extends Product {
