@@ -1,4 +1,4 @@
-import { Product, ProductDetails } from "@retrovault/core"
+import { Product, ProductDetails, ProductPhoto } from "@retrovault/core"
 import api from "../axios"
 
 export async function createProduct(body: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) {
@@ -12,12 +12,23 @@ export async function getProducts() {
 }
 
 export async function getProductById(id: string) {
-  const data = await api.get<Product>(`products/${id}`)
+  const data = await api.get<Product>(`/products/${id}`)
   return data
 }
 
-export function getProductsByUserId(userId: string): Product[] {
-    return mockProducts.filter((p) => p.seller_id === userId)
+export async function getProductsByUserId(sellerId: string) {
+  const { data } = await api.get<Product[]>(`/products/${sellerId}`)
+  return data
+}
+
+export async function getAllProductsBySellerId(sellerId: string) {
+  const { data } = await api.get<Product[]>(`/products/${sellerId}`)
+  return data
+}
+
+export async function getProductPhotos(productId: string) {
+  const data = await api.get<ProductPhoto[]>(`/uploads/products/${productId}`)
+  return data
 }
 
 export async function searchProducts(query: string): Promise<Product[]> {
@@ -32,7 +43,7 @@ export const mockProducts: Product[] = [
     id: '1',
     name: 'EA Sport F1 25 - Play Station 5',
     price: 353.30,
-    photo: ['/image/f1-25.webp'],
+    photos: ['/image/f1-25.webp'],
     seller_id: '2',
     rating: 4.5,
     max_installments: 12,
@@ -47,7 +58,7 @@ export const mockProducts: Product[] = [
     id: '2',
     name: 'Shadow of the Colossus PS4 Remake',
     price: 154,
-    photo: ['/image/shadow-of-the-colossus.png', '/image/sonic-x-shadow-generations.nintendo-switch.webp', '/image/shadow-of-the-colossus.png' ],
+    photos: ['/image/shadow-of-the-colossus.png', '/image/sonic-x-shadow-generations.nintendo-switch.webp', '/image/shadow-of-the-colossus.png' ],
     seller_id: '2',
     rating: 4,
     max_installments: 6,
@@ -62,7 +73,7 @@ export const mockProducts: Product[] = [
     id: '3',
     name: 'Pokemon Legends Z-A Nintendo Switch 2',
     price: 380.37,
-    photo: ['/image/pokemon-legends-za.webp'],
+    photos: ['/image/pokemon-legends-za.webp'],
     seller_id: '3',
     rating: 5,
     max_installments: 12,
@@ -77,7 +88,7 @@ export const mockProducts: Product[] = [
     id: '4',
     name: 'Zelda Breath of the Wild Nintendo Switch',
     price: 409.11,
-    photo: ['/image/zelda-breath-of-the-wild.webp'],
+    photos: ['/image/zelda-breath-of-the-wild.webp'],
     free_installments: 2,
     max_installments: 6,
     min_installment_amount: 20,
@@ -92,7 +103,7 @@ export const mockProducts: Product[] = [
     id: '5',
     name: 'Metal gear solid V: The Phantom Pain PS4',
     price: 224.00,
-    photo: ['/image/metal-gear-solid-v-the-phantom-pain.ps4.webp', '/image/metal-gear-solid-v-the-phantom-pain.ps4.webp', '/image/metal-gear-solid-v-the-phantom-pain.ps4.webp'],
+    photos: ['/image/metal-gear-solid-v-the-phantom-pain.ps4.webp', '/image/metal-gear-solid-v-the-phantom-pain.ps4.webp', '/image/metal-gear-solid-v-the-phantom-pain.ps4.webp'],
     free_installments: 3,
     max_installments: 6,
     min_installment_amount: 20,
@@ -107,7 +118,7 @@ export const mockProducts: Product[] = [
     id: '6',
     name: 'Sonic x shadow generations Nintendo Switch',
     price: 251.00,
-    photo: ['/image/sonic-x-shadow-generations.nintendo-switch.webp'],
+    photos: ['/image/sonic-x-shadow-generations.nintendo-switch.webp'],
     free_installments: 2,
     max_installments: 8,
     min_installment_amount: 10,

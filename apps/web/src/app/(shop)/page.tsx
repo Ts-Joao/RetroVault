@@ -8,7 +8,13 @@ export default async function Home() {
     <>
       <div className="flex flex-col gap-10 mt-10">
         <CategoryBar />
-        <ProductGrid products={products} />
+        {
+          products.length >= 1 ? (
+            <ProductGrid products={products} />
+          ) : (
+            <span>Página de produto vazia</span>
+          )
+        }
       </div>
     </>
   );

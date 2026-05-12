@@ -39,6 +39,9 @@ export class ProductService {
             const findProduct = await this.databaseService.product.findMany({
                 where: {
                     isActive: true
+                },
+                include: {
+                    photos: true
                 }
             })
 
@@ -67,6 +70,43 @@ export class ProductService {
                 HttpStatus.INTERNAL_SERVER_ERROR
             )
         };
+    }
+
+    async getBySellerId(sellerId: string) {
+        const seller = await this.databaseService.user.findUnique({
+            where: {
+                id: sellerId,
+                role:'SELLER'
+            },
+        })
+
+        if (!seller) {
+            throw new NotFoundException('Seller Not Found!')
+        }
+
+        return await this.databaseService.product.findMany({
+            where: {
+                sellerId: seller.id,
+                isActive: true
+            }
+        })
+    }
+
+    async getAllBySellerId(sellerId: string) {
+        const seller = await this.databaseService.user.findUnique({
+            where: {
+                id: sellerId,
+                role:'SELLER'
+            },
+        })
+
+        if (!seller) {
+            throw new NotFoundException('Seller Not Found!')
+        }
+        
+        return await this.databaseService.product.findMany({
+            where: { sellerId: seller.id }
+        })
     }
 
     async update(id: string, UpdateProductDto: UpdateProductDto) {

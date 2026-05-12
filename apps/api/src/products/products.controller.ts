@@ -25,6 +25,16 @@ export class ProductsController {
         return this.productsService.getById(id)
     }
 
+    @Get(':sellerId')
+    getProductsBySellerId(@Param('sellerId') sellerId: string) {
+        return this.productsService.getBySellerId(sellerId)
+    }
+
+    @Get(':sellerId')
+    getAllProductsBySellerId(@Param('sellerId') sellerId: string) {
+        return this.productsService.getAllBySellerId(sellerId)
+    }
+
     @Patch(':id')
     updateProduct(@Headers('user-id') sellerId: string, @Param('id') id: string, @Body() updateProduct: UpdateProductDto) {
         if (!sellerId) {

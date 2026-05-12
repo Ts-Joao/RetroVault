@@ -13,7 +13,7 @@ export class UploadService {
 
     async uploadProfilePhoto(userId: string, file: Express.Multer.File) {
         validateImageFile(file);
-        const url = `./uploads/profiles/${file.filename}`;
+        const url = `/uploads/profiles/${file.filename}`;
 
         return this.db.profilePhoto.upsert({
             where: { userId },
@@ -65,7 +65,7 @@ export class UploadService {
             );
         }
 
-        const url = `./uploads/products/${file.filename}`;
+        const url = `/uploads/products/${file.filename}`;
 
         return this.db.productPhoto.create({
             data: { productId, url },
