@@ -1,7 +1,7 @@
 'use client'
 
 import { FaHeart } from "react-icons/fa"
-import { useFavorites } from "../../context/FavoritesContext"
+import { useFavorites } from "../../lib/context/FavoritesContext"
 
 type Props = {
    productId: string

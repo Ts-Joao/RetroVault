@@ -1,28 +1,28 @@
 'use client'
 
 import Image from "next/image";
-import Link from "next/link";
 import { FaGoogle, FaInstagram, FaFacebook, FaLock } from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
+import { MdEmail, MdPerson } from "react-icons/md";
 import { useState } from "react";
-import { login } from "@/lib/services/auth.service";
+import { createUser } from "@/lib/services/user.service";
 import { redirect } from "next/navigation";
 
-export default function LoginPage() {
-  const [ email, setEmail ] = useState<string>('')
-  const [ password, setPassword ] = useState<string>('')
-  const [ showPassword, setShowPassword ] = useState<boolean>(false)
+export default function RegisterPage() {
+    const [ name, setName ] = useState<string>('')
+    const [ email, setEmail ] = useState<string>('')
+    const [ password, setPassword ] = useState<string>('')
+    const [ showPassword, setShowPassword ] = useState<boolean>(false)
 
-  const sendData = async () => {
-    try {
-      await login({ email, password })
-      redirect('/')
-    } catch (err) {
-      console.error(err)
+    const sendData = async () => {
+        try {
+          await createUser(name, email, password)
+
+        } catch (err) {
+          console.error(err)
+        }
     }
-  }
 
-  return (
+    return (
     <main className="flex items-center justify-center min-h-screen bg-bg px-4">
       <div className="bg-second p-10 rounded-2xl w-full max-w-md shadow-2xl border-4 border-prim-light">
         <div className="flex justify-center mb-6">
@@ -31,6 +31,22 @@ export default function LoginPage() {
             alt="logo"
             width={180}
             height={180}
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="flex items-center gap-2 text-prim mb-1">
+            <MdPerson className="text-prim text-xl" />
+            <span className="text-sm font-semibold">Nome Completo</span>
+          </label>
+
+          <input
+            type="text"
+            placeholder="Digite seu Nome Completo"
+            className="w-full bg-white text-black p-3 rounded-md outline-none border focus:border-prim"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
           />
         </div>
 
@@ -46,6 +62,7 @@ export default function LoginPage() {
             className="w-full bg-white text-black p-3 rounded-md outline-none border focus:border-prim"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
         </div>
 
@@ -55,26 +72,26 @@ export default function LoginPage() {
             <span className="text-sm font-semibold">Senha</span>
           </label>
 
-          <input
-            type="password"
-            placeholder="Digite sua senha"
-            className="w-full bg-white text-black p-3 rounded-md outline-none border focus:border-prim"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Digite sua senha"
+              className="w-full bg-white text-black p-3 rounded-md outline-none border focus:border-prim"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+            />
+            <button onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? 'Ocultar' : 'Mostrar'}
+            </button>
+          </div>
         </div>
-
-        <Link href="/register">
-          <p className="text-sm text-prim mb-6 cursor-pointer hover:underline">
-            Criar uma conta
-          </p>
-        </Link>
 
         <button 
           className="w-full bg-prim text-white py-3 cursor-pointer rounded-md font-semibold hover:bg-third transition"
-          onClick={async () => { await sendData(); redirect('/') }}
-        >
-          Continuar
+          onClick={async () => { await createUser(name, email, password); redirect('/login')}} >
+            Continuar
         </button>
 
         <p className="text-center text-sm font-semibold text-prim mt-6">

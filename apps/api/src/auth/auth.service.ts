@@ -20,18 +20,18 @@ export class AuthService {
 
         if (!passwordMatch) throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED)
 
-        const tokens = await this.generateTokens(user.id, user.email, user.role)
+        const tokens = await this.generateTokens(user.id, user.email, user.role, user.name)
         await this.saveRefreshToken(user.id, tokens.refresh_token)
         return tokens
     }
     
-    async generateAccessToken(sub: string, email: string, role: Role) {
-        return this.jwtService.signAsync({ sub, email, role }, { expiresIn: '15m', secret: process.env.JWT_ACCESS_SECRET! })
+    async generateAccessToken(sub: string, email: string, role: Role, name: string) {
+        return this.jwtService.signAsync({ sub, email, role, name }, { expiresIn: '15m', secret: process.env.JWT_ACCESS_SECRET! })
     }
 
-    async generateTokens(sub: string, email: string, role: Role) {
+    async generateTokens(sub: string, email: string, role: Role, name: string) {
         const [access_token, refresh_token] = await Promise.all([
-            this.generateAccessToken(sub, email, role),
+            this.generateAccessToken(sub, email, role, name),
             this.jwtService.signAsync({ sub, email, role }, { expiresIn: '7d', secret: process.env.REFRESH_SECRET! })
         ])
 

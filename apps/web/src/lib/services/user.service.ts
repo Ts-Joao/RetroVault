@@ -16,6 +16,11 @@ export async function getUserById(id: string): Promise<User | undefined> {
     return data
 }
 
+export async function createUser(name: string, email: string, password: string): Promise<User> {
+    const { data } = await api.post('/users', { name, email, password })
+    return data
+}
+
 export const mockUsers: User[] = [
     {
         id: '1',

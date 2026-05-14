@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/lib/context/auth.context";
 import Link from "next/link"
 import { useState } from "react";
 import {
@@ -9,9 +10,11 @@ import {
     PiBell,
     PiListBold,
     PiXSquare,
+    PiUserPlus,
 } from "react-icons/pi";
 
 export default function MiddleBtn() {
+    const { user, isLoading } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -28,14 +31,20 @@ export default function MiddleBtn() {
                     </Link>
                 </li>
                 <li>
-                    <Link href={`/profile/1/admin123`}>
-                        <PiUserCircleFill className="text-second cursor-pointer lg:text-4xl md:text-2xl"/>
-                    </Link>
-                </li>
-                <li>
                     <Link href='/cart'>
                         <PiBag className="text-second cursor-pointer md:text-2xl lg:text-4xl"/>
                     </Link>
+                </li>
+                <li>
+                    { user ? (
+                        <Link href={`/profile/${user?.sub}/${user?.name}`}>
+                            <PiUserCircleFill className="text-second cursor-pointer lg:text-4xl md:text-2xl"/>
+                        </Link>
+                    ) : (
+                        <Link href='/login'>
+                            <PiUserPlus className="text-second cursor-pointer lg:text-4xl md:text-2xl"/>
+                        </Link>
+                    )}
                 </li>
             </ul>
 
@@ -62,16 +71,23 @@ export default function MiddleBtn() {
                     </Link>
                 </li>
                 <li>
-                    <Link href='/profile' className="flex items-center gap-1">
-                        <PiUserCircleFill className="text-prim cursor-pointer text-lg"/>
-                        <p>Perfil</p>
-                    </Link>
-                </li>
-                <li>
                     <Link href='/cart' className="flex items-center gap-1">
                         <PiBag className="text-prim cursor-pointer text-lg"/>
                         <p>Sacola</p>
                     </Link>
+                </li>
+                <li>
+                    { user ? (
+                        <Link href={`/profile/${user.sub}/${user.name}`} className="flex items-center gap-1">
+                            <PiUserCircleFill className="text-prim cursor-pointer text-lg"/>
+                            <p>Perfil</p>
+                        </Link>
+                    ) : (
+                        <Link href='/login' className="flex items-center gap-1">
+                            <PiUserPlus className="text-prim cursor-pointer text-lg"/>
+     x                       <p>Login</p>
+                        </Link>
+                    )}
                 </li>
             </ul>
         </nav>

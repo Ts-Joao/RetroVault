@@ -1,7 +1,5 @@
-import { Role } from "@prisma/client"
-
 export type JwtPayload = {
-    role: Role,
+    role: 'admin' | 'seller' | 'user',
     sub: string,
     email: string,
     name: string

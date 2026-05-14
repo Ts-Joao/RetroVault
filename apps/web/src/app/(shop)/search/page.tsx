@@ -2,8 +2,8 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Product } from "@retrovault/core";
-import { searchProducts } from "../../../../../packages/core/src/utils/search";
+import { Product, User } from "@retrovault/core";
+import { searchProducts } from "@retrovault/core";
 import SearchFilters from "@/components/SearchFilters/SearchFilters";
 import { mockProducts } from "@/lib/services/product.service";
 import ProductGrid from "@/components/layout/product-grid/ProductGrid";
@@ -14,6 +14,8 @@ export default function SearchPage() {
   const searchParams = useSearchParams();
 
   const query = searchParams.get("q") || "";
+
+  const users: User[] = [];
 
   const [results, setResults] = useState<Product[]>([]);
 
@@ -61,7 +63,7 @@ export default function SearchPage() {
           {results.length === 0 && <p>Nenhum resultado encontrado</p>}
 
           <div>
-            <ProductGrid products={results} />
+            <ProductGrid products={results} users={users} />
           </div>
         </section>
       </main>

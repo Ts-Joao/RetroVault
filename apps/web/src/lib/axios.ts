@@ -7,8 +7,6 @@ const api = axios.create({
     withCredentials: true,
 });
 
-console.log(apiUrl)
-
 let isRefreshing = false;
 let failedQueue: { resolve: Function; reject: Function }[] = [];
 

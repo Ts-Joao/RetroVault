@@ -1,6 +1,6 @@
 'use client'
 
-import { useFavorites } from "../../context/FavoritesContext"
+import { useFavorites } from "@/lib/context/FavoritesContext"
 import Footer from "@/components/layout/footer/Footer"
 import NavBar from "@/components/layout/nav-bar/NavBar"
 import { FaHeart } from "react-icons/fa"
