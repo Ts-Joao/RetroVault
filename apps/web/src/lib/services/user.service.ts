@@ -1,12 +1,19 @@
 import { User } from "@retrovault/core";
+import api from "../axios";
 
 export async function getUsers(): Promise<User[]> {
-    return mockUsers
+    const { data } = await api.get('/users')
+    return data
+}
+
+export async function getProductsBySellerId(id: string): Promise<User | undefined> {
+    const { data } = await api.get(`/users/${id}`)
+    return data
 }
 
 export async function getUserById(id: string): Promise<User | undefined> {
-    const users = await getUsers()
-    return users.find(user => user.id === id)
+    const { data } = await api.get(`/users/${id}`)
+    return data
 }
 
 export const mockUsers: User[] = [

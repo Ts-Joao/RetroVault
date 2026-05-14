@@ -6,21 +6,21 @@ import Image from "next/image"
 import { PiBag } from "react-icons/pi";
 import StarRating from "@/components/StarRating";
 import { Product, calculeCartInstallments, formatPrice, splitPrice } from "@retrovault/core"
-import { mockUsers } from "@/lib/services/user.service";
 import ButtonFavorites from "@/components/Favoritos/ButtonFavorites";
 import { getFavorites } from "@/lib/services/favorites.service";
+import { User } from "@retrovault/core";
 
 type Props = {
     product: Product
+    users: User[]
 }
 
-export default function ProductCard({ product }: Props) {
-
+export default function ProductCard({ product, users }: Props) {
     const router = useRouter()
+    const seller = users.find(u => u.id === product.sellerId)
+
     const firstPhoto = product.photos?.[0]?.url || ''
     const imageUrl = firstPhoto.startsWith('/uploads') ? `${process.env.NEXT_PUBLIC_API_URL}${firstPhoto}` : firstPhoto
-
-    const seller = mockUsers.find(user => user.id === product.seller_id)
 
     const installments = calculeCartInstallments([{
         price: product.price,

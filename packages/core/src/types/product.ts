@@ -5,7 +5,7 @@ export interface Product {
     name: string
     price: number
     photos: ProductPhoto[]
-    seller_id: string
+    sellerId: string
     rating: number
     max_installments: number
     free_installments: number
