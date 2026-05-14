@@ -11,7 +11,10 @@ type Props = {
 
 export default function DescriptionProductsGeral({ product }: Props) {
 
-    const images = product.photo
+    const images = product.photos?.map(photo => {
+        const url = photo?.url || '';
+        return url.startsWith('/uploads') ? `${process.env.NEXT_PUBLIC_API_URL}${url}` : url;
+    }).filter(url => url !== '') || [];
 
     const [currentIndex, setCurrentIndex] = useState(0)
 

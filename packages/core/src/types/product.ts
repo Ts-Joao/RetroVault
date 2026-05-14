@@ -1,8 +1,10 @@
+import type { ProductPhoto } from "./productPhoto"
+
 export interface Product {
     id: string
     name: string
     price: number
-    photos: string[]
+    photos: ProductPhoto[]
     seller_id: string
     rating: number
     max_installments: number

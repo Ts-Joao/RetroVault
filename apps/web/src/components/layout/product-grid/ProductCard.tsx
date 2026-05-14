@@ -9,7 +9,6 @@ import { Product, calculeCartInstallments, formatPrice, splitPrice } from "@retr
 import { mockUsers } from "@/lib/services/user.service";
 import ButtonFavorites from "@/components/Favoritos/ButtonFavorites";
 import { getFavorites } from "@/lib/services/favorites.service";
-import { getProductPhotos } from "@/lib/services/product.service";
 
 type Props = {
     product: Product
@@ -18,8 +17,8 @@ type Props = {
 export default function ProductCard({ product }: Props) {
 
     const router = useRouter()
-    const photos = getProductPhotos(product.id)
-    const firstPhoto = photos[0]
+    const firstPhoto = product.photos?.[0]?.url || ''
+    const imageUrl = firstPhoto.startsWith('/uploads') ? `${process.env.NEXT_PUBLIC_API_URL}${firstPhoto}` : firstPhoto
 
     const seller = mockUsers.find(user => user.id === product.seller_id)
 
@@ -38,7 +37,6 @@ export default function ProductCard({ product }: Props) {
     }
 
     const { units, cents } = splitPrice(best.installment_amount)
-    console.log(photos)
 
     return (
         <div className="p-2 bg-[#d9d9d9] max-w-40 min-w-40 md:max-w-55 rounded-2xl grid justify-center items-center justify-self-center gap-1 md:gap-2 font-chakra-petch text-xs md:text-lg cursor-pointer">
@@ -51,7 +49,7 @@ export default function ProductCard({ product }: Props) {
                     <ButtonFavorites productId={product.id} />
                 </div>
 
-                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/${url}`} alt={product.name} fill className="object-contain" />
+                {imageUrl ? <Image src={imageUrl} alt={product.name} fill className="object-contain" /> : <div className="bg-white flex relative justify-center items-center h-35 w-35 md:w-full rounded-t-xl"></div>}
             </div>
 
             <h1 onClick={() => router.push(`/products/${product.id}/${product.name}`)} className="font-barlow-condensed text-lg md:text-2xl leading-none">{product.name}</h1>

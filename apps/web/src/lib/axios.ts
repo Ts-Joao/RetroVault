@@ -3,9 +3,11 @@ import axios from "axios";
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const api = axios.create({
-    baseURL: apiUrl,
+    baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
     withCredentials: true,
 });
+
+console.log(apiUrl)
 
 let isRefreshing = false;
 let failedQueue: { resolve: Function; reject: Function }[] = [];
@@ -20,7 +22,7 @@ api.interceptors.response.use(
   async (error) => {
     const original = error.config;
 
-    if (error.response?.status === 401 && !original._retry) {
+    if (error.response?.status === 401 && !original._retry && original.url !== '/auth/refresh') {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });

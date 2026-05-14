@@ -9,7 +9,7 @@ export const ProductPhotoInterceptor = FileInterceptor('file', {
             const extension = extname(file.originalname);
             const uniqueSuffix = `${Date.now()}-${Math.random() * 1e9}`;
 
-            callback(null, `$products-${uniqueSuffix}${extension}`)
+            callback(null, `products-${uniqueSuffix}${extension}`)
         },
     }),
 });

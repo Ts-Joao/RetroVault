@@ -6,13 +6,16 @@ import { join } from 'path';
 import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);  
+
+  app.setGlobalPrefix('api');
+
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     transform: true
   }))
 
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+  app.useStaticAssets(join(__dirname, '..', '..', 'uploads'), {
     prefix: '/uploads/'
   });
 
@@ -27,6 +30,10 @@ async function bootstrap() {
   })
 
   app.use(cookieParser());
+
+  const staticPath = join(__dirname, '..', 'uploads');
+  console.log('Static path:', staticPath);
+  console.log('Exists:', require('fs').existsSync(staticPath));
 
   await app.listen(process.env.PORT ?? 4000);
 }

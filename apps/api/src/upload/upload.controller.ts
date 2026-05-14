@@ -1,12 +1,12 @@
 import {
-  Controller,
-  Post,
-  Delete,
-  Get,
-  Param,
-  UploadedFile,
-  UseInterceptors,
-  Headers,
+    Controller,
+    Post,
+    Delete,
+    Get,
+    Param,
+    UploadedFile,
+    UseInterceptors,
+    Headers,
 } from '@nestjs/common';
 import { UploadService } from './upload.service';
 import { ProfilePhotoInterceptor } from './interceptors/profile-photo.interceptor';
@@ -14,7 +14,7 @@ import { ProductPhotoInterceptor } from './interceptors/product-photo.intercepto
 
 @Controller('uploads')
 export class UploadController {
-    constructor(private readonly uploadService: UploadService) {}
+    constructor(private readonly uploadService: UploadService) { }
 
     @Post('profile')
     @UseInterceptors(ProfilePhotoInterceptor)
