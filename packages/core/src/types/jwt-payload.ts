@@ -2,5 +2,5 @@ export type JwtPayload = {
     role: 'admin' | 'seller' | 'user',
     sub: string,
     email: string,
-    name: string
+    slug: string
 }

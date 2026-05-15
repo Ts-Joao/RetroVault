@@ -12,10 +12,10 @@ export default async function Home() {
       <div className="flex flex-col gap-10 mt-10">
         <CategoryBar />
         {
-          products.length >= 1 ? (
+          products?.length ? (
             <ProductGrid products={products} users={users} />
           ) : (
-            <span>Página de produto vazia</span>
+            <span className="text-center">Nenhum produto disponível</span>
           )
         }
       </div>

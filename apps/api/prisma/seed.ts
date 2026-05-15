@@ -21,6 +21,7 @@ async function bootstrap() {
       name: 'Admin',
       email: 'admin@retrovault.com',
       password: hashedPassword,
+      slug: 'admin',
       role: 'ADMIN',
     },
   });

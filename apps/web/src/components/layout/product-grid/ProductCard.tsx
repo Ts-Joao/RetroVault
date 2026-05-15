@@ -12,12 +12,12 @@ import { User } from "@retrovault/core";
 
 type Props = {
     product: Product
-    users: User[]
+    users?: User[]
 }
 
 export default function ProductCard({ product, users }: Props) {
     const router = useRouter()
-    const seller = users.find(u => u.id === product.sellerId)
+    const seller = users?.find(u => u.id === product.sellerId)
 
     const firstPhoto = product.photos?.[0]?.url || ''
     const imageUrl = firstPhoto.startsWith('/uploads') ? `${process.env.NEXT_PUBLIC_API_URL}${firstPhoto}` : firstPhoto

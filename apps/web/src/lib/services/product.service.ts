@@ -7,8 +7,8 @@ export async function createProduct(body: Omit<Product, 'id' | 'createdAt' | 'up
 }
 
 export async function getProducts() {
-  const { data } = await api.get<Product[]>('/products')
-  return data
+  const { data } = await api.get<Product[] | undefined>('/products')
+  return data ?? []
 }
 
 export async function getProductById(id: string) {
@@ -33,9 +33,9 @@ export async function getProductPhotos(productId: string) {
 
 export async function searchProducts(query: string): Promise<Product[]> {
   const products = await getProducts()
-  return products.filter((product) =>
+  return products?.filter((product) =>
     product.name.toLowerCase().includes(query.toLowerCase())
-  );
+  ) ?? [];
 }
 
 export const mockProducts: Product[] = [

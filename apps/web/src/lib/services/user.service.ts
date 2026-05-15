@@ -2,8 +2,8 @@ import { User } from "@retrovault/core";
 import api from "../axios";
 
 export async function getUsers(): Promise<User[]> {
-    const { data } = await api.get('/users')
-    return data
+    const { data } = await api.get<User[] | undefined>('/users')
+    return data ?? []
 }
 
 export async function getProductsBySellerId(id: string): Promise<User | undefined> {

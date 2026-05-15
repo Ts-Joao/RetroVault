@@ -44,7 +44,7 @@ export class AuthController {
     @Post('refresh')
     @UseGuards(RefreshGuard)
     async refresh(@CurrentUser() user: JwtPayload, @Res() res: Response) {
-        const access_token = await this.authService.generateAccessToken(user.sub, user.email, user.role, user.name)
+        const access_token = await this.authService.generateAccessToken(user.sub, user.email, user.role, user.slug)
 
         res.cookie('access_token', access_token, {
             httpOnly: true,

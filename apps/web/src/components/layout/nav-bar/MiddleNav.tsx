@@ -37,7 +37,7 @@ export default function MiddleBtn() {
                 </li>
                 <li>
                     { user ? (
-                        <Link href={`/profile/${user?.sub}/${user?.name}`}>
+                        <Link href={`/profile/${user?.sub}/${user?.slug}`}>
                             <PiUserCircleFill className="text-second cursor-pointer lg:text-4xl md:text-2xl"/>
                         </Link>
                     ) : (
@@ -78,7 +78,7 @@ export default function MiddleBtn() {
                 </li>
                 <li>
                     { user ? (
-                        <Link href={`/profile/${user.sub}/${user.name}`} className="flex items-center gap-1">
+                        <Link href={`/profile/${user.sub}/${user.slug}`} className="flex items-center gap-1">
                             <PiUserCircleFill className="text-prim cursor-pointer text-lg"/>
                             <p>Perfil</p>
                         </Link>

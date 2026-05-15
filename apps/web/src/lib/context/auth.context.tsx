@@ -20,8 +20,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     getMe()
-      .then(setUser)
-      .catch(() => setUser(null))
+      .then((data) => {
+        console.log('user:', data) // 👈
+        setUser(data)
+      })
+      .catch((err) => {
+        console.error('getMe failed:', err.response?.status, err.response?.data) // 👈
+        setUser(null)
+      })
       .finally(() => setIsLoading(false))
   }, [])
 
