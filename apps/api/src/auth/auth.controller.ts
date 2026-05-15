@@ -35,7 +35,7 @@ export class AuthController {
         return this.authService.login(body.email, body.password)
     }
 
-    @Get()
+    @Get('me')
     @UseGuards(AuthGuard('jwt'))
     me(@CurrentUser() user: JwtPayload) {
         return user
