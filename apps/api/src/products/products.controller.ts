@@ -25,7 +25,7 @@ export class ProductsController {
         return this.productsService.getById(id)
     }
 
-    @Get(':sellerId')
+    @Get('seller/:sellerId')
     getProductsBySellerId(@Param('sellerId') sellerId: string) {
         return this.productsService.getBySellerId(sellerId)
     }

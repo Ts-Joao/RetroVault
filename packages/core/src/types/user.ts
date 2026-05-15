@@ -5,4 +5,5 @@ export interface User {
     email: string
     photo: string
     products: string[]
+    role: string
 }

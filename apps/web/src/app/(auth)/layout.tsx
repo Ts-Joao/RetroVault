@@ -5,7 +5,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
   const cookieStore = await cookies();
   const token = cookieStore.get('access_token');
   if (!token) redirect('/login');
-  
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       {children}

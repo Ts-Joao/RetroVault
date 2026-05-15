@@ -16,9 +16,9 @@ export async function getProductById(id: string) {
   return data
 }
 
-export async function getProductsByUserId(sellerId: string) {
-  const { data } = await api.get<Product[]>(`/products/${sellerId}`)
-  return data
+export async function getProductsBySellerId(sellerId: string) {
+  const { data } = await api.get<Product[]>(`/products/seller/${sellerId}`)
+  return data ?? []
 }
 
 export async function getAllProductsBySellerId(sellerId: string) {

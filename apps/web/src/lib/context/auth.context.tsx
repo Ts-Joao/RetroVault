@@ -12,7 +12,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true
-})
+})  
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<JwtPayload | null>(null)
@@ -21,11 +21,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     getMe()
       .then((data) => {
-        console.log('user:', data) // 👈
         setUser(data)
       })
-      .catch((err) => {
-        console.error('getMe failed:', err.response?.status, err.response?.data) // 👈
+      .catch(() => {
         setUser(null)
       })
       .finally(() => setIsLoading(false))

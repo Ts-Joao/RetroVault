@@ -1,7 +1,5 @@
 import axios from "axios";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
 const api = axios.create({
     baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
     withCredentials: true,
@@ -36,7 +34,9 @@ api.interceptors.response.use(
         return api(original);
       } catch (refreshError) {
         processQueue(refreshError);
-        window.location.href = "/login";
+        if (typeof window !== 'undefined') {
+          window.location.href = "/login";
+        }
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
