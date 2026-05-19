@@ -9,6 +9,7 @@ import { UploadModule } from 'src/upload/upload.module';
 import { OrdersModule } from 'src/orders/orders.module';
 import { WalletModule } from 'src/wallet/wallet.module';
 import { PaymentModule } from 'src/payment/payment.module';
+import { FavoritesModule } from 'src/favorites/favorite.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { PaymentModule } from 'src/payment/payment.module';
     UploadModule,
     OrdersModule,
     WalletModule,
-    PaymentModule
+    PaymentModule,
+    FavoritesModule
   ],
   providers: [AppService],
 })
