@@ -1,18 +1,79 @@
 'use client'
 
-import { useEffect } from "react"
+import { useEffect, useCallback } from "react"
 import Ordersummary from "@/components/layout/order-summary/OrderSummary"
 import ProductCart from "@/components/product-cart/ProductCart"
 import { useCartStore } from "@retrovault/store"
-import { CartItem } from "@retrovault/core"
+import { useAuth } from "@/lib/context/auth.context"
+import { getCart, updateCartItem, removeCartItem } from "@/lib/services/cart.service"
 import { PiBag } from "react-icons/pi";
 
-export default function CartClient({ cart }: { cart: CartItem[] }) {
-    const { items, setItems, decrement, increment, total } = useCartStore()
+export default function CartClient() {
+    const { user } = useAuth()
+    const { items, setCart, updateItemLocally, removeItemLocally, computeTotal, isLoading, setLoading } = useCartStore()
+
+    const loadCart = useCallback(async () => {
+        if (!user?.sub) return
+        setLoading(true)
+        try {
+            const data = await getCart(user.sub)
+            setCart(data.cart.cartItem, Number(data.total), data.itemCount)
+        } catch (error) {
+            console.error('Erro ao carregar carrinho:', error)
+        } finally {
+            setLoading(false)
+        }
+    }, [user?.sub, setCart, setLoading])
 
     useEffect(() => {
-        setItems(cart)
-    }, [cart])
+        loadCart()
+    }, [loadCart])
+
+    const handleIncrement = async (itemId: string, currentAmount: number) => {
+        if (!user?.sub) return
+        const newAmount = currentAmount + 1
+        updateItemLocally(itemId, newAmount)
+        try {
+            await updateCartItem(user.sub, itemId, newAmount)
+        } catch (error) {
+            console.error('Erro ao incrementar item:', error)
+            loadCart()
+        }
+    }
+
+    const handleDecrement = async (itemId: string, currentAmount: number) => {
+        if (!user?.sub) return
+        const newAmount = currentAmount - 1
+
+        if (newAmount <= 0) {
+            const item = items.find(i => i.id === itemId)
+            if (!item) return
+            removeItemLocally(itemId)
+            try {
+                await removeCartItem(user.sub, item.cartId, itemId)
+            } catch (error) {
+                console.error('Erro ao remover item:', error)
+                loadCart()
+            }
+            return
+        }
+
+        updateItemLocally(itemId, newAmount)
+        try {
+            await updateCartItem(user.sub, itemId, newAmount)
+        } catch (error) {
+            console.error('Erro ao decrementar item:', error)
+            loadCart()
+        }
+    }
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center py-20">
+                <p className="text-lg text-gray-500">Carregando carrinho...</p>
+            </div>
+        )
+    }
 
     return (
         <>
@@ -20,12 +81,26 @@ export default function CartClient({ cart }: { cart: CartItem[] }) {
                 <p className="flex items-center gap-1 text-xl font-semibold "><PiBag className="text-2xl"/> Minha Sacola</p>
             <div className="flex gap-20">
                 <div className="flex flex-col gap-3">
-                    {items.map(item => (
-                        <ProductCart key={item.product.id} product={item.product} quantity={item.quantity} onIncrement={() => increment(item.product.id)} onDecrement={() => decrement(item.product.id)}/>
-                    ))}
+                    {items.length === 0 ? (
+                        <p className="text-gray-500 text-lg py-10">Seu carrinho está vazio.</p>
+                    ) : (
+                        items.map(item => (
+                            <ProductCart
+                                key={item.id}
+                                product={item.product}
+                                quantity={item.amount}
+                                onIncrement={() => handleIncrement(item.id, item.amount)}
+                                onDecrement={() => handleDecrement(item.id, item.amount)}
+                            />
+                        ))
+                    )}
                 </div>
                 <div>
-                    <Ordersummary total={total()} shippingCost={cart.reduce((acc, item) => acc + item.product.shipping_cost, 0) * 1.2} itens={items}/>
+                    <Ordersummary
+                        total={computeTotal()}
+                        shippingCost={items.reduce((acc, item) => acc + (item.product.shipping_cost ?? 0), 0)}
+                        itens={items}
+                    />
                 </div>
             </div>
 

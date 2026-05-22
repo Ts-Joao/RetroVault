@@ -11,7 +11,6 @@ model User {
   id           String        @id @default(uuid())
   email        String        @unique
   name         String
-  slug         String        @unique
   password     String
   role         Role          @default(USER)
   createdAt    DateTime      @default(now()) @map("created_at")
@@ -65,7 +64,6 @@ model Product {
   id                   String         @id @default(cuid())
   price                Decimal        @db.Decimal(5, 2)
   name                 String
-  slug                 String         @unique
   description          String
   amount               Int
   rating               Decimal?       @default(0.0) @db.Decimal(2, 1)
