@@ -71,6 +71,7 @@ export default function ProductCard({ product, users }: Props) {
                     <PiBag className="text-[15px] md:text-lg" />
                 </button>
             </div>
+
         </div>
     )
 }
