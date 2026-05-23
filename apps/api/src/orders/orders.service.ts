@@ -112,8 +112,18 @@ export class OrdersService {
         return order
     }
 
-    async findAllByUser(userId: string) {
-        return this.databaseService.order.findFirst({
+    async findAll() {
+        return this.databaseService.order.findMany({
+            include: {
+                orderItems: { include: { product: true } },
+                payment: true
+            },
+            orderBy: { orderDate: 'desc' }
+        })
+    }
+
+    async findAllByUserId(userId: string) {
+        return this.databaseService.order.findMany({
             where: { userId },
             include: {
                 orderItems: { include: { product: true } },

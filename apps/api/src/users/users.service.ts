@@ -3,10 +3,28 @@ import { DatabaseService } from 'src/database/database.service';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
 import * as bcrypt from 'bcrypt'
+import slugify from 'slugify';
 
 @Injectable()
 export class UsersService {
     constructor(private readonly databaseService: DatabaseService) {}
+
+    private async generateSlug(name: string): Promise<string> {
+        const base = slugify(name, { lower: true, strict: true });
+
+        const existing = await this.databaseService.user.findUnique({
+            where: { slug: base },
+            select: { slug: true },
+        });
+
+        if (!existing) {
+            return base;
+        }
+
+        const suffix = Math.random().toString(36).substring(2, 10);
+
+        return `${base}-${suffix}`;
+    }
 
     async create(createUserDto: CreateUserDto) {
         try {
@@ -20,11 +38,14 @@ export class UsersService {
 
             const hashed = await bcrypt.hash(createUserDto.password, 12)
 
+            const slug = await this.generateSlug(createUserDto.name);
+
             const user = await this.databaseService.$transaction(async (tx) => {
                 const newUser = await tx.user.create({
                     data: {
                         ...createUserDto,
-                        password: hashed
+                        password: hashed,
+                        slug: slug
                     }
                 })
                 
@@ -110,9 +131,17 @@ export class UsersService {
                 throw new NotFoundException('User not found!')
             }
 
+            let slug = findUser.slug;
+            if (updateUserDto.name && updateUserDto.name !== findUser.name) {
+                slug = await this.generateSlug(updateUserDto.name);
+            }
+
             const updateUser = await this.databaseService.user.update({
                 where: { id },
-                data: updateUserDto
+                data: {
+                    ...updateUserDto,
+                    slug
+                }
             })
 
             return updateUser
