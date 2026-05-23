@@ -12,8 +12,12 @@ export async function getMe() {
 }
 
 export async function login(body: LoginDto) {
-  const { data } = await api.post<{ message: string, } >('/auth/login', body)
-  return data
+  try {
+    const { data } = await api.post<{ message: string }>('/auth/login', body);
+    return data;
+  } catch (err: any) {
+    throw err;
+  }
 }
 
 export async function logout() {

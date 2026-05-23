@@ -3,6 +3,8 @@ import { getUserById } from "@/lib/services/user.service";
 import SellerPage from "./SellerPage";
 import BuyerPage from "./BuyerPage";
 import Image from "next/image";
+import { redirect } from "next/navigation";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 interface ProfileProps {
     params: Promise<{ id: string, slug: string }>
@@ -11,11 +13,20 @@ interface ProfileProps {
 export default async function Profile({ params }: ProfileProps) {
     const { id } = await params
     const user = await getUserById(id)
-    
-    if (!user)
-        return <div>Usuário não encontrado!</div>
 
-    const orders = await getOrdersByUserId(user.id)
+    if (!user)
+      return <div>Usuário não encontrado!</div>
+
+    let orders
+    try {
+      orders = await getOrdersByUserId(id);
+    } catch (err: any) {
+      if (isRedirectError(err)) throw err;
+
+      if (err?.response?.status === 401) {
+        redirect('/login');
+      }
+    }
 
     return (
          <div className="min-h-screen bg-[#d9d9d9] font-chakra-petch">

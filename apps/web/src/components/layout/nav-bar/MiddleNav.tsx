@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/context/auth.context";
+import { logout } from "@/lib/services/auth.service";
 import Link from "next/link"
 import { useState } from "react";
 import {
@@ -14,8 +15,13 @@ import {
 } from "react-icons/pi";
 
 export default function MiddleBtn() {
-    const { user, isLoading } = useAuth();
+    const { user, refresh, isLoading } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
+
+    const handleLogout = async () => {
+        await logout()
+        await refresh()
+    }
 
     return (
         <nav>
