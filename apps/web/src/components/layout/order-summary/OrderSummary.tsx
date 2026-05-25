@@ -23,7 +23,7 @@ export default function Ordersummary({total, shippingCost, itens}: Props) {
  
   const installmentProducts: InstallmentProduct[] = itens.map(item => ({
     price: item.product.price,
-    quantity: item.quantity,
+    quantity: item.amount,
     max_installments: item.product.max_installments,
     free_installments: item.product.free_installments,
     min_installment_amount: item.product.min_installment_amount,

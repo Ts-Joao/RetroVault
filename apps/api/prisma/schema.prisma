@@ -11,12 +11,12 @@ model User {
   id           String        @id @default(uuid())
   email        String        @unique
   name         String
-  slug         String        @unique
   password     String
   role         Role          @default(USER)
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
   refreshToken String?
+  slug         String        @unique
   cart         Cart?
   order        Order[]
   products     Product[]
@@ -65,7 +65,6 @@ model Product {
   id                   String         @id @default(cuid())
   price                Decimal        @db.Decimal(5, 2)
   name                 String
-  slug                 String         @unique
   description          String
   amount               Int
   rating               Decimal?       @default(0.0) @db.Decimal(2, 1)
@@ -73,7 +72,7 @@ model Product {
   discountEnd          DateTime?      @map("discount_end")
   discountPrice        Decimal?       @map("discount_price") @db.Decimal(5, 2)
   discountStart        DateTime?      @map("discount_start")
-  shippingCost         Decimal?       @map("shipping_cost") @db.Decimal(3, 2)
+  shippingCost         Decimal?       @map("shipping_cost") @db.Decimal(5, 2)
   viewCount            Int            @default(0) @map("view_count")
   freeInstallments     Int?           @default(1) @map("free_intalments")
   maxInstallments      Int?           @default(1) @map("max_intallments")
@@ -81,6 +80,7 @@ model Product {
   monthlyInterestRate  Decimal?       @map("monthly_interest_rate") @db.Decimal(5, 4)
   sellerId             String         @map("seller_id")
   isActive             Boolean        @default(true) @map("is_active")
+  slug                 String         @unique
   cartItems            CartItem[]
   orderItems           OrderItem[]
   photos               ProductPhoto[]
