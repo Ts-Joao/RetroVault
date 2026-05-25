@@ -21,8 +21,8 @@ export class OrdersController {
     }
 
     @Get('/user/:userId')
-    async findAllByUserId(@Param('userId') userId: string) {
-        return this.ordersService.findAllByUserId(userId)
+    async findAllByUserId(@CurrentUser() user: any) {
+        return this.ordersService.findAllByUserId(user.sub)
     }
 
     @Get(':id')
