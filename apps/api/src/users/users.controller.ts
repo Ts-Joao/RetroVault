@@ -3,8 +3,9 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
 import { SelfOrAdminGuard } from 'src/auth/guard/owner-or-admin.guard';
-import { JwtStrategy } from 'src/auth/jwt/jwt.strategy';
 import { AuthGuard } from '@nestjs/passport';
+import { Role } from '@prisma/client';
+import { AdminGuard } from 'src/common/guards/admin.guard';
 
 @Controller('users')
 export class UsersController {
@@ -29,6 +30,12 @@ export class UsersController {
     @UseGuards(AuthGuard('jwt'), SelfOrAdminGuard)
     updateUser(@Param('id', ParseUUIDPipe) id: string, @Body() updateUser: UpdateUserDto) {
         return this.usersService.update(id, updateUser)
+    }
+
+    @UseGuards(AuthGuard('jwt'), AdminGuard)
+    @Patch(':id/role')
+    updateRole(@Param('id', ParseUUIDPipe) id: string, @Body() updateRole: Role) {
+        return this.usersService.updateRole(id, updateRole)
     }
 
     @Delete(':id')
