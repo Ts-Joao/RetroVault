@@ -4,7 +4,7 @@ import { formatPrice, Order } from "@retrovault/core";
 import { useState } from "react";
 
 type Props = {
-  orders: Order[];
+  orders: Order[] | undefined;
 };
 
 export default function BuyerPage({ orders }: Props) {
@@ -39,7 +39,7 @@ export default function BuyerPage({ orders }: Props) {
         <div>
           <p className="text-black">Pedidos</p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {orders.map((order) => (
+            {orders?.map((order) => (
               <div key={order.id}>
                 <p className="text-black">{order.id}</p>
                 <p className="text-black">{order.sellerId}</p>
