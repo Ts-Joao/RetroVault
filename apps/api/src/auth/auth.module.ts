@@ -7,6 +7,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RolesGuard } from './guard/roles.guard';
 import { SelfOrAdminGuard } from './guard/owner-or-admin.guard';
+import { BcryptService } from './hash/bcrypt.service';
+import { HashingServiceProtocol } from './hash/hashing.service';
 
 @Module({
   imports: [
@@ -19,8 +21,17 @@ import { SelfOrAdminGuard } from './guard/owner-or-admin.guard';
       }),
     }),
   ],
-  providers: [AuthService, JwtStrategy, RolesGuard, SelfOrAdminGuard],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    RolesGuard,
+    SelfOrAdminGuard,
+    {
+      provide: HashingServiceProtocol,
+      useClass: BcryptService
+    }
+  ],
   controllers: [AuthController],
-  exports: [JwtModule, JwtStrategy, RolesGuard, SelfOrAdminGuard]
+  exports: [JwtModule, JwtStrategy, RolesGuard, SelfOrAdminGuard, HashingServiceProtocol]
 })
 export class AuthModule { }
