@@ -1,3 +1,5 @@
+import { Role } from "@prisma/client"
+
 export class PayloadDto {
   sub: string
   email: string
@@ -5,4 +7,5 @@ export class PayloadDto {
   exp: number
   aud: string
   iss: string
+  role: Role
 }

@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -12,10 +13,10 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
-import { SelfOrAdminGuard } from 'src/auth/guard/owner-or-admin.guard';
-import { AuthGuard } from '@nestjs/passport';
+import { SelfGuard } from 'src/auth/guard/self-guard.guard';
 import { Role } from '@prisma/client';
 import { AdminGuard } from 'src/common/guards/admin.guard';
+import { AuthTokenGuard } from 'src/auth/guard/auth-token.guard';
 
 @Controller('users')
 export class UsersController {
@@ -36,7 +37,12 @@ export class UsersController {
     return this.usersService.getById(id);
   }
 
-  @UseGuards(AuthGuard('jwt'), SelfOrAdminGuard)
+  @Get('email')
+  getUserByEmail(@Headers('email') email: string) {
+    return this.usersService.getByEmail(email);
+  }
+
+  @UseGuards(AuthTokenGuard, SelfGuard || AdminGuard)
   @Patch(':id')
   updateUser(
     @Param('id', ParseUUIDPipe) id: string,
@@ -45,13 +51,13 @@ export class UsersController {
     return this.usersService.update(id, updateUser);
   }
 
-  @UseGuards(AuthGuard('jwt'), AdminGuard)
+  @UseGuards(AuthTokenGuard, AdminGuard)
   @Patch(':id/role')
   updateRole(@Param('id', ParseUUIDPipe) id: string, @Body() updateRole: Role) {
     return this.usersService.updateRole(id, updateRole);
   }
 
-  @UseGuards(AuthGuard('jwt'), SelfOrAdminGuard)
+  @UseGuards(AuthTokenGuard, SelfGuard || AdminGuard)
   @Delete(':id')
   deleteUser(@Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.delete(id);

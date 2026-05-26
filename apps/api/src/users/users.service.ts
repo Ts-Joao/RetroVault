@@ -6,7 +6,6 @@ import {
 import { DatabaseService } from 'src/database/database.service';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
-import * as bcrypt from 'bcrypt';
 import slugify from 'slugify';
 import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
 import { Role } from '@prisma/client';
@@ -45,7 +44,7 @@ export class UsersService {
         throw new NotFoundException('User already exists!');
       }
 
-      const hashed = await bcrypt.hash(createUserDto.password, 12);
+      const hashed = await this.hashingService.hash(createUserDto.password);
       const slug = await this.generateSlug(createUserDto.name);
 
       const addUser = await this.databaseService.$transaction(async (tx) => {
@@ -194,11 +193,32 @@ export class UsersService {
     }
   }
 
-  async updateRefreshToken(userId: string, hash: string | null) {
-    return this.databaseService.user.update({
-      where: { id: userId },
-      data: { refreshToken: hash },
-    });
+  async updateRefreshToken(userId: string, refreshToken: string | null) {
+    try {
+      await this.getById(userId)
+
+      if (!refreshToken) {
+        const deleteRefreshToken = await this.databaseService.user.update({
+          where: { id: userId },
+          data: { refreshToken: null },
+          select: { refreshToken: true },
+        });
+
+        return deleteRefreshToken.refreshToken
+      }
+
+      const refreshTokenHased = await this.hashingService.hash(refreshToken)
+
+      const updateRefreshToken = await this.databaseService.user.update({
+        where: { id: userId },
+        data: { refreshToken: refreshTokenHased },
+        select: { refreshToken: true },
+      });
+
+      return updateRefreshToken.refreshToken
+    } catch (error) {
+      throw new InternalServerErrorException('Error updating refresh token!');
+    }
   }
 
   async updateRole(userId: string, updateRole: Role) {
