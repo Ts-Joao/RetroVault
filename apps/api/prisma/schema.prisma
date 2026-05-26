@@ -15,7 +15,7 @@ model User {
   role         Role          @default(USER)
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
-  refreshToken String?
+  refreshToken String?       @map("refresh_token")
   slug         String        @unique
   cart         Cart?
   order        Order[]
