@@ -17,6 +17,8 @@ import { SelfGuard } from 'src/auth/guard/self-guard.guard';
 import { Role } from '@prisma/client';
 import { AdminGuard } from 'src/common/guards/admin.guard';
 import { AuthTokenGuard } from 'src/auth/guard/auth-token.guard';
+import { TokenPayloadParam } from 'src/auth/param/token-payload.param';
+import { PayloadDto } from 'src/auth/dto/payload.dto';
 
 @Controller('users')
 export class UsersController {
@@ -47,19 +49,24 @@ export class UsersController {
   updateUser(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUser: UpdateUserDto,
+    @TokenPayloadParam() tokenPayload: PayloadDto,
   ) {
-    return this.usersService.update(id, updateUser);
+    return this.usersService.update(id, updateUser, tokenPayload);
   }
 
   @UseGuards(AuthTokenGuard, AdminGuard)
   @Patch(':id/role')
-  updateRole(@Param('id', ParseUUIDPipe) id: string, @Body() updateRole: Role) {
-    return this.usersService.updateRole(id, updateRole);
+  updateRole(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateRole: Role,
+    @TokenPayloadParam() tokenPayload: PayloadDto,
+  ) {
+    return this.usersService.updateRole(id, updateRole, tokenPayload);
   }
 
   @UseGuards(AuthTokenGuard, SelfGuard || AdminGuard)
   @Delete(':id')
-  deleteUser(@Param('id', ParseUUIDPipe) id: string) {
-    return this.usersService.delete(id);
+  deleteUser(@Param('id', ParseUUIDPipe) id: string, @TokenPayloadParam() tokenPayload: PayloadDto) {
+    return this.usersService.delete(id, tokenPayload);
   }
 }
