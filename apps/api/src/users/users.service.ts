@@ -1,41 +1,27 @@
 import {
   ConflictException,
   ForbiddenException,
+  HttpException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
-import slugify from 'slugify';
 import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
 import { Role } from '@prisma/client';
 import { PayloadDto } from 'src/auth/dto/payload.dto';
+import { SlugServiceProtocol } from 'src/common/utils/slug/slug.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly hashingService: HashingServiceProtocol,
+    private readonly slugService: SlugServiceProtocol
   ) {}
-
-  private async generateSlug(name: string): Promise<string> {
-    const base = slugify(name, { lower: true, strict: true });
-
-    const existing = await this.databaseService.user.findUnique({
-      where: { slug: base },
-      select: { slug: true },
-    });
-
-    if (!existing) {
-      return base;
-    }
-
-    const suffix = Math.random().toString(36).substring(2, 10);
-
-    return `${base}-${suffix}`;
-  }
 
   async create(createUserDto: CreateUserDto) {
     try {
@@ -48,7 +34,7 @@ export class UsersService {
       }
 
       const hashed = await this.hashingService.hash(createUserDto.password);
-      const slug = await this.generateSlug(createUserDto.name);
+      const slug = await this.slugService.generateSlug(createUserDto.name, 'user');
 
       const addUser = await this.databaseService.$transaction(async (tx) => {
         const newUser = await tx.user.create({
@@ -83,7 +69,7 @@ export class UsersService {
 
       return addUser;
     } catch (error) {
-      if (error instanceof ConflictException) {
+      if (error instanceof HttpException) {
         throw error;
       }
 
@@ -97,6 +83,10 @@ export class UsersService {
 
       return findUsers;
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
       throw new InternalServerErrorException('Error getting users!');
     }
   }
@@ -118,7 +108,7 @@ export class UsersService {
 
       return findUser;
     } catch (error) {
-      if (error instanceof NotFoundException) {
+      if (error instanceof HttpException) {
         throw error;
       }
 
@@ -138,7 +128,7 @@ export class UsersService {
 
       return findUser;
     } catch (error) {
-      if (error instanceof NotFoundException) {
+      if (error instanceof HttpException) {
         throw error;
       }
 
@@ -155,7 +145,9 @@ export class UsersService {
       const findUser = await this.getById(userId);
 
       if (tokenPayload.sub !== userId) {
-        throw new ForbiddenException('You are not authorized to update this user!');
+        throw new ForbiddenException(
+          'You are not authorized to update this user!',
+        );
       }
 
       const passwordHased = await this.hashPassword(
@@ -163,20 +155,25 @@ export class UsersService {
         findUser.password,
       );
 
-      const slug = await this.adjustSlug(findUser.name, updateUserDto.name, findUser.slug);
+      const slug = await this.slugService.adjustSlug(
+        findUser.name,
+        updateUserDto.name,
+        findUser.slug,
+        'user'
+      );
 
       const updateUser = await this.databaseService.user.update({
         where: { id: userId },
         data: {
           ...updateUserDto,
           password: passwordHased,
-          slug
+          slug,
         },
       });
 
       return updateUser;
     } catch (error) {
-      if (error instanceof ForbiddenException) {
+      if (error instanceof HttpException) {
         throw error;
       }
 
@@ -189,7 +186,9 @@ export class UsersService {
       const user = await this.getById(userId);
 
       if (tokenPayload.sub !== user.id || tokenPayload.role !== 'ADMIN') {
-        throw new ForbiddenException('You are not authorized to delete this user!');
+        throw new ForbiddenException(
+          'You are not authorized to delete this user!',
+        );
       }
 
       return this.databaseService.$transaction(async (tx) => {
@@ -206,7 +205,7 @@ export class UsersService {
         });
       });
     } catch (error) {
-      if (error instanceof ForbiddenException) {
+      if (error instanceof HttpException) {
         throw error;
       }
 
@@ -216,7 +215,7 @@ export class UsersService {
 
   async updateRefreshToken(userId: string, refreshToken: string | null) {
     try {
-      await this.getById(userId)
+      await this.getById(userId);
 
       if (!refreshToken) {
         const deleteRefreshToken = await this.databaseService.user.update({
@@ -225,10 +224,10 @@ export class UsersService {
           select: { refreshToken: true },
         });
 
-        return deleteRefreshToken.refreshToken
+        return deleteRefreshToken.refreshToken;
       }
 
-      const refreshTokenHased = await this.hashingService.hash(refreshToken)
+      const refreshTokenHased = await this.hashingService.hash(refreshToken);
 
       const updateRefreshToken = await this.databaseService.user.update({
         where: { id: userId },
@@ -236,8 +235,12 @@ export class UsersService {
         select: { refreshToken: true },
       });
 
-      return updateRefreshToken.refreshToken
+      return updateRefreshToken.refreshToken;
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
       throw new InternalServerErrorException('Error updating refresh token!');
     }
   }
@@ -247,16 +250,18 @@ export class UsersService {
       await this.getById(userId);
 
       if (tokenPayload.role !== 'ADMIN') {
-        throw new ForbiddenException('You are not authorized to update this user!');
+        throw new ForbiddenException(
+          'You are not authorized to update this user!',
+        );
       }
 
       return this.databaseService.user.update({
         where: { id: userId },
         data: { role: updateRole },
-        select: { role: true }
+        select: { role: true },
       });
     } catch (error) {
-      if (error instanceof ForbiddenException) {
+      if (error instanceof HttpException) {
         throw error;
       }
 
@@ -271,11 +276,23 @@ export class UsersService {
     return password ? await this.hashingService.hash(password) : passowrdHased;
   }
 
-  async adjustSlug(name: string, dtoUserName: string | undefined, slug: string) {
-    if (dtoUserName && dtoUserName !== name) {
-      return await this.generateSlug(dtoUserName);
-    }
+  async verifyIsSeller(sellerId: string) {
+    try {
+      const seller = await this.getById(sellerId);
 
-    return slug;
+      if (seller.role !== 'SELLER') {
+        throw new UnauthorizedException('User is not a seller');
+      }
+
+      return seller;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException(
+        'Error checking if user is a seller!',
+      );
+    }
   }
 }
