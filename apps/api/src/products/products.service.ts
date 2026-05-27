@@ -1,211 +1,206 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateProductDto } from './dto/create.product.dto';
 import { UpdateProductDto } from './dto/update.product.dto';
-import slugify from 'slugify';
+import { UsersService } from 'src/users/users.service';
+import { PayloadDto } from 'src/auth/dto/payload.dto';
+import { SlugServiceProtocol } from 'src/common/utils/slug/slug.service';
 
 @Injectable()
 export class ProductService {
-    constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    private readonly databaseService: DatabaseService,
+    private readonly usersService: UsersService,
+    private readonly slugService: SlugServiceProtocol,
+  ) {}
 
-    private async generateSlug(name: string): Promise<string> {
-        const base = slugify(name, { lower: true, strict: true, });
+  async create(createProductDto: CreateProductDto, sellerId: string) {
+    try {
+      await this.usersService.verifyIsSeller(sellerId);
 
-        const existing = await this.databaseService.product.findUnique({
-            where: { slug: base },
-            select: { slug: true },
-        });
+      const slug = await this.slugService.generateSlug(
+        createProductDto.name,
+        'product',
+      );
 
-        if (!existing) {
-            return base;
-        }
+      const newProduct = await this.databaseService.product.create({
+        data: {
+          ...createProductDto,
+          slug,
+          sellerId: sellerId,
+        },
+      });
+      return newProduct;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
 
-        const suffix = Math.random().toString(36).substring(2, 10);
-
-        return `${base}-${suffix}`;
+      throw new InternalServerErrorException('Error creating product!');
     }
+  }
 
-    async create(createProductDto: CreateProductDto, sellerId: string) {
-        try {
-            const findSeller = await this.databaseService.user.findUnique({
-                where: { id: sellerId }
-            });
+  async get() {
+    try {
+      const findProduct = await this.databaseService.product.findMany({
+        where: {
+          isActive: true,
+        },
+        include: {
+          photos: true,
+        },
+      });
 
-            if (!findSeller) {
-                throw new NotFoundException('Seller not found');
-            }
+      return findProduct;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
 
-            if (findSeller.role != 'SELLER') {
-                throw new UnauthorizedException('User is not a seller');
-            }
-
-            const slug = await this.generateSlug(createProductDto.name);
-
-            const newProduct = await this.databaseService.product.create({
-                data: {
-                    ...createProductDto,
-                    slug: slug,
-                    sellerId: sellerId
-                }
-            });
-            return newProduct;
-        } catch (err) {
-            console.error('Erro ao criar produto')
-            throw err
-        };
+      throw new InternalServerErrorException('Error getting products!');
     }
+  }
 
-    async get() {
-        try {
-            const findProduct = await this.databaseService.product.findMany({
-                where: {
-                    isActive: true
-                },
-                include: {
-                    photos: true
-                }
-            })
+  async getById(id: string) {
+    try {
+      const findProduct = await this.databaseService.product.findUnique({
+        where: { id },
+      });
 
-            return findProduct;
-        } catch (err) {
-            throw new HttpException (
-                'Error getting products!',
-                HttpStatus.INTERNAL_SERVER_ERROR
-            )
-        };
+      if (!findProduct) {
+        throw new NotFoundException('Product not found');
+      }
+
+      return findProduct;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error finding product!');
     }
+  }
 
-    async getById(id: string) {
-        try {
-            const findProduct = await this.databaseService.product.findUnique({
-                where: { id }
-            });
+  async getActiveProductsBySellerId(sellerId: string) {
+    try {
+      const seller = await this.usersService.verifyIsSeller(sellerId);
 
-            if (!findProduct) {
-                throw new NotFoundException('Product not found');
-            }
-            return findProduct;
-        } catch (err) {
-            throw new HttpException(
-                'Error finding product',
-                HttpStatus.INTERNAL_SERVER_ERROR
-            )
-        };
+      const products = await this.databaseService.product.findMany({
+        where: {
+          sellerId: seller.id,
+          isActive: true,
+        },
+        include: { photos: true },
+      });
+
+      return products;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error getting products!');
     }
+  }
 
-    async getBySellerId(sellerId: string) {
-        const seller = await this.databaseService.user.findUnique({
-            where: {
-                id: sellerId,
-                role:'SELLER'
-            },
-        })
+  async getAllProductsBySellerId(sellerId: string) {
+    try {
+      const seller = await this.usersService.verifyIsSeller(sellerId);
 
-        if (!seller) {
-            throw new NotFoundException('Seller Not Found!')
-        }
+      const products = await this.databaseService.product.findMany({
+        where: { sellerId: seller.id },
+        include: { photos: true },
+      });
 
-        return await this.databaseService.product.findMany({
-            where: {
-                sellerId: seller.id,
-                isActive: true
-            }
-        })
+      return products;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error getting products!');
     }
+  }
 
-    async getAllBySellerId(sellerId: string) {
-        const seller = await this.databaseService.user.findUnique({
-            where: {
-                id: sellerId,
-                role:'SELLER'
-            },
-        })
+  async update(
+    productId: string,
+    updateProductDto: UpdateProductDto,
+    tokenPayload: PayloadDto,
+  ) {
+    try {
+      const findProduct = await this.getById(productId);
 
-        if (!seller) {
-            throw new NotFoundException('Seller Not Found!')
-        }
-        
-        return await this.databaseService.product.findMany({
-            where: { sellerId: seller.id }
-        })
+      if (tokenPayload.sub !== findProduct.sellerId) {
+        throw new ForbiddenException(
+          'You are not authorized to update this product!',
+        );
+      }
+
+      const slug = await this.slugService.adjustSlug(
+        findProduct.name,
+        updateProductDto.name,
+        findProduct.slug,
+        'product',
+      );
+
+      const updateProduct = await this.databaseService.product.update({
+        where: { id: findProduct.id },
+        data: {
+          ...updateProductDto,
+          slug,
+        },
+      });
+
+      return updateProduct;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error updating product!');
     }
+  }
 
-    async update(id: string, updateProductDto: UpdateProductDto) {
-        try {
-            const findProduct = await this.databaseService.product.findUnique({
-                where: { id }
-            });
+  async softDelete(id: string) {
+    try {
+      const findProduct = await this.getById(id);
 
-            if (!findProduct) {
-                throw new NotFoundException('Product not found');
-            }
+      const softDeleteProduct = await this.databaseService.product.update({
+        where: { id: findProduct.id },
+        data: { isActive: false },
+      });
 
-            let slug = findProduct.slug;
-            if (updateProductDto.name && updateProductDto.name !== findProduct.name) {
-                slug = await this.generateSlug(updateProductDto.name);
-            }
-            
-            const updateProduct = await this.databaseService.product.update({
-                where: { id },
-                data: {
-                    ...updateProductDto,
-                    slug
-                }
-            });
+      return softDeleteProduct;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
 
-            return updateProduct;
-        } catch (err) {
-            throw new HttpException(
-                'Error updating product!',
-                HttpStatus.INTERNAL_SERVER_ERROR
-            )
-        };
+      throw new InternalServerErrorException('Error soft deleting product!');
     }
+  }
 
-    async softDelete(id: string) {
-        try {
-            const findProduct = await this.databaseService.product.findUnique({
-                where: { id }
-            });
+  async delete(id: string) {
+    try {
+      const findProduct = await this.getById(id);
 
-            if (!findProduct) {
-                throw new NotFoundException('Product not found');
-            }
+      const deleteProduct = await this.databaseService.product.delete({
+        where: { id: findProduct.id },
+      });
 
-            const softDeleteProduct = await this.databaseService.product.update({
-                where: { id },
-                data: { isActive: false }
-            });
+      return deleteProduct;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
 
-            return softDeleteProduct;
-        } catch (err) {
-            throw new HttpException(
-                'Error soft deleting product!',
-                HttpStatus.INTERNAL_SERVER_ERROR
-            )
-        };
+      throw new InternalServerErrorException('Error deleting product!');
     }
-
-    async delete(id: string) {
-        try {
-            const findProduct = await this.databaseService.product.findUnique({
-                where: { id }
-            });
-
-            if (!findProduct) {
-                throw new NotFoundException('Product not fund');
-            }
-
-            const deleteProduct = await this.databaseService.product.delete({
-                where: { id }
-            });
-
-            return deleteProduct;
-        }catch (err) {
-            throw new HttpException(
-                'Error deleting product!',
-                HttpStatus.INTERNAL_SERVER_ERROR
-            )
-        }
-    }
+  }
 }
