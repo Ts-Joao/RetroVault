@@ -1,4 +1,6 @@
 import {
+  ConflictException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -9,6 +11,7 @@ import { UpdateUserDto } from './dto/update.user.dto';
 import slugify from 'slugify';
 import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
 import { Role } from '@prisma/client';
+import { PayloadDto } from 'src/auth/dto/payload.dto';
 
 @Injectable()
 export class UsersService {
@@ -41,7 +44,7 @@ export class UsersService {
       });
 
       if (userExists) {
-        throw new NotFoundException('User already exists!');
+        throw new ConflictException('Email already in use!');
       }
 
       const hashed = await this.hashingService.hash(createUserDto.password);
@@ -80,7 +83,7 @@ export class UsersService {
 
       return addUser;
     } catch (error) {
-      if (error instanceof NotFoundException) {
+      if (error instanceof ConflictException) {
         throw error;
       }
 
@@ -143,37 +146,51 @@ export class UsersService {
     }
   }
 
-  async update(userId: string, updateUserDto: UpdateUserDto) {
+  async update(
+    userId: string,
+    updateUserDto: UpdateUserDto,
+    tokenPayload: PayloadDto,
+  ) {
     try {
       const findUser = await this.getById(userId);
 
-      let passowrdHased = await this.hashPassword(
+      if (tokenPayload.sub !== userId) {
+        throw new ForbiddenException('You are not authorized to update this user!');
+      }
+
+      const passwordHased = await this.hashPassword(
         updateUserDto.password,
         findUser.password,
       );
 
-      if (updateUserDto.name && updateUserDto.name !== findUser.name) {
-        findUser.slug = await this.generateSlug(updateUserDto.name);
-      }
+      const slug = await this.adjustSlug(findUser.name, updateUserDto.name, findUser.slug);
 
       const updateUser = await this.databaseService.user.update({
         where: { id: userId },
         data: {
           ...updateUserDto,
-          password: passowrdHased,
-          slug: findUser.slug,
+          password: passwordHased,
+          slug
         },
       });
 
       return updateUser;
     } catch (error) {
+      if (error instanceof ForbiddenException) {
+        throw error;
+      }
+
       throw new InternalServerErrorException('Error updating user!');
     }
   }
 
-  async delete(userId: string) {
+  async delete(userId: string, tokenPayload: PayloadDto) {
     try {
       const user = await this.getById(userId);
+
+      if (tokenPayload.sub !== user.id || tokenPayload.role !== 'ADMIN') {
+        throw new ForbiddenException('You are not authorized to delete this user!');
+      }
 
       return this.databaseService.$transaction(async (tx) => {
         const deleteOperations = [
@@ -189,6 +206,10 @@ export class UsersService {
         });
       });
     } catch (error) {
+      if (error instanceof ForbiddenException) {
+        throw error;
+      }
+
       throw new InternalServerErrorException('Error deleting user!');
     }
   }
@@ -221,15 +242,24 @@ export class UsersService {
     }
   }
 
-  async updateRole(userId: string, updateRole: Role) {
+  async updateRole(userId: string, updateRole: Role, tokenPayload: PayloadDto) {
     try {
-      const user = await this.getById(userId);
+      await this.getById(userId);
+
+      if (tokenPayload.role !== 'ADMIN') {
+        throw new ForbiddenException('You are not authorized to update this user!');
+      }
 
       return this.databaseService.user.update({
         where: { id: userId },
         data: { role: updateRole },
+        select: { role: true }
       });
     } catch (error) {
+      if (error instanceof ForbiddenException) {
+        throw error;
+      }
+
       throw new InternalServerErrorException('Error updating user role!');
     }
   }
@@ -239,5 +269,13 @@ export class UsersService {
     passowrdHased: string,
   ): Promise<string> {
     return password ? await this.hashingService.hash(password) : passowrdHased;
+  }
+
+  async adjustSlug(name: string, dtoUserName: string | undefined, slug: string) {
+    if (dtoUserName && dtoUserName !== name) {
+      return await this.generateSlug(dtoUserName);
+    }
+
+    return slug;
   }
 }
