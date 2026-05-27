@@ -1,9 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 
 @Injectable()
 export class FavoriteService {
   constructor(private readonly db: DatabaseService) {}
+
+  private findFavorite(userId: string, productId: string) {
+    return this.db.favorite.findUnique({
+      where: {
+        userId_productId: { userId, productId}
+      }
+    })
+  }
 
   async getFavorites(userId: string) {
     return this.db.favorite.findMany({
@@ -21,15 +29,7 @@ export class FavoriteService {
   }
 
   async isFavorited(userId: string, productId: string) {
-    const favorite = await this.db.favorite.findUnique({
-      where: {
-        userId_productId: {
-          userId,
-          productId,
-        },
-      },
-    });
-
+    const favorite = await this.findFavorite(userId, productId);
     return { isFavorited: !!favorite };
   }
 
@@ -40,21 +40,12 @@ export class FavoriteService {
       },
     });
 
-    if (!product) {
-      throw new NotFoundException('Product not found');
-    }
+    if (!product) throw new NotFoundException('Product not found');
 
-    const existing = await this.db.favorite.findUnique({
-      where: {
-        userId_productId: {
-          userId: userId,
-          productId: productId,
-        },
-      },
-    });
+    const existing = await this.findFavorite(userId, productId)
 
     if (existing) {
-      throw new NotFoundException('Product is already in favorites');
+      throw new ConflictException('Product is already in favorites');
     }
 
     return this.db.favorite.create({
@@ -71,18 +62,17 @@ export class FavoriteService {
   }
 
   async deleteFavorite(userId: string, productId: string) {
-    const favorite = await this.db.favorite.findUnique({
-      where: {
-        userId_productId: {
-          userId,
-          productId,
-        },
-      },
-    });
+    const favorite = await this.findFavorite(userId, productId)
 
     if (!favorite) {
       throw new NotFoundException('favorite not found');
     }
+
+    await this.db.favorite.delete({
+      where: {
+        userId_productId: { userId, productId },
+      }
+    });
 
     return { message: 'favorite deleted sucessfully' };
   }
