@@ -1,18 +1,32 @@
-import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, UnauthorizedException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ProductService } from './products.service';
 import { CreateProductDto } from './dto/create.product.dto';
 import { UpdateProductDto } from './dto/update.product.dto';
+import { PayloadDto } from 'src/auth/dto/payload.dto';
+import { TokenPayloadParam } from 'src/auth/param/token-payload.param';
+import { AuthTokenGuard } from 'src/auth/guard/auth-token.guard';
 
 @Controller('products')
 export class ProductsController {
     constructor(private readonly productsService: ProductService) {}
 
+    @UseGuards(AuthTokenGuard)
     @Post()
-    createProduct(@Headers('user-id') sellerId: string, @Body() createProduct: CreateProductDto) {
-        if (!sellerId) {
-            throw new UnauthorizedException('Seller ID is required');
-        }
-        return this.productsService.create(createProduct, sellerId)
+    createProduct(
+        @Body() createProduct: CreateProductDto,
+        @TokenPayloadParam() payload: PayloadDto
+    ) {
+        return this.productsService.create(createProduct, payload.sub)
     }
 
     @Get()
@@ -20,42 +34,50 @@ export class ProductsController {
         return this.productsService.get()
     }
 
-    @Get(':id')
-    getProductById(@Param('id') id: string) {
-        return this.productsService.getById(id)
+    @Get(':productId')
+    getProductById(@Param('productId', ParseUUIDPipe) productId: string) {
+        return this.productsService.getById(productId)
     }
 
     @Get('seller/:sellerId')
-    getProductsBySellerId(@Param('sellerId') sellerId: string) {
-        return this.productsService.getBySellerId(sellerId)
+    getProductsBySellerId(@Param('sellerId', ParseUUIDPipe) sellerId: string) {
+        return this.productsService.getActiveProductsBySellerId(sellerId)
     }
 
-    @Get(':sellerId')
-    getAllProductsBySellerId(@Param('sellerId') sellerId: string) {
-        return this.productsService.getAllBySellerId(sellerId)
+    @UseGuards(AuthTokenGuard)
+    @Get('seller/all/:sellerId')
+    getAllProductsBySellerId(
+        @Param('sellerId', ParseUUIDPipe) sellerId: string,
+        @TokenPayloadParam() payload: PayloadDto
+    ) {
+        return this.productsService.getAllProductsBySellerId(sellerId, payload)
     }
 
-    @Patch(':id')
-    updateProduct(@Headers('user-id') sellerId: string, @Param('id') id: string, @Body() updateProduct: UpdateProductDto) {
-        if (!sellerId) {
-            throw new UnauthorizedException('Seller ID is required');
-        }
-        return this.productsService.update(id, updateProduct)
-    } 
-
-    @Patch('soft-delete/:id')
-    softDeleteProduct(@Headers('user-id') sellerId: string, @Param('id') id: string) {
-        if (!sellerId) {
-            throw new UnauthorizedException('Seller ID is required');
-        }
-        return this.productsService.softDelete(id)
+    @UseGuards(AuthTokenGuard)
+    @Patch(':productId')
+    updateProduct(
+        @Param('productId', ParseUUIDPipe) productId: string,
+        @Body() updateProduct: UpdateProductDto,
+        @TokenPayloadParam() payload: PayloadDto
+    ) {
+        return this.productsService.update(productId, updateProduct, payload)
     }
 
-    @Delete(':id')
-    deleteProduct(@Headers('user-id') sellerId: string, @Param('id') id: string) {
-        if (!sellerId) {
-            throw new UnauthorizedException('Seller ID is required');
-        }
-        return this.productsService.delete(id)
+    @UseGuards(AuthTokenGuard)
+    @Patch('soft-delete/:productId')
+    softDeleteProduct(
+        @Param('productId', ParseUUIDPipe) productId: string,
+        @TokenPayloadParam() payload: PayloadDto
+    ) {
+        return this.productsService.softDelete(productId, payload)
+    }
+
+    @UseGuards(AuthTokenGuard)
+    @Delete(':productId')
+    deleteProduct(
+        @Param('productId', ParseUUIDPipe) productId: string,
+        @TokenPayloadParam() payload: PayloadDto
+    ) {
+        return this.productsService.delete(productId, payload)
     }
 }
