@@ -203,4 +203,27 @@ export class ProductService {
       throw new InternalServerErrorException('Error deleting product!');
     }
   }
+
+  async verifySellerOwnership(sellerId: string, payload: PayloadDto) {
+    try {
+      const findSeller = await this.usersService.verifyIsSeller(sellerId);
+
+      if (
+        sellerId !== payload.sub ||
+        !(payload.role === 'SELLER' || payload.role === 'ADMIN')
+      ) {
+        throw new ForbiddenException(
+          'You are not authorized to perform this action!',
+        );
+      }
+
+      return findSeller;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error verifying seller ownership!');
+    }
+  }
 }
