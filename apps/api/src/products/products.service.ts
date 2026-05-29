@@ -109,12 +109,14 @@ export class ProductService {
     }
   }
 
-  async getAllProductsBySellerId(sellerId: string) {
+  async getAllProductsBySellerId(sellerId: string, tokenPayload: PayloadDto) {
     try {
-      const seller = await this.usersService.verifyIsSeller(sellerId);
+      await this.usersService.verifyIsSeller(sellerId);
+
+      await this.verifySellerOwnership(sellerId, tokenPayload)
 
       const products = await this.databaseService.product.findMany({
-        where: { sellerId: seller.id },
+        where: { sellerId },
         include: { photos: true },
       });
 
@@ -136,11 +138,7 @@ export class ProductService {
     try {
       const findProduct = await this.getById(productId);
 
-      if (tokenPayload.sub !== findProduct.sellerId) {
-        throw new ForbiddenException(
-          'You are not authorized to update this product!',
-        );
-      }
+      await this.verifySellerOwnership(findProduct.sellerId, tokenPayload)
 
       const slug = await this.slugService.adjustSlug(
         findProduct.name,
@@ -167,9 +165,11 @@ export class ProductService {
     }
   }
 
-  async softDelete(id: string) {
+  async softDelete(id: string, tokenPayload: PayloadDto) {
     try {
       const findProduct = await this.getById(id);
+
+      await this.verifySellerOwnership(findProduct.sellerId, tokenPayload)
 
       const softDeleteProduct = await this.databaseService.product.update({
         where: { id: findProduct.id },
@@ -186,9 +186,11 @@ export class ProductService {
     }
   }
 
-  async delete(id: string) {
+  async delete(id: string, tokenPayload: PayloadDto) {
     try {
       const findProduct = await this.getById(id);
+
+      await this.verifySellerOwnership(findProduct.sellerId, tokenPayload)
 
       const deleteProduct = await this.databaseService.product.delete({
         where: { id: findProduct.id },
@@ -209,8 +211,7 @@ export class ProductService {
       const findSeller = await this.usersService.verifyIsSeller(sellerId);
 
       if (
-        sellerId !== payload.sub ||
-        !(payload.role === 'SELLER' || payload.role === 'ADMIN')
+        sellerId !== payload.sub || payload.role === 'ADMIN'
       ) {
         throw new ForbiddenException(
           'You are not authorized to perform this action!',
