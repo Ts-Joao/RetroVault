@@ -11,18 +11,19 @@ import { UpdateProductDto } from './dto/update.product.dto';
 import { UsersService } from 'src/users/users.service';
 import { PayloadDto } from 'src/auth/dto/payload.dto';
 import { SlugServiceProtocol } from 'src/common/utils/slug/slug.service';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class ProductService {
   constructor(
     private readonly databaseService: DatabaseService,
-    private readonly usersService: UsersService,
     private readonly slugService: SlugServiceProtocol,
+    private readonly authService: AuthService,
   ) {}
 
   async create(createProductDto: CreateProductDto, sellerId: string) {
     try {
-      await this.usersService.verifyIsSeller(sellerId);
+      await this.authService.verifyIsSeller(sellerId);
 
       const slug = await this.slugService.generateSlug(
         createProductDto.name,
@@ -89,11 +90,11 @@ export class ProductService {
 
   async getActiveProductsBySellerId(sellerId: string) {
     try {
-      const seller = await this.usersService.verifyIsSeller(sellerId);
+      await this.authService.verifyIsSeller(sellerId);
 
       const products = await this.databaseService.product.findMany({
         where: {
-          sellerId: seller.id,
+          sellerId: sellerId,
           isActive: true,
         },
         include: { photos: true },
@@ -111,9 +112,9 @@ export class ProductService {
 
   async getAllProductsBySellerId(sellerId: string, tokenPayload: PayloadDto) {
     try {
-      await this.usersService.verifyIsSeller(sellerId);
+      await this.authService.verifyIsSeller(sellerId);
 
-      await this.verifySellerOwnership(sellerId, tokenPayload)
+      await this.authService.validateTokenUser(tokenPayload, sellerId)
 
       const products = await this.databaseService.product.findMany({
         where: { sellerId },
@@ -138,7 +139,7 @@ export class ProductService {
     try {
       const findProduct = await this.getById(productId);
 
-      await this.verifySellerOwnership(findProduct.sellerId, tokenPayload)
+      await this.authService.validateTokenUser(tokenPayload, findProduct.sellerId)
 
       const slug = await this.slugService.adjustSlug(
         findProduct.name,
@@ -169,7 +170,7 @@ export class ProductService {
     try {
       const findProduct = await this.getById(id);
 
-      await this.verifySellerOwnership(findProduct.sellerId, tokenPayload)
+      await this.authService.validateTokenUser(tokenPayload, findProduct.sellerId)
 
       const softDeleteProduct = await this.databaseService.product.update({
         where: { id: findProduct.id },
@@ -190,7 +191,7 @@ export class ProductService {
     try {
       const findProduct = await this.getById(id);
 
-      await this.verifySellerOwnership(findProduct.sellerId, tokenPayload)
+      await this.authService.validateTokenUser(tokenPayload, findProduct.sellerId)
 
       const deleteProduct = await this.databaseService.product.delete({
         where: { id: findProduct.id },
@@ -203,28 +204,6 @@ export class ProductService {
       }
 
       throw new InternalServerErrorException('Error deleting product!');
-    }
-  }
-
-  async verifySellerOwnership(sellerId: string, payload: PayloadDto) {
-    try {
-      const findSeller = await this.usersService.verifyIsSeller(sellerId);
-
-      if (
-        sellerId !== payload.sub || payload.role === 'ADMIN'
-      ) {
-        throw new ForbiddenException(
-          'You are not authorized to perform this action!',
-        );
-      }
-
-      return findSeller;
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-
-      throw new InternalServerErrorException('Error verifying seller ownership!');
     }
   }
 }
