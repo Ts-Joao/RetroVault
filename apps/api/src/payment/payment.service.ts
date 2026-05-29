@@ -1,117 +1,138 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { randomUUID } from 'crypto';
 import { OrderStatus, PaymentStatus } from '@prisma/client';
+import { OrdersService } from 'src/orders/orders.service';
 
 @Injectable()
 export class PaymentService {
-    constructor(private readonly databaseSerivce: DatabaseService) {}
+  constructor(
+    private readonly databaseService: DatabaseService,
+    private readonly orderService: OrdersService,
+  ) {}
 
-    async simulation(orderId: string, userId: string) {
-        try {
-            const order = await this.databaseSerivce.order.findFirst({
-                where: {
-                    id: orderId,
-                    userId,
-                },
-            });
+  async simulation(orderId: string, userId: string) {
+    try {
+      const order = await this.findOrderPending(orderId, userId);
 
-            if (!order) {
-                throw new NotFoundException('Order not found');
-            }
+      const token = randomUUID();
+      const datePayment = new Date(Date.now() + 5 * 60 * 1000);
 
-            if (order.status != OrderStatus.PENDING) {
-                throw new BadRequestException("Order is not in pending state");
-            }
+      await this.databaseService.payment.update({
+        where: {
+          orderId: orderId,
+        },
+        data: {
+          confirmationCode: token,
+          tokenExpiresAt: datePayment,
+        },
+      });
 
-            const token = randomUUID();
-            const datePayment = new Date(Date.now() + 5 * 60 * 1000);
+      return token;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
 
-            await this.databaseSerivce.payment.update({
-                where: {
-                    orderId: orderId,
-                },
-                data: {
-                    confirmationCode: token,
-                    tokenExpiresAt: datePayment,
-                }
-            })
-
-            return token;
-
-        } catch (error) {
-            if (error instanceof NotFoundException || error instanceof BadRequestException) {
-                console.log(error.message);
-                throw error;
-            }
-
-            console.log(error);
-            throw new InternalServerErrorException('Error to simulation payment');
-        }
+      throw new InternalServerErrorException('Error to simulation payment');
     }
+  }
 
-    async confirmation(token: string) {
-        const payment = await this.databaseSerivce.payment.findFirst({
+  async confirmation(token: string) {
+    try {
+      const payment = await this.databaseService.payment.findFirst({
+        where: {
+          confirmationCode: token,
+        },
+      });
+
+      if (!payment) {
+        throw new NotFoundException('Payment not found');
+      }
+
+      if (!payment.tokenExpiresAt) {
+        throw new BadRequestException('Payment token has no expiration date');
+      }
+
+      if (payment.tokenExpiresAt < new Date()) {
+        await this.databaseService.$transaction(async (tx) => {
+          await tx.order.update({
             where: {
-                confirmationCode: token,
-            }
-        })
+              id: payment.orderId,
+            },
+            data: {
+              status: OrderStatus.CANCELED,
+            },
+          });
+          await tx.payment.update({
+            where: {
+              id: payment.id,
+            },
+            data: {
+              status: PaymentStatus.FAILED,
+            },
+          });
+        });
 
-        if (!payment) {
-            throw new NotFoundException("Payment not found");
-        }
+        throw new BadRequestException('Payment token is expired');
+      }
 
-        if (!payment.tokenExpiresAt) {
-            throw new BadRequestException("Payment token has no expiration date");
-        }
+      if (payment.status != PaymentStatus.PENDING) {
+        throw new BadRequestException('Payment is not in pending state');
+      }
 
-        if (payment.tokenExpiresAt < new Date()) {
-            await this.databaseSerivce.$transaction(async (tx) =>{
-                await tx.order.update({
-                    where: {
-                        id: payment.orderId,
-                    },
-                    data: {
-                        status: OrderStatus.CANCELED,
-                    },
-                });
-                await tx.payment.update({
-                    where: {
-                        id: payment.id,
-                    },
-                    data: {
-                        status: PaymentStatus.FAILED,
-                    },
-                });
-            })
+      await this.databaseService.$transaction(async (tx) => {
+        await tx.payment.update({
+          where: {
+            confirmationCode: token,
+          },
+          data: {
+            status: PaymentStatus.CAPTURED,
+          },
+        });
 
-            throw new BadRequestException("Payment token is expired");
-        }
+        await tx.order.update({
+          where: {
+            id: payment.orderId,
+          },
+          data: {
+            status: OrderStatus.PAID,
+          },
+        });
+      });
 
-        if (payment.status != PaymentStatus.PENDING) {
-            throw new BadRequestException("Payment is not in pending state");
-        }
+      return 'Payment confirmed successfully';
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
 
-        await this.databaseSerivce.$transaction( async (tx) => {
-            await tx.payment.update({
-                where: {
-                    confirmationCode: token,
-                },
-                data: {
-                    status: PaymentStatus.CAPTURED,
-                },
-            });
-
-            await tx.order.update({
-                where: {
-                    id: payment.orderId,
-                },
-                data: {
-                    status: OrderStatus.PAID,
-                },
-            });
-        })
-
-        return 'Payment confirmed successfully';
+      throw new InternalServerErrorException('Error to confirm payment');
     }
+  }
+
+  private async findOrderPending(orderId: string, userId: string) {
+    const order = await this.databaseService.order.findFirst({
+      where: {
+        id: orderId,
+        userId,
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    if (order.status !== OrderStatus.PENDING) {
+      throw new BadRequestException('Order is not in pending state');
+    }
+
+    return order;
+  }
 }
