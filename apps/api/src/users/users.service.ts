@@ -275,24 +275,4 @@ export class UsersService {
   ): Promise<string> {
     return password ? await this.hashingService.hash(password) : passowrdHased;
   }
-
-  async verifyIsSeller(sellerId: string) {
-    try {
-      const seller = await this.getById(sellerId);
-
-      if (seller.role !== 'SELLER') {
-        throw new UnauthorizedException('User is not a seller');
-      }
-
-      return seller;
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-
-      throw new InternalServerErrorException(
-        'Error checking if user is a seller!',
-      );
-    }
-  }
 }
