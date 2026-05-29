@@ -1,18 +1,30 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Get,
+    Param,
+    ParseUUIDPipe,
+    Patch,
+    Post,
+    UseGuards
+} from '@nestjs/common';
 import { OrdersService } from './orders.service';
+import { PayloadDto } from 'src/auth/dto/payload.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { CurrentUser } from 'src/auth/decorator/current-user.decorator';
-import { AuthGuard } from '@nestjs/passport';
+import { AuthTokenGuard } from 'src/auth/guard/auth-token.guard';
+import { TokenPayloadParam } from 'src/auth/param/token-payload.param';
 
 @Controller('orders')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthTokenGuard)
 export class OrdersController {
     constructor(private readonly ordersService: OrdersService) {}
 
     @Post()
-    async checkout(@CurrentUser() user: any, @Body() dto: CreateOrderDto) {
-        return this.ordersService.checkout(user.sub, dto)
+    async checkout(
+        @TokenPayloadParam() tokenPayload: PayloadDto,
+        @Body() dto: CreateOrderDto) {
+        return this.ordersService.checkout(tokenPayload.sub, dto)
     }
 
     @Get()
@@ -21,22 +33,36 @@ export class OrdersController {
     }
 
     @Get('/user/:userId')
-    async findAllByUserId(@Param('userId') userId: string) {
-        return this.ordersService.findAllByUserId(userId)
+    async findAllByUserId(
+        @TokenPayloadParam() tokenPayload: PayloadDto,
+        @Param('userId', ParseUUIDPipe) userId: string) {
+        return this.ordersService.findAllByUserId(tokenPayload, userId)
     }
 
-    @Get(':id')
-    async findOne(@Param('id') id: string, @CurrentUser() user: any) {
-        return this.ordersService.findOne(user.sub, id)
+    @Get(':orderId/user/:userId')
+    async findOne(
+        @TokenPayloadParam() tokenPayload: PayloadDto,
+        @Param('orderId', ParseUUIDPipe) orderId: string,
+        @Param('userId', ParseUUIDPipe) userId: string
+    ) {
+        return this.ordersService.findOne(tokenPayload, orderId, userId)
     }
 
-    @Patch(':id')
-    async changePaymentStatus(@Param('id') id: string, @Body() dto: UpdateOrderDto) {
-        return this.ordersService.updatePaymentStatus(id, dto)
+    @Patch(':orderId/payment')
+    async changePaymentStatus(
+        @TokenPayloadParam() tokenPayload: PayloadDto,
+        @Param('orderId', ParseUUIDPipe) orderId: string,
+        @Body() dto: UpdateOrderDto
+    ) {
+        return this.ordersService.updatePaymentStatus(tokenPayload, orderId, dto)
     }
 
-    @Patch(':id/status')
-    async update(@CurrentUser() user: any, @Param('id') id: string, @Body() dto: UpdateOrderDto) {
-        return this.ordersService.updateStatus(user, id, dto)
+    @Patch(':orderId/status')
+    async update(
+        @TokenPayloadParam() tokenPayload: PayloadDto,
+        @Param('orderId', ParseUUIDPipe) orderId: string,
+        @Body() dto: UpdateOrderDto
+    ) {
+        return this.ordersService.updateStatus(tokenPayload, orderId, dto)
     }
 }
