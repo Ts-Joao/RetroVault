@@ -1,117 +1,151 @@
-import { 
-    Injectable,
-    NotFoundException
-} from "@nestjs/common";
-import { DatabaseService } from "src/database/database.service";
-import { AddItemDto } from "./dto/add.item.dto";
-import { UpdatedItemDto } from "./dto/update.item.dto";
+import {
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { DatabaseService } from 'src/database/database.service';
+import { AddItemDto } from './dto/add.item.dto';
+import { ProductService } from 'src/products/products.service';
+import { AuthService } from 'src/auth/auth.service';
+import { PayloadDto } from 'src/auth/dto/payload.dto';
 
 @Injectable()
 export class CartService {
-    constructor(private readonly db: DatabaseService) {}
+  constructor(
+    private readonly databaseService: DatabaseService,
+    private readonly productService: ProductService,
+    private readonly authService: AuthService
+  ) {}
 
-    async getOrCreateCart(userId: string) {
-        return this.db.cart.upsert({
-            where: { userId },
-            create: { userId },
-            update: {},
-            include: {
-                cartItem: {
-                    include: { product: true },
-                }
-            }
-        });
+  async getCart(userId: string) {
+    try {
+      const findCart = await this.databaseService.cart.findUnique({
+        where: { userId },
+        include: {
+          cartItem: {
+            include: { product: true },
+          },
+        },
+      });
+
+      if (!findCart) {
+        throw new NotFoundException('Cart not found');
+      }
+
+      return findCart;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error getting cart');
     }
+  }
 
-    async addItem(userId: string, dto: AddItemDto) {
-        const cart = await this.getOrCreateCart(userId);
-        const product = await this.db.product.findUnique({
-            where: { id: dto.productId }
+  async addItem(userId: string, dto: AddItemDto) {
+    try {
+      const cart = await this.getCart(userId);
+
+      const product = await this.productService.getById(dto.productId);
+
+      const existing = await this.databaseService.cartItem.findUnique({
+        where: {
+          cartId_productId: {
+            cartId: cart.id,
+            productId: dto.productId,
+          },
+        },
+      });
+
+      if (existing) {
+        return this.databaseService.cartItem.update({
+          where: { id: existing.id },
+          data: { amount: existing.amount + dto.amount },
+          include: { product: true },
         });
+      }
 
-        if (!product) {
-            throw new NotFoundException('product not found');
-        }
-
-        const existing = await this.db.cartItem.findUnique({
-            where: {
-                cartId_productId: {
-                    cartId: cart.id,
-                    productId: dto.productId
-                }
-            }
-        });
-
-        if (existing) {
-            return this.db.cartItem.update({
-                where: { id: existing.id },
-                data: { amount: existing.amount + dto.amount },
-                include: { product: true }
-            });
-        }
-
-        return this.db.cartItem.create({
-            data: {
-                cartId: cart.id,
-                productId: dto.productId,
-                amount: dto.amount,
-                price: product.price
-            },
-            include: { product: true }
-        });
+      return this.databaseService.cartItem.create({
+        data: {
+          cartId: cart.id,
+          productId: dto.productId,
+          amount: dto.amount,
+          price: product.price,
+        },
+        include: { product: true },
+      });
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error adding item to cart');
     }
+  }
 
-    async updateItem(userId: string, itemId: string, dto: UpdatedItemDto) {
-        const cart = await this.getOrCreateCart(userId);
-        
-        const item = await this.db.cartItem.findUnique({
-            where: { id: itemId, cartId: cart.id}
-        });
+  async removeItem(userId: string, id: string, itemId: string) {
+    try {
+      const cart = await this.getCart(userId);
 
-        if (!item) {
-            throw new NotFoundException('Item not found in cart');
-        }
+      const item = await this.databaseService.cartItem.findFirst({
+        where: { id: itemId, cartId: id },
+      });
 
-        return this.db.cartItem.update({
-            where: { id: itemId },
-            data: { amount: dto.amount },
-            include: { product: true }
-        });
+      if (!item) {
+        throw new NotFoundException('Item not found in cart');
+      }
+
+      await this.databaseService.cartItem.delete({
+        where: { id: itemId, cartId: id },
+      });
+
+      return { where: 'Item removed sucessfully' };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error removing item');
     }
+  }
 
-    async removeItem(userId: string, id: string, itemId: string) {
-        const cart = await this.getOrCreateCart(userId);
+  async clearCart(tokenPayload: PayloadDto, cartId: string) {
+    try {
+      await this.getCart(tokenPayload.sub);
 
-        const item = await this.db.cartItem.findFirst({
-            where: { id: itemId, cartId: id }
-        });
+      await this.databaseService.cartItem.deleteMany({
+        where: { cartId: cartId }
+      });
 
-        if (!item) {
-            throw new NotFoundException('Item not found in cart');
-        }
+      return { message: 'cart successfully emptied' };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
 
-        await this.db.cartItem.delete({ where: { id: itemId, cartId: id }});
-        return ({ where: 'Item removed sucessfully' })
+      throw new InternalServerErrorException('Error clearing cart');
     }
+  }
 
-    async clearCart(userId: string) {
-        const cart = await this.getOrCreateCart(userId);
+  async getCartTotal(tokenPayload: PayloadDto) {
+    try {
+      const cart = await this.getCart(tokenPayload.sub);
 
-        await this.db.cartItem.deleteMany({ where: { cartId: cart.id }});
-        return { message: 'cart successfully emptied' };
+      const total = cart.cartItem.reduce((sum, item) => {
+        return sum + Number(item.price) * item.amount;
+      }, 0);
+
+      return {
+        cart,
+        total: total.toFixed(2),
+        itemCount: cart.cartItem.reduce((sum, item) => sum + item.amount, 0)
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error getting cart total');
     }
-
-    async getCartTotal(userId: string) {
-        const cart = await this.getOrCreateCart(userId);
-
-        const total = cart.cartItem.reduce((sum, item) => {
-            return sum + Number(item.price) * item.amount;
-        }, 0);
-
-        return {
-            cart,
-            total: total.toFixed(2),
-            itemCount: cart.cartItem.reduce((sum, item) => sum + item.amount, 0),
-        };
-    }
+  }
 }

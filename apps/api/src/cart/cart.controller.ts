@@ -2,49 +2,50 @@ import {
     Controller,
     Get,
     Post,
-    Patch,
     Delete,
     Body,
-    Headers,
     Param,
-    Req,
     UseGuards,
+    ParseUUIDPipe,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { AddItemDto } from './dto/add.item.dto';
-import { UpdatedItemDto } from './dto/update.item.dto';
+import { PayloadDto } from 'src/auth/dto/payload.dto';
+import { AuthTokenGuard } from 'src/auth/guard/auth-token.guard';
+import { TokenPayloadParam } from 'src/auth/param/token-payload.param';
 
 @Controller('cart')
-// @UseGuards
+@UseGuards(AuthTokenGuard)
 export class CartController {
     constructor(private readonly cartService: CartService) { }
 
     @Get()
-    getCart(@Headers('user-id') userId: string) {
-        return this.cartService.getCartTotal(userId);
+    getCart(@TokenPayloadParam() user: PayloadDto) {
+        return this.cartService.getCartTotal(user);
     }
 
     @Post()
-    addItem(@Headers('user-id') userId: string, @Body() dto: AddItemDto) {
-        return this.cartService.addItem(userId, dto);
-    }
-
-    @Patch(':id')
-    updateItem(
-        @Headers('user-id') userId: string,
-        @Param('id') id: string,
-        @Body() dto: UpdatedItemDto,
+    addItem(
+        @Body() dto: AddItemDto,
+        @TokenPayloadParam() user: PayloadDto
     ) {
-        return this.cartService.updateItem(userId, id, dto);
+        return this.cartService.addItem(user.sub, dto);
     }
 
-    @Delete(':id')
-    removeItem(@Headers('user-id') userId: string, @Param('id') id: string, @Body() itemId: {id: string}) {
-        return this.cartService.removeItem(userId, id, itemId.id);
+    @Delete(':cartId')
+    removeItem(
+        @Param('cartId', ParseUUIDPipe) cartId: string,
+        @Body() itemId: {id: string},
+        @TokenPayloadParam() user: PayloadDto
+    ) {
+        return this.cartService.removeItem(user.sub, cartId, itemId.id);
     }
 
-    @Delete()
-    clearCart(@Headers('user-id') userId: string) {
-        return this.cartService.clearCart(userId);
+    @Delete('clear/:cartId')
+    clearCart(
+        @Param('cartId', ParseUUIDPipe) cartId: string,
+        @TokenPayloadParam() user: PayloadDto,
+    ) {
+        return this.cartService.clearCart(user, cartId);
     }
 }
