@@ -1,11 +1,9 @@
 import {
   BadRequestException,
-  ForbiddenException,
   HttpException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
-  UnprocessableEntityException,
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -23,6 +21,7 @@ import { CartService } from 'src/cart/cart.service';
 import { ProductService } from 'src/products/products.service';
 import { AuthService } from 'src/auth/auth.service';
 import { PayloadDto } from 'src/auth/dto/payload.dto';
+import { WalletService } from 'src/wallet/wallet.service';
 
 @Injectable()
 export class OrdersService {
@@ -31,6 +30,7 @@ export class OrdersService {
     private readonly cartService: CartService,
     private readonly productService: ProductService,
     private readonly authService: AuthService,
+    private readonly walletService: WalletService
   ) {}
 
   async checkout(userId: string, dto: CreateOrderDto) {
@@ -38,11 +38,11 @@ export class OrdersService {
       const cart = await this.validateCart(userId);
       await this.validateStock(cart.cartItem);
 
-      const totalAmount = await this.calculateCartTotal(cart.cartItem);
+      const totalAmount = this.calculateCartTotal(cart.cartItem);
 
       const order = await this.databaseService.$transaction(async (tx) => {
         if (dto.paymentMethod === PaymentMethod.WALLET) {
-          await this.processWalletPayment(tx, userId, totalAmount);
+          await this.walletService.processWalletPayment(tx, userId, totalAmount);
         }
 
         const newOrder = await tx.order.create({
@@ -224,11 +224,11 @@ export class OrdersService {
         const isCaptured = order.payment?.status === PaymentStatus.CAPTURED;
 
         if (isCanceled) {
-          await this.restoreProductStock(tx, order.orderItems);
+          this.restoreProductStock(tx, order.orderItems);
         }
 
         if (isCanceled && isCaptured) {
-          await this.refundWallet(tx, order);
+          await this.walletService.refundWallet(tx, order);
         }
 
         return updateOrder;
@@ -268,38 +268,6 @@ export class OrdersService {
     }, new Prisma.Decimal(0));
   }
 
-  private async processWalletPayment(
-    tx: Prisma.TransactionClient,
-    userId: string,
-    totalAmount: Prisma.Decimal,
-  ) {
-    const wallet = await tx.wallet.findUnique({
-      where: { userId },
-    });
-
-    if (!wallet) {
-      throw new NotFoundException('Wallet Not Found!');
-    }
-
-    if (wallet.balance.lessThan(totalAmount)) {
-      throw new UnprocessableEntityException('Insufficient wallet balance');
-    }
-
-    await tx.wallet.update({
-      where: { userId },
-      data: { balance: { decrement: totalAmount } },
-    });
-
-    await tx.walletTransaction.create({
-      data: {
-        type: 'DEPOSIT',
-        amount: totalAmount,
-        description: 'Pagamento do pedido',
-        walletId: wallet.id,
-      },
-    });
-  }
-
   private validateOrderNotCanceled(order: Order) {
     if (order.status === OrderStatus.CANCELED) {
       throw new BadRequestException('Order Already Canceled!');
@@ -318,29 +286,5 @@ export class OrdersService {
         });
       }),
     );
-  }
-
-  private async refundWallet(tx: Prisma.TransactionClient, order: Order) {
-    const wallet = await tx.wallet.findUnique({
-      where: { userId: order.userId },
-    });
-
-    if (!wallet) {
-      throw new NotFoundException('Wallet Not Found!');
-    }
-
-    await tx.wallet.update({
-      where: { userId: order.userId },
-      data: { balance: { increment: order.totalAmount } },
-    });
-
-    await tx.walletTransaction.create({
-      data: {
-        type: 'WITHDRAWAL',
-        amount: order.totalAmount,
-        description: `Estorno do pedido #${order.id}`,
-        walletId: wallet.id,
-      },
-    });
   }
 }
