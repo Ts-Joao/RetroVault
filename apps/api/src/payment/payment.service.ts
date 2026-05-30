@@ -4,17 +4,16 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { randomUUID } from 'crypto';
-import { OrderStatus, PaymentStatus } from '@prisma/client';
-import { OrdersService } from 'src/orders/orders.service';
+import { OrderStatus, Payment, PaymentStatus } from '@prisma/client';
 
 @Injectable()
 export class PaymentService {
   constructor(
     private readonly databaseService: DatabaseService,
-    private readonly orderService: OrdersService,
   ) {}
 
   async simulation(orderId: string, userId: string) {
@@ -46,42 +45,9 @@ export class PaymentService {
 
   async confirmation(token: string) {
     try {
-      const payment = await this.databaseService.payment.findFirst({
-        where: {
-          confirmationCode: token,
-        },
-      });
+      const payment = await this.getPaymentWithOrder(token);
 
-      if (!payment) {
-        throw new NotFoundException('Payment not found');
-      }
-
-      if (!payment.tokenExpiresAt) {
-        throw new BadRequestException('Payment token has no expiration date');
-      }
-
-      if (payment.tokenExpiresAt < new Date()) {
-        await this.databaseService.$transaction(async (tx) => {
-          await tx.order.update({
-            where: {
-              id: payment.orderId,
-            },
-            data: {
-              status: OrderStatus.CANCELED,
-            },
-          });
-          await tx.payment.update({
-            where: {
-              id: payment.id,
-            },
-            data: {
-              status: PaymentStatus.FAILED,
-            },
-          });
-        });
-
-        throw new BadRequestException('Payment token is expired');
-      }
+      await this.isPaymentTokenExpired(payment);
 
       if (payment.status != PaymentStatus.PENDING) {
         throw new BadRequestException('Payment is not in pending state');
@@ -134,5 +100,49 @@ export class PaymentService {
     }
 
     return order;
+  }
+
+  private async getPaymentWithOrder(confirmationCode: string) {
+    const payment = await this.databaseService.payment.findFirst({
+        where: {
+          confirmationCode: confirmationCode,
+        },
+        include: {
+          order: true,
+        }
+    });
+
+    if (!payment) {
+      throw new NotFoundException('Payment not found');
+    }
+
+    return payment;
+  }
+
+  private async isPaymentTokenExpired(payment: Payment) {
+    if (payment.tokenExpiresAt && payment.tokenExpiresAt < new Date()) {
+      await this.databaseService.$transaction(async (tx) => {
+        await tx.order.update({
+          where: {
+            id: payment.orderId,
+          },
+          data: {
+            status: OrderStatus.CANCELED,
+          },
+        });
+        await tx.payment.update({
+          where: {
+            id: payment.id,
+          },
+          data: {
+            status: PaymentStatus.FAILED,
+          },
+        });
+      });
+
+      throw new UnprocessableEntityException('The payment token has expired');
+    }
+
+    return true;
   }
 }
