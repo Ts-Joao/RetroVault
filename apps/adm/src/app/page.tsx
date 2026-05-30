@@ -60,22 +60,22 @@ export default function LoginPage() {
 
         const role = decoded.role;
 
-        if (
-            role === "ADMIN" ||
-            role === "SELLER"
-        ) {
+        if (role === "SELLER") {
+         
+            router.push("/Painel-seller");
+            console.log("seller logou")
+        
+        }else if(role === "ADMIN"){
 
-            router.push("/Painel");
+            router.push("./Painel-adm")
+            console.log("adm logou")
 
-        } else {
+        } else{
 
-            alert(
-                "Você não possui acesso."
-            );
+            alert("voc não possui acesso")
+            localStorage.removeItem("token")
+            console.log(`${data.name}Nao tem acesso`)
 
-            localStorage.removeItem(
-                "token"
-            );
         }
     }
 

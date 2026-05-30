@@ -6,7 +6,7 @@ export default function Page(){
 
         <>
 
-            <h1>deu certo o login hehe</h1>
+            <h1>deu certo o adm</h1>
         </>
 
     )
