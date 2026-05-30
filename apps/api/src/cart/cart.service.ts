@@ -7,7 +7,6 @@ import {
 import { DatabaseService } from 'src/database/database.service';
 import { AddItemDto } from './dto/add.item.dto';
 import { ProductService } from 'src/products/products.service';
-import { AuthService } from 'src/auth/auth.service';
 import { PayloadDto } from 'src/auth/dto/payload.dto';
 
 @Injectable()
@@ -15,7 +14,6 @@ export class CartService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly productService: ProductService,
-    private readonly authService: AuthService
   ) {}
 
   async getCart(userId: string) {

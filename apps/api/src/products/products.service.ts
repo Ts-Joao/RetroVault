@@ -8,7 +8,6 @@ import {
 import { DatabaseService } from 'src/database/database.service';
 import { CreateProductDto } from './dto/create.product.dto';
 import { UpdateProductDto } from './dto/update.product.dto';
-import { UsersService } from 'src/users/users.service';
 import { PayloadDto } from 'src/auth/dto/payload.dto';
 import { SlugServiceProtocol } from 'src/common/utils/slug/slug.service';
 import { AuthService } from 'src/auth/auth.service';
