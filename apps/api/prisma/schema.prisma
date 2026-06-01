@@ -8,14 +8,16 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(uuid())
-  email        String        @unique
+  id           String   @id @default(uuid())
+  email        String   @unique
   name         String
   password     String
-  role         Role          @default(USER)
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
   refreshToken String?
+
+  slug String @unique
 
   // relations
   order      Order[]
@@ -24,14 +26,6 @@ model User {
   products   Product[]
   wallet     Wallet?
   favorites  Favorite[]
-
-  // map
-  slug         String        @unique
-  cart         Cart?
-  order        Order[]
-  products     Product[]
-  profilePic   ProfilePhoto?
-  wallet       Wallet?
 
   @@map("users")
 }
@@ -72,63 +66,42 @@ model MediaType {
 }
 
 model Product {
-  id           String   @id @default(cuid())
-  price        Decimal  @db.Decimal(5, 2)
-  name         String
-  description  String
-  amount       Int
-  rating       Decimal? @default(0.0) @db.Decimal(2, 1)
-  shippingCost Decimal? @map("shipping_cost") @db.Decimal(3, 2)
-  isActive     Boolean  @default(true) @map("is_active")
+  id                   String   @id @default(cuid())
+  price                Decimal  @db.Decimal(5, 2)
+  name                 String
+  description          String
+  amount               Int
+  rating               Decimal? @default(0.0) @db.Decimal(2, 1)
+
+  shippingCost         Decimal? @map("shipping_cost") @db.Decimal(5, 2)
+  isActive             Boolean  @default(true) @map("is_active")
 
   maxInstallments      Int?     @default(1) @map("max_intallments")
   freeInstallments     Int?     @default(1) @map("free_intalments")
   monthlyInterestRate  Decimal? @map("monthly_interest_rate") @db.Decimal(5, 4)
   minInstallmentAmount Decimal? @map("min_intallment_amount") @db.Decimal(6, 2)
 
-  discountPrice Decimal?  @map("discount_price") @db.Decimal(5, 2)
-  discountStart DateTime? @map("discount_start")
-  discountEnd   DateTime? @map("discount_end")
+  discountPrice        Decimal?  @map("discount_price") @db.Decimal(5, 2)
+  discountStart        DateTime? @map("discount_start")
+  discountEnd          DateTime? @map("discount_end")
 
-  viewCount Int @default(0) @map("view_count")
+  viewCount            Int @default(0) @map("view_count")
+
+  slug                 String @unique
 
   // relations
-  mediaTypeId Int           @map("media_type_id")
-  mediaType   MediaType     @relation(fields: [mediaTypeId], references: [id])
-  photos      ProductPhoto[]
-  orderItems  OrderItem[]
-  genre       Genre[]
-  cartItems   CartItem[]
-  view        ProductView[]
-  sellerId    String        @map("seller_id")
-  seller      User          @relation(fields: [sellerId], references: [id])
-  favorites   Favorite[]
-  id                   String         @id @default(cuid())
-  price                Decimal        @db.Decimal(5, 2)
-  name                 String
-  description          String
-  amount               Int
-  rating               Decimal?       @default(0.0) @db.Decimal(2, 1)
-  mediaTypeId          Int            @map("media_type_id")
-  discountEnd          DateTime?      @map("discount_end")
-  discountPrice        Decimal?       @map("discount_price") @db.Decimal(5, 2)
-  discountStart        DateTime?      @map("discount_start")
-  shippingCost         Decimal?       @map("shipping_cost") @db.Decimal(5, 2)
-  viewCount            Int            @default(0) @map("view_count")
-  freeInstallments     Int?           @default(1) @map("free_intalments")
-  maxInstallments      Int?           @default(1) @map("max_intallments")
-  minInstallmentAmount Decimal?       @map("min_intallment_amount") @db.Decimal(6, 2)
-  monthlyInterestRate  Decimal?       @map("monthly_interest_rate") @db.Decimal(5, 4)
-  sellerId             String         @map("seller_id")
-  isActive             Boolean        @default(true) @map("is_active")
-  slug                 String         @unique
-  cartItems            CartItem[]
-  orderItems           OrderItem[]
+  mediaTypeId          Int    @map("media_type_id")
+  sellerId             String @map("seller_id")
+
+  mediaType            MediaType @relation(fields: [mediaTypeId], references: [id])
+  seller               User      @relation(fields: [sellerId], references: [id])
+
   photos               ProductPhoto[]
-  view                 ProductView[]
-  mediaType            MediaType      @relation(fields: [mediaTypeId], references: [id])
-  seller               User           @relation(fields: [sellerId], references: [id])
+  orderItems           OrderItem[]
   genre                Genre[]        @relation("GenreToProduct")
+  cartItems            CartItem[]
+  view                 ProductView[]
+  favorites            Favorite[]
 
   @@index([name])
   @@index([mediaTypeId])
@@ -277,25 +250,6 @@ enum PaymentStatus {
   CAPTURED   @map("captured")
   FAILED     @map("failed")
   REFUNDED   @map("refunded")
-}
-
-model Payment {
-  id            Int           @id @default(autoincrement())
-  paidAt        DateTime?     @map("paid_at")
-  status        PaymentStatus @default(PENDING)
-  paymentMethod PaymentMethod? @map("payment_method")
-  installments  Int?
-  confirmationCode String? @unique @map("confirmation_code")
-  tokenExpiresAt DateTime? @map("token_expires_at")
-
-  // relations
-  orderId String @unique @map("order_id")
-  order   Order  @relation(fields: [orderId], references: [id])
-
-  walletTransactions WalletTransaction[]
-
-  // map
-  @@map("payments")
 }
 
 model Favorite {
