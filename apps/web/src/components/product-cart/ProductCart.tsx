@@ -3,7 +3,6 @@ import Image from "next/image";
 import { IoAddCircleOutline } from "react-icons/io5";
 import { IoIosRemoveCircleOutline } from "react-icons/io";
 import { Product, splitPrice } from "@retrovault/core";
-import { mockUsers } from "@/services/user";
 
 type Props = {
   product: Product
@@ -15,31 +14,31 @@ type Props = {
 export default function ProductCart({ product, quantity, onIncrement, onDecrement }: Props) {
   const total = quantity * product.price
   const { units, cents } = splitPrice(total)
-  const seller = mockUsers.find(user => user.id === product.seller_id)
-  
+  const photoUrl = product.photos?.[0]?.url
+
   return (
     <>
       <div className="w-250 h-30 bg-[#D9D9D9] rounded-lg flex items-center justify-between px-4">
         <div className="flex items-center">
           <div className="relative h-25 w-25 bg-white rounded-sm mr-3">
-            <Image
-              src={product.photo}
-              fill
-              alt={product.name}
-              className="object-contain"
-            />
+            {photoUrl && (
+              <Image
+                src={photoUrl}
+                fill
+                alt={product.name}
+                className="object-contain"
+              />
+            )}
           </div>
 
           <div className="grid gap-5">
             <h3 className="text-lg font-semibold">{product.name}</h3>
-            <p className="text-md text-gray-500">Por: <Link href={`/profile/${seller?.id}/${seller?.slug}`}>{seller?.name}</Link></p>
           </div>
         </div>
 
         <div className="text-center">
           <div className="flex text-xl">
             <p>Quantidade:</p>
-            {/* Implementar lógica para adicionar e remover quantidade */}
             <button className="mx-3 cursor-pointer font-bold" onClick={onDecrement}>
               <IoIosRemoveCircleOutline />
             </button>

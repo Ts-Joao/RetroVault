@@ -2,10 +2,28 @@ import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedE
 import { DatabaseService } from 'src/database/database.service';
 import { CreateProductDto } from './dto/create.product.dto';
 import { UpdateProductDto } from './dto/update.product.dto';
+import slugify from 'slugify';
 
 @Injectable()
 export class ProductService {
     constructor(private readonly databaseService: DatabaseService) {}
+
+    private async generateSlug(name: string): Promise<string> {
+        const base = slugify(name, { lower: true, strict: true, });
+
+        const existing = await this.databaseService.product.findUnique({
+            where: { slug: base },
+            select: { slug: true },
+        });
+
+        if (!existing) {
+            return base;
+        }
+
+        const suffix = Math.random().toString(36).substring(2, 10);
+
+        return `${base}-${suffix}`;
+    }
 
     async create(createProductDto: CreateProductDto, sellerId: string) {
         try {
@@ -21,9 +39,12 @@ export class ProductService {
                 throw new UnauthorizedException('User is not a seller');
             }
 
+            const slug = await this.generateSlug(createProductDto.name);
+
             const newProduct = await this.databaseService.product.create({
                 data: {
                     ...createProductDto,
+                    slug: slug,
                     sellerId: sellerId
                 }
             });
@@ -39,6 +60,9 @@ export class ProductService {
             const findProduct = await this.databaseService.product.findMany({
                 where: {
                     isActive: true
+                },
+                include: {
+                    photos: true
                 }
             })
 
@@ -69,7 +93,44 @@ export class ProductService {
         };
     }
 
-    async update(id: string, UpdateProductDto: UpdateProductDto) {
+    async getBySellerId(sellerId: string) {
+        const seller = await this.databaseService.user.findUnique({
+            where: {
+                id: sellerId,
+                role:'SELLER'
+            },
+        })
+
+        if (!seller) {
+            throw new NotFoundException('Seller Not Found!')
+        }
+
+        return await this.databaseService.product.findMany({
+            where: {
+                sellerId: seller.id,
+                isActive: true
+            }
+        })
+    }
+
+    async getAllBySellerId(sellerId: string) {
+        const seller = await this.databaseService.user.findUnique({
+            where: {
+                id: sellerId,
+                role:'SELLER'
+            },
+        })
+
+        if (!seller) {
+            throw new NotFoundException('Seller Not Found!')
+        }
+        
+        return await this.databaseService.product.findMany({
+            where: { sellerId: seller.id }
+        })
+    }
+
+    async update(id: string, updateProductDto: UpdateProductDto) {
         try {
             const findProduct = await this.databaseService.product.findUnique({
                 where: { id }
@@ -78,10 +139,18 @@ export class ProductService {
             if (!findProduct) {
                 throw new NotFoundException('Product not found');
             }
+
+            let slug = findProduct.slug;
+            if (updateProductDto.name && updateProductDto.name !== findProduct.name) {
+                slug = await this.generateSlug(updateProductDto.name);
+            }
             
             const updateProduct = await this.databaseService.product.update({
                 where: { id },
-                data: UpdateProductDto
+                data: {
+                    ...updateProductDto,
+                    slug
+                }
             });
 
             return updateProduct;

@@ -1,8 +1,27 @@
+'use client'
+
 import Image from "next/image";
+import Link from "next/link";
 import { FaGoogle, FaInstagram, FaFacebook, FaLock } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+import { useState } from "react";
+import { login } from "@/lib/services/auth.service";
+import { redirect } from "next/navigation";
 
 export default function LoginPage() {
+  const [ email, setEmail ] = useState<string>('')
+  const [ password, setPassword ] = useState<string>('')
+  const [ showPassword, setShowPassword ] = useState<boolean>(false)
+
+  const sendData = async () => {
+    try {
+      await login({ email, password })
+      redirect('/')
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   return (
     <main className="flex items-center justify-center min-h-screen bg-bg px-4">
       <div className="bg-second p-10 rounded-2xl w-full max-w-md shadow-2xl border-4 border-prim-light">
@@ -25,6 +44,8 @@ export default function LoginPage() {
             type="email"
             placeholder="Digite seu e-mail"
             className="w-full bg-white text-black p-3 rounded-md outline-none border focus:border-prim"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
 
@@ -38,14 +59,21 @@ export default function LoginPage() {
             type="password"
             placeholder="Digite sua senha"
             className="w-full bg-white text-black p-3 rounded-md outline-none border focus:border-prim"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </div>
 
-        <p className="text-sm text-prim mb-6 cursor-pointer hover:underline">
-          Criar uma conta
-        </p>
+        <Link href="/register">
+          <p className="text-sm text-prim mb-6 cursor-pointer hover:underline">
+            Criar uma conta
+          </p>
+        </Link>
 
-        <button className="w-full bg-prim text-white py-3 cursor-pointer rounded-md font-semibold hover:bg-third transition">
+        <button 
+          className="w-full bg-prim text-white py-3 cursor-pointer rounded-md font-semibold hover:bg-third transition"
+          onClick={async () => { await sendData(); redirect('/') }}
+        >
           Continuar
         </button>
 
