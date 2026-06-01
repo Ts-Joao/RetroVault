@@ -10,6 +10,8 @@ import { OrdersModule } from 'src/orders/orders.module';
 import { WalletModule } from 'src/wallet/wallet.module';
 import { PaymentModule } from 'src/payment/payment.module';
 import { FavoritesModule } from 'src/favorites/favorite.module';
+import { CircularReferenceFilter } from 'src/common/circular-reference.filter';
+import { APP_FILTER } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -27,6 +29,12 @@ import { FavoritesModule } from 'src/favorites/favorite.module';
     PaymentModule,
     FavoritesModule
   ],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: CircularReferenceFilter,
+    }
+  ],
 })
 export class AppModule {}
