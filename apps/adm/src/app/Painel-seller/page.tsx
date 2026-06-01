@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
+import { MdPerson } from "react-icons/md"; 
+
 import PainelInicialSeller from "@/components/painel-seller/Painel-inicial-seler/page";
 import PainelPostSeller from "@/components/painel-seller/Painel-criar-seller/page";
 import PainelEditSeller from "@/components/painel-seller/painel-editar-seller/page";
@@ -33,7 +35,7 @@ export default function PainelSellerPage() {
   function handleLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("userName");
-    router.push("/Login");
+    router.push("/");
   }
 
   const navItems = [
@@ -43,136 +45,70 @@ export default function PainelSellerPage() {
   ];
 
   return (
-    <div
-      style={{
-        display: "flex",
-        height: "100vh",
-        width: "100vw",
-        backgroundColor: "#F2EFDC",
-        fontFamily: "'Georgia', serif",
-        overflow: "hidden",
-      }}
-    >
-      {/* Sidebar */}
-      <aside
-        style={{
-          width: "220px",
-          minWidth: "220px",
-          backgroundColor: "#261F1A",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          padding: "24px 0",
-          gap: "8px",
-        }}
-      >
-        {/* Logo */}
-        <div style={{ marginBottom: "32px", padding: "0 20px" }}>
-          <Image src={logo} alt="RetroVault" width={140} height={60} style={{ objectFit: "contain" }} />
-        </div>
-
-        {/* Nav items */}
-        {navItems.map((item) => (
-          <button
-            key={item.key}
-            onClick={() => setAbaAtual(item.key)}
-            style={{
-              width: "100%",
-              padding: "14px 24px",
-              textAlign: "left",
-              background: abaAtual === item.key ? "#BF372A" : "transparent",
-              color: abaAtual === item.key ? "#F2EFDC" : "#A6A39F",
-              border: "none",
-              cursor: "pointer",
-              fontSize: "15px",
-              fontWeight: abaAtual === item.key ? "bold" : "normal",
-              fontFamily: "'Georgia', serif",
-              letterSpacing: "0.01em",
-              transition: "background 0.2s, color 0.2s",
-            }}
-          >
-            {item.label}
-          </button>
-        ))}
-
-        {/* Spacer */}
-        <div style={{ flex: 1 }} />
-
-        {/* Logout */}
-        <button
-          onClick={handleLogout}
-          style={{
-            width: "100%",
-            padding: "14px 24px",
-            textAlign: "left",
-            background: "transparent",
-            color: "#A6A39F",
-            border: "none",
-            cursor: "pointer",
-            fontSize: "14px",
-            fontFamily: "'Georgia', serif",
-          }}
-        >
-          ← Sair
-        </button>
-      </aside>
-
-      {/* Main content */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-        {/* Top bar */}
-        <header
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            padding: "16px 32px",
-            borderBottom: "1px solid #A6A39F44",
-            backgroundColor: "#F2EFDC",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span
-              style={{
-                color: "#BF372A",
-                fontWeight: "bold",
-                fontSize: "15px",
-                fontFamily: "'Georgia', serif",
-                letterSpacing: "0.03em",
-              }}
-            >
-              {userName || "NOME do Vendedor"}
-            </span>
-            <div
-              style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "50%",
-                backgroundColor: "#D9A13B",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "16px",
-              }}
-            >
-              👤
-            </div>
-          </div>
-        </header>
-
-        {/* Page content */}
-        <main style={{ flex: 1, overflow: "auto", padding: "32px" }}>
-          {abaAtual === "painelinicial" && (
-            <PainelInicialSeller onEditProduct={handleEditProduct} />
-          )}
-          {abaAtual === "painelPostSeller" && <PainelPostSeller />}
-          {abaAtual === "painelEditSeller" && (
-            <PainelEditSeller
-              productId={selectedProductId}
-              onBack={() => setAbaAtual("painelinicial")}
-            />
-          )}
-        </main>
-      </div>
+    <div className="flex h-screen w-screen overflow-hidden bg-[#F2EFDC] font-serif">
+  <aside className="flex w-[220px] min-w-[220px] flex-col items-center gap-2 bg-[#A6A39F] py-6">
+    <div className="mb-8 px-5">
+      <Image
+        src={logo}
+        alt="RetroVault"
+        width={140}
+        height={60}
+        className="object-contain"
+      />
     </div>
+
+    {navItems.map((item) => (
+      <button
+        key={item.key}
+        onClick={() => setAbaAtual(item.key)}
+        className={`w-full px-6 py-3.5 text-left text-[15px] tracking-[0.01em] transition-colors duration-200 ${
+          abaAtual === item.key
+            ? "bg-[#BF372A] font-bold text-[#F2EFDC]"
+            : "text-[#261F1A]"
+        }`}
+      >
+        {item.label}
+      </button>
+    ))}
+
+    <div className="flex-1" />
+
+    <button
+      onClick={handleLogout}
+      className="w-full px-6 py-3.5 text-left text-sm text-[#261F1A]"
+    >
+      ← Sair
+    </button>
+  </aside>
+
+  <div className="flex flex-1 flex-col overflow-hidden">
+    <header className="flex items-center justify-end border-b border-[#A6A39F44] bg-[#F2EFDC] px-8 py-4">
+      <div className="flex items-center gap-2.5">
+        <span className="text-[15px] font-bold tracking-[0.03em] text-[#BF372A]">
+          {userName || "NOME do Vendedor"}
+        </span>
+
+        <div className="flex h-9 w-9 items-center justify-center rounded-full text-base">
+          <MdPerson className=" text-red-500 text-4xl  "/>
+        </div>
+      </div>
+    </header>
+
+    <main className="flex-1 overflow-auto p-8">
+      {abaAtual === "painelinicial" && (
+        <PainelInicialSeller onEditProduct={handleEditProduct} />
+      )}
+
+      {abaAtual === "painelPostSeller" && <PainelPostSeller />}
+
+      {abaAtual === "painelEditSeller" && (
+        <PainelEditSeller
+          productId={selectedProductId}
+          onBack={() => setAbaAtual("painelinicial")}
+        />
+      )}
+    </main>
+  </div>
+</div>
   );
 }

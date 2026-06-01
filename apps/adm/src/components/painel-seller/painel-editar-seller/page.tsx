@@ -9,7 +9,7 @@ const MEDIA_TYPES = [
 ];
 
 interface PhotoSlot {
-  id?: string;         // existing photo id from DB
+  id?: string;        
   file: File | null;
   preview: string | null;
   isExisting: boolean;
@@ -43,7 +43,7 @@ export default function PainelEditSeller({ productId, onBack }: Props) {
       ? (Number(valor) / Number(numParcelas)).toFixed(2)
       : "";
 
-  // Load product data when productId changes
+
   useEffect(() => {
     if (!productId) return;
 
@@ -64,7 +64,7 @@ export default function PainelEditSeller({ productId, onBack }: Props) {
           product.mediaType?.name === "game" ? "game" : ""
         );
 
-        // Map up to 3 existing photos into slots
+       
         const existingPhotos: PhotoSlot[] = (product.photos ?? []).slice(0, 3).map(
           (p: { id: string; url: string }) => ({
             id: p.id,
@@ -73,7 +73,7 @@ export default function PainelEditSeller({ productId, onBack }: Props) {
             isExisting: true,
           })
         );
-        // Fill remaining slots
+        
         while (existingPhotos.length < 3) {
           existingPhotos.push({ file: null, preview: null, isExisting: false });
         }
@@ -118,7 +118,7 @@ export default function PainelEditSeller({ productId, onBack }: Props) {
     if (!productId) return;
     setLoading(true);
     try {
-      // 1. Update product data
+      
       const res = await authFetch(`/api/products/${productId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -133,7 +133,6 @@ export default function PainelEditSeller({ productId, onBack }: Props) {
 
       if (!res.ok) throw new Error("Erro ao atualizar produto");
 
-      // 2. Upload new photos
       const newPhotos = photos.filter((p) => !p.isExisting && p.file !== null);
       if (newPhotos.length > 0) {
         const formData = new FormData();
@@ -172,254 +171,257 @@ export default function PainelEditSeller({ productId, onBack }: Props) {
     }
   }
 
-  const inputStyle: React.CSSProperties = {
-    border: "1.5px solid #D9A13B",
-    borderRadius: "4px",
-    padding: "10px 12px",
-    backgroundColor: "#F2EFDC",
-    fontSize: "14px",
-    outline: "none",
-    color: "#261F1A",
-    width: "100%",
-    boxSizing: "border-box",
-  };
 
-  const labelStyle: React.CSSProperties = {
-    fontSize: "13px",
-    fontWeight: "bold",
-    color: "#261F1A",
-    marginBottom: "4px",
-  };
+const inputClass =
+  "w-full rounded border-[1.5px] border-[#D9A13B] bg-[#F2EFDC] px-3 py-2.5 text-sm text-[#261F1A] outline-none";
 
-  if (!productId) {
-    return (
-      <div
-        style={{
-          backgroundColor: "#f8c0b8",
-          borderRadius: "12px",
-          padding: "32px",
-          maxWidth: "780px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "200px",
-        }}
-      >
-        <p style={{ color: "#261F1A", fontSize: "16px" }}>
-          Selecione um produto em "Seus produtos" para editar.
-        </p>
-      </div>
-    );
-  }
+const labelClass =
+  "mb-1 text-[13px] font-bold text-[#261F1A]";
 
-  if (fetching) {
-    return (
-      <div
-        style={{
-          backgroundColor: "#f8c0b8",
-          borderRadius: "12px",
-          padding: "32px",
-          maxWidth: "780px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "200px",
-        }}
-      >
-        <p style={{ color: "#261F1A", fontSize: "16px" }}>Carregando produto...</p>
-      </div>
-    );
-  }
 
+
+
+if (!productId) {
   return (
-    <div
-      style={{
-        backgroundColor: "#f8c0b8",
-        borderRadius: "12px",
-        padding: "32px",
-        maxWidth: "780px",
-      }}
-    >
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
-        {/* Título */}
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label style={labelStyle}>Título:</label>
-          <input style={inputStyle} value={titulo} onChange={(e) => setTitulo(e.target.value)} />
-        </div>
-
-        {/* Gênero */}
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label style={labelStyle}>Gênero:</label>
-          <input style={inputStyle} value={genero} onChange={(e) => setGenero(e.target.value)} />
-        </div>
-
-        {/* Tipo */}
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label style={labelStyle}>Tipo:</label>
-          <select
-            style={inputStyle}
-            value={tipo}
-            onChange={(e) => {
-              setTipo(e.target.value);
-              setMediaTypeId(e.target.value === "movie" ? 1 : 2);
-            }}
-          >
-            <option value="">Selecione...</option>
-            {MEDIA_TYPES.map((m) => (
-              <option key={m.value} value={m.value}>{m.label}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Descrição */}
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label style={labelStyle}>Descrição:</label>
-          <input style={inputStyle} value={descricao} onChange={(e) => setDescricao(e.target.value)} />
-        </div>
-      </div>
-
-      {/* Fotos */}
-      <div style={{ marginTop: "24px" }}>
-        <label style={labelStyle}>Fotos Promocionais:</label>
-        <div style={{ display: "flex", gap: "16px", marginTop: "8px", flexWrap: "wrap" }}>
-          {photos.map((slot, i) => (
-            <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
-              <div
-                onClick={() => !slot.preview && fileRefs[i].current?.click()}
-                style={{
-                  width: "120px",
-                  height: "120px",
-                  borderRadius: "8px",
-                  backgroundColor: "#A6A39F55",
-                  border: "2px dashed #A6A39F",
-                  cursor: slot.preview ? "default" : "pointer",
-                  overflow: "hidden",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  position: "relative",
-                }}
-              >
-                {slot.preview ? (
-                  <>
-                    <img
-                      src={slot.preview}
-                      alt=""
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleRemovePhoto(i); }}
-                      style={{
-                        position: "absolute",
-                        top: "4px",
-                        right: "4px",
-                        background: "#BF372A",
-                        border: "none",
-                        color: "#fff",
-                        borderRadius: "50%",
-                        width: "20px",
-                        height: "20px",
-                        cursor: "pointer",
-                        fontSize: "11px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      ✕
-                    </button>
-                  </>
-                ) : (
-                  <span style={{ color: "#A6A39F", fontSize: "28px" }}>+</span>
-                )}
-              </div>
-              {i === 0 && (
-                <span style={{ fontSize: "11px", color: "#261F1A", fontWeight: "bold" }}>Principal</span>
-              )}
-              <input
-                ref={fileRefs[i]}
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={(e) => handlePhotoChange(i, e.target.files?.[0] ?? null)}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Valor + Parcelas */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px", marginTop: "24px" }}>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label style={labelStyle}>Valor</label>
-          <input
-            style={inputStyle}
-            type="number"
-            min="0"
-            step="0.01"
-            value={valor}
-            onChange={(e) => setValor(e.target.value)}
-          />
-        </div>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label style={labelStyle}>Num. Parcelas:</label>
-          <input
-            style={inputStyle}
-            type="number"
-            min="1"
-            max="24"
-            value={numParcelas}
-            onChange={(e) => setNumParcelas(e.target.value)}
-          />
-        </div>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label style={labelStyle}>Valor Parc.</label>
-          <input
-            style={{ ...inputStyle, color: "#A6A39F" }}
-            readOnly
-            value={valorParcela ? `R$ ${valorParcela}` : ""}
-            placeholder="Calculado"
-          />
-        </div>
-      </div>
-
-      {/* Botões */}
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "28px" }}>
-        <button
-          onClick={handleDelete}
-          disabled={loading}
-          style={{
-            padding: "10px 28px",
-            backgroundColor: "#BF372A",
-            color: "#F2EFDC",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "15px",
-            fontWeight: "bold",
-            opacity: loading ? 0.7 : 1,
-          }}
-        >
-          Deletar
-        </button>
-        <button
-          onClick={handleUpdate}
-          disabled={loading}
-          style={{
-            padding: "10px 28px",
-            backgroundColor: "#D9A13B",
-            color: "#261F1A",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "15px",
-            fontWeight: "bold",
-            opacity: loading ? 0.7 : 1,
-          }}
-        >
-          {loading ? "Atualizando..." : "Atualizar"}
-        </button>
-      </div>
+    <div className="flex min-h-[200px] max-w-[780px] items-center justify-center rounded-xl bg-[#f8c0b8] p-8">
+      <p className="text-base text-[#261F1A]">
+        Selecione um produto em "Seus produtos" para editar.
+      </p>
     </div>
   );
+}
+
+
+  
+if (fetching) {
+  return (
+    <div className="flex min-h-[200px] max-w-[780px] items-center justify-center rounded-xl bg-[#f8c0b8] p-8">
+      <p className="text-base text-[#261F1A]">
+        Carregando produto...
+      </p>
+    </div>
+  );
+}
+
+
+
+return (
+  <div className="max-w-[780px] rounded-xl bg-[#f8c0b8] p-8">
+    <div className="grid grid-cols-2 gap-5">
+      <div className="flex flex-col">
+        <label className={labelClass}>Título:</label>
+        <input
+          className={inputClass}
+          value={titulo}
+          onChange={(e) => setTitulo(e.target.value)}
+        />
+      </div>
+
+      <div className="flex flex-col">
+        <label className={labelClass}>Gênero:</label>
+        <input
+          className={inputClass}
+          value={genero}
+          onChange={(e) => setGenero(e.target.value)}
+        />
+      </div>
+
+      <div className="flex flex-col">
+        <label className={labelClass}>Tipo:</label>
+
+        <select
+          className={inputClass}
+          value={tipo}
+          onChange={(e) => {
+            setTipo(e.target.value);
+            setMediaTypeId(
+              e.target.value === "movie" ? 1 : 2
+            );
+          }}
+        >
+          <option value="">Selecione...</option>
+
+          {MEDIA_TYPES.map((m) => (
+            <option key={m.value} value={m.value}>
+              {m.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex flex-col">
+        <label className={labelClass}>Descrição:</label>
+
+        <input
+          className={inputClass}
+          value={descricao}
+          onChange={(e) => setDescricao(e.target.value)}
+        />
+      </div>
+    </div>
+
+    <div className="mt-6">
+      <label className={`${labelClass} block`}>
+        Fotos Promocionais:
+      </label>
+
+      <div className="mt-2 flex flex-wrap gap-4">
+        {photos.map((slot, i) => (
+          <div
+            key={i}
+            className="flex flex-col items-center gap-1.5"
+          >
+            <div
+              onClick={() =>
+                !slot.preview &&
+                fileRefs[i].current?.click()
+              }
+              className={`
+                relative flex h-[120px] w-[120px]
+                items-center justify-center
+                overflow-hidden rounded-lg
+                border-2 border-dashed border-[#A6A39F]
+                bg-[#A6A39F55]
+                ${
+                  slot.preview
+                    ? "cursor-default"
+                    : "cursor-pointer"
+                }
+              `}
+            >
+              {slot.preview ? (
+                <>
+                  <img
+                    src={slot.preview}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemovePhoto(i);
+                    }}
+                    className="
+                      absolute right-1 top-1
+                      flex h-5 w-5 items-center justify-center
+                      rounded-full bg-[#BF372A]
+                      text-[11px] text-white
+                    "
+                  >
+                    ✕
+                  </button>
+                </>
+              ) : (
+                <span className="text-[28px] text-[#A6A39F]">
+                  +
+                </span>
+              )}
+            </div>
+
+            {i === 0 && (
+              <span className="text-[11px] font-bold text-[#261F1A]">
+                Principal
+              </span>
+            )}
+
+            <input
+              ref={fileRefs[i]}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) =>
+                handlePhotoChange(
+                  i,
+                  e.target.files?.[0] ?? null
+                )
+              }
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div className="mt-6 grid grid-cols-3 gap-5">
+      <div className="flex flex-col">
+        <label className={labelClass}>Valor</label>
+
+        <input
+          className={inputClass}
+          type="number"
+          min="0"
+          step="0.01"
+          value={valor}
+          onChange={(e) => setValor(e.target.value)}
+        />
+      </div>
+
+      <div className="flex flex-col">
+        <label className={labelClass}>
+          Num. Parcelas:
+        </label>
+
+        <input
+          className={inputClass}
+          type="number"
+          min="1"
+          max="24"
+          value={numParcelas}
+          onChange={(e) =>
+            setNumParcelas(e.target.value)
+          }
+        />
+      </div>
+
+      <div className="flex flex-col">
+        <label className={labelClass}>
+          Valor Parc.
+        </label>
+
+        <input
+          className={`${inputClass} text-[#A6A39F]`}
+          readOnly
+          value={
+            valorParcela
+              ? `R$ ${valorParcela}`
+              : ""
+          }
+          placeholder="Calculado"
+        />
+      </div>
+    </div>
+
+    <div className="mt-7 flex justify-end gap-3">
+      <button
+        onClick={handleDelete}
+        disabled={loading}
+        className="
+          rounded-md bg-[#BF372A]
+          px-7 py-2.5
+          text-[15px] font-bold
+          text-[#F2EFDC]
+          disabled:opacity-70
+        "
+      >
+        Deletar
+      </button>
+
+      <button
+        onClick={handleUpdate}
+        disabled={loading}
+        className="
+          rounded-md bg-[#D9A13B]
+          px-7 py-2.5
+          text-[15px] font-bold
+          text-[#261F1A]
+          disabled:opacity-70
+        "
+      >
+        {loading
+          ? "Atualizando..."
+          : "Atualizar"}
+      </button>
+    </div>
+  </div>
+);   
 }

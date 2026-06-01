@@ -36,7 +36,6 @@ export default function PainelPostSeller() {
 
   const fileRefs = [useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null)];
 
-  // Valor por parcela
   const valorParcela =
     valor && numParcelas && Number(numParcelas) > 0
       ? (Number(valor) / Number(numParcelas)).toFixed(2)
@@ -83,7 +82,7 @@ export default function PainelPostSeller() {
 
     setLoading(true);
     try {
-      // 1. Create product
+
       const productRes = await authFetch("/api/products", {
         method: "POST",
         headers: {
@@ -103,19 +102,26 @@ export default function PainelPostSeller() {
       if (!productRes.ok) throw new Error("Erro ao criar produto");
       const product = await productRes.json();
 
-      // 2. Upload photos
       const photoFiles = photos.filter((p) => p.file !== null);
       if (photoFiles.length > 0) {
-        const formData = new FormData();
-        photoFiles.forEach((p) => formData.append("files", p.file as File));
+      const formData = new FormData();
 
-        await authFetch(`/api/uploads/products/${product.id}`, {
-          method: "POST",
-          body: formData,
-        });
-      }
+      photoFiles.forEach((photo) => {
+  formData.append("files", photo.file as File);
+});
 
-      alert("Produto cadastrado com sucesso!");
+    const uploadRes = await authFetch(
+    `/api/uploads/products/${product.id}`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  console.log(await uploadRes.json());
+}
+
+     alert("Produto cadastrado com sucesso!");
       handleClear();
     } catch (err: any) {
       alert(err.message || "Erro ao cadastrar produto");
@@ -143,206 +149,204 @@ export default function PainelPostSeller() {
     marginBottom: "4px",
   };
 
-  return (
-    <div
-      style={{
-        backgroundColor: "#f8c0b8",
-        borderRadius: "12px",
-        padding: "32px",
-        maxWidth: "780px",
-      }}
-    >
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
-        {/* Título */}
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label style={labelStyle}>Título:</label>
-          <input style={inputStyle} value={titulo} onChange={(e) => setTitulo(e.target.value)} />
-        </div>
+return (
+  <div className="max-w-[780px] rounded-xl bg-[#f8c0b8] p-8">
+    <div className="grid grid-cols-2 gap-5">
+      <div className="flex flex-col">
+        <label className="mb-1 text-[13px] font-bold text-[#261F1A]">
+          Título:
+        </label>
 
-        {/* Gênero */}
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label style={labelStyle}>Gênero:</label>
-          <input
-            list="generos"
-            style={inputStyle}
-            value={genero}
-            onChange={(e) => setGenero(e.target.value)}
-            placeholder="Ex: Ação"
-          />
-          <datalist id="generos">
-            {GENRES.map((g) => <option key={g} value={g} />)}
-          </datalist>
-        </div>
-
-        {/* Tipo (Mídia) */}
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label style={labelStyle}>Tipo:</label>
-          <select
-            style={{ ...inputStyle }}
-            value={tipo}
-            onChange={(e) => {
-              setTipo(e.target.value);
-              setMediaTypeId(e.target.value === "movie" ? 1 : 2);
-            }}
-          >
-            <option value="">Selecione...</option>
-            {MEDIA_TYPES.map((m) => (
-              <option key={m.value} value={m.value}>{m.label}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Descrição */}
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label style={labelStyle}>Descrição:</label>
-          <input style={inputStyle} value={descricao} onChange={(e) => setDescricao(e.target.value)} />
-        </div>
+        <input
+          className="w-full rounded border-[1.5px] border-[#D9A13B] bg-[#F2EFDC] px-3 py-2.5 text-sm text-[#261F1A] outline-none"
+          value={titulo}
+          onChange={(e) => setTitulo(e.target.value)}
+        />
       </div>
 
-      {/* Fotos Promocionais */}
-      <div style={{ marginTop: "24px" }}>
-        <label style={labelStyle}>Fotos Promocionais:</label>
-        <div style={{ display: "flex", gap: "16px", marginTop: "8px", flexWrap: "wrap" }}>
-          {photos.map((slot, i) => (
-            <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
-              <div
-                onClick={() => fileRefs[i].current?.click()}
-                style={{
-                  width: "120px",
-                  height: "120px",
-                  borderRadius: "8px",
-                  backgroundColor: "#A6A39F55",
-                  border: "2px dashed #A6A39F",
-                  cursor: "pointer",
-                  overflow: "hidden",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  position: "relative",
-                }}
-              >
-                {slot.preview ? (
-                  <>
-                    <img
-                      src={slot.preview}
-                      alt=""
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleRemovePhoto(i); }}
-                      style={{
-                        position: "absolute",
-                        top: "4px",
-                        right: "4px",
-                        background: "#BF372A",
-                        border: "none",
-                        color: "#fff",
-                        borderRadius: "50%",
-                        width: "20px",
-                        height: "20px",
-                        cursor: "pointer",
-                        fontSize: "11px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      ✕
-                    </button>
-                  </>
-                ) : (
-                  <span style={{ color: "#A6A39F", fontSize: "28px" }}>+</span>
-                )}
-              </div>
-              {i === 0 && (
-                <span style={{ fontSize: "11px", color: "#261F1A", fontWeight: "bold" }}>Principal</span>
-              )}
-              <input
-                ref={fileRefs[i]}
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={(e) => handlePhotoChange(i, e.target.files?.[0] ?? null)}
-              />
-            </div>
+      <div className="flex flex-col">
+        <label className="mb-1 text-[13px] font-bold text-[#261F1A]">
+          Gênero:
+        </label>
+
+        <input
+          list="generos"
+          className="w-full rounded border-[1.5px] border-[#D9A13B] bg-[#F2EFDC] px-3 py-2.5 text-sm text-[#261F1A] outline-none"
+          value={genero}
+          onChange={(e) => setGenero(e.target.value)}
+          placeholder="Ex: Ação"
+        />
+
+        <datalist id="generos">
+          {GENRES.map((g) => (
+            <option key={g} value={g} />
           ))}
-        </div>
+        </datalist>
       </div>
 
-      {/* Valor + Parcelas */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px", marginTop: "24px" }}>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label style={labelStyle}>Valor</label>
-          <input
-            style={inputStyle}
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="R$ 0,00"
-            value={valor}
-            onChange={(e) => setValor(e.target.value)}
-          />
-        </div>
+      <div className="flex flex-col">
+        <label className="mb-1 text-[13px] font-bold text-[#261F1A]">
+          Tipo:
+        </label>
 
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label style={labelStyle}>Num. Parcelas:</label>
-          <input
-            style={inputStyle}
-            type="number"
-            min="1"
-            max="24"
-            placeholder="1"
-            value={numParcelas}
-            onChange={(e) => setNumParcelas(e.target.value)}
-          />
-        </div>
+        <select
+          className="w-full rounded border-[1.5px] border-[#D9A13B] bg-[#F2EFDC] px-3 py-2.5 text-sm text-[#261F1A] outline-none"
+          value={tipo}
+          onChange={(e) => {
+            setTipo(e.target.value);
+            setMediaTypeId(e.target.value === "movie" ? 1 : 2);
+          }}
+        >
+          <option value="">Selecione...</option>
 
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label style={labelStyle}>Valor Parc.</label>
-          <input
-            style={{ ...inputStyle, backgroundColor: "#F2EFDC", color: "#A6A39F" }}
-            readOnly
-            value={valorParcela ? `R$ ${valorParcela}` : ""}
-            placeholder="Calculado"
-          />
-        </div>
+          {MEDIA_TYPES.map((m) => (
+            <option key={m.value} value={m.value}>
+              {m.label}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* Botões */}
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "28px" }}>
-        <button
-          onClick={handleClear}
-          style={{
-            padding: "10px 28px",
-            backgroundColor: "#A6A39F",
-            color: "#F2EFDC",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "15px",
-            fontWeight: "bold",
-          }}
-        >
-          Limpar
-        </button>
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          style={{
-            padding: "10px 28px",
-            backgroundColor: "#D9A13B",
-            color: "#261F1A",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "15px",
-            fontWeight: "bold",
-            opacity: loading ? 0.7 : 1,
-          }}
-        >
-          {loading ? "Postando..." : "Postar"}
-        </button>
+      <div className="flex flex-col">
+        <label className="mb-1 text-[13px] font-bold text-[#261F1A]">
+          Descrição:
+        </label>
+
+        <input
+          className="w-full rounded border-[1.5px] border-[#D9A13B] bg-[#F2EFDC] px-3 py-2.5 text-sm text-[#261F1A] outline-none"
+          value={descricao}
+          onChange={(e) => setDescricao(e.target.value)}
+        />
       </div>
     </div>
-  );
+
+    <div className="mt-6">
+      <label className="mb-1 block text-[13px] font-bold text-[#261F1A]">
+        Fotos Promocionais:
+      </label>
+
+      <div className="mt-2 flex flex-wrap gap-4">
+        {photos.map((slot, i) => (
+          <div
+            key={i}
+            className="flex flex-col items-center gap-1.5"
+          >
+            <div
+              onClick={() => fileRefs[i].current?.click()}
+              className="relative flex h-[120px] w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-[#A6A39F] bg-[#A6A39F55]"
+            >
+              {slot.preview ? (
+                <>
+                  <img
+                    src={slot.preview}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemovePhoto(i);
+                    }}
+                    className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#BF372A] text-[11px] text-white"
+                  >
+                    ✕
+                  </button>
+                </>
+              ) : (
+                <span className="text-[28px] text-[#A6A39F]">
+                  +
+                </span>
+              )}
+            </div>
+
+            {i === 0 && (
+              <span className="text-[11px] font-bold text-[#261F1A]">
+                Principal
+              </span>
+            )}
+
+            <input
+              ref={fileRefs[i]}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) =>
+                handlePhotoChange(
+                  i,
+                  e.target.files?.[0] ?? null
+                )
+              }
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div className="mt-6 grid grid-cols-3 gap-5">
+      <div className="flex flex-col">
+        <label className="mb-1 text-[13px] font-bold text-[#261F1A]">
+          Valor
+        </label>
+
+        <input
+          className="w-full rounded border-[1.5px] border-[#D9A13B] bg-[#F2EFDC] px-3 py-2.5 text-sm text-[#261F1A] outline-none"
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="R$ 0,00"
+          value={valor}
+          onChange={(e) => setValor(e.target.value)}
+        />
+      </div>
+
+      <div className="flex flex-col">
+        <label className="mb-1 text-[13px] font-bold text-[#261F1A]">
+          Num. Parcelas:
+        </label>
+
+        <input
+          className="w-full rounded border-[1.5px] border-[#D9A13B] bg-[#F2EFDC] px-3 py-2.5 text-sm text-[#261F1A] outline-none"
+          type="number"
+          min="1"
+          max="24"
+          placeholder="1"
+          value={numParcelas}
+          onChange={(e) => setNumParcelas(e.target.value)}
+        />
+      </div>
+
+      <div className="flex flex-col">
+        <label className="mb-1 text-[13px] font-bold text-[#261F1A]">
+          Valor Parc.
+        </label>
+
+        <input
+          className="w-full rounded border-[1.5px] border-[#D9A13B] bg-[#F2EFDC] px-3 py-2.5 text-sm text-[#A6A39F] outline-none"
+          readOnly
+          value={valorParcela ? `R$ ${valorParcela}` : ""}
+          placeholder="Calculado"
+        />
+      </div>
+    </div>
+
+    <div className="mt-7 flex justify-end gap-3">
+      <button
+        onClick={handleClear}
+        className="rounded-md bg-[#A6A39F] px-7 py-2.5 text-[15px] font-bold text-[#F2EFDC]"
+      >
+        Limpar
+      </button>
+
+      <button
+        onClick={handleSubmit}
+        disabled={loading}
+        className="rounded-md bg-[#D9A13B] px-7 py-2.5 text-[15px] font-bold text-[#261F1A] disabled:opacity-70"
+      >
+        {loading ? "Postando..." : "Postar"}
+      </button>
+    </div>
+  </div>
+);  
+
 }

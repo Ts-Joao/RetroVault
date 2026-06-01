@@ -1,10 +1,3 @@
-/**
- * authFetch — substituto do fetch() que injeta automaticamente:
- *   - Authorization: Bearer <token>
- *   - user-id: <sub do token>   ← necessário para o ProductsController
- *
- * Também renova o access token automaticamente quando expira (401).
- */
 
 async function refreshAccessToken(): Promise<string | null> {
   const refreshToken = localStorage.getItem("refresh_token");
@@ -50,17 +43,43 @@ export async function authFetch(
 ): Promise<Response> {
   const token = localStorage.getItem("token");
 
-  const headers = new Headers(init.headers ?? {});
-  if (token) injectHeaders(headers, token);
+  const isFormData = init.body instanceof FormData;
 
-  const response = await fetch(input, { ...init, headers });
+  const headers = new Headers(init.headers ?? {});
+
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+
+    const userId = getUserIdFromToken(token);
+    if (userId) headers.set("user-id", userId);
+  }
+
+  // 🚨 REGRA CRÍTICA
+  // nunca setar Content-Type para FormData
+  if (!isFormData && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  const response = await fetch(input, {
+    ...init,
+    headers,
+  });
 
   if (response.status === 401) {
     const newToken = await refreshAccessToken();
     if (!newToken) return response;
 
-    injectHeaders(headers, newToken);
-    return fetch(input, { ...init, headers });
+    const retryHeaders = new Headers(init.headers ?? {});
+
+    retryHeaders.set("Authorization", `Bearer ${newToken}`);
+
+    const userId = getUserIdFromToken(newToken);
+    if (userId) retryHeaders.set("user-id", userId);
+
+    return fetch(input, {
+      ...init,
+      headers: retryHeaders,
+    });
   }
 
   return response;
