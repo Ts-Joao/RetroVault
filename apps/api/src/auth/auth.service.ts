@@ -14,13 +14,15 @@ import { UsersService } from 'src/users/users.service';
 import type { StringValue } from 'ms';
 import LoginDto from './dto/login.dto';
 import { PayloadDto } from './dto/payload.dto';
+import { DatabaseService } from 'src/database/database.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly hashingService: HashingServiceProtocol,
-    private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly usersService: UsersService,
+    private readonly databaseService: DatabaseService,
 
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
@@ -28,21 +30,32 @@ export class AuthService {
 
   async authenticate(loginDto: LoginDto) {
     try {
-      const user = await this.usersService.getByEmail(loginDto.email);
+      const user = await this.databaseService.user.findFirst({
+        where: {
+          email: loginDto.email,
+        },
+      });
+
+      if (!user) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
 
       const passwordMatch = await this.hashingService.compare(
         loginDto.password,
         user.password,
       );
 
-      if (!passwordMatch)
+      if (!passwordMatch) {
         throw new UnauthorizedException('Invalid credentials');
+      }
 
       const tokens = await this.generateTokens(user.id);
 
       return { ...tokens };
     } catch (error) {
-      if (error instanceof UnauthorizedException) throw error;
+      if (error instanceof HttpException) {
+        throw error;
+      }
 
       throw new InternalServerErrorException('Error authenticating user!');
     }
