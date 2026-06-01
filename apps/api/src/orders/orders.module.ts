@@ -6,6 +6,7 @@ import { WalletModule } from 'src/wallet/wallet.module';
 import { PaymentModule } from 'src/payment/payment.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { ProductsModule } from 'src/products/products.module';
+import { CartModule } from 'src/cart/cart.module';
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { ProductsModule } from 'src/products/products.module';
     WalletModule,
     PaymentModule,
     AuthModule,
-    ProductsModule
+    ProductsModule,
+    CartModule
   ],
   providers: [OrdersService],
   controllers: [OrdersController],
