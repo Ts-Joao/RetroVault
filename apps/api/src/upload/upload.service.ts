@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { validateImageFile } from './validators/file.validator';
-import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 
 @Injectable()
 export class UploadService {
@@ -13,11 +12,11 @@ export class UploadService {
 
     async uploadProfilePhoto(userId: string, file: Express.Multer.File) {
         validateImageFile(file);
-        const url = `./uploads/profiles/${file.filename}`;
+        const url = `http://localhost:4000/uploads/profiles/${file.filename}`;
 
         return this.db.profilePhoto.upsert({
             where: { userId },
-            create: { userId, url},
+            create: { userId, url },
             update: { url },
         });
     }
@@ -30,7 +29,7 @@ export class UploadService {
         if (!userPhoto) {
             throw new NotFoundException('the profile photo not found');
         }
-        return userPhoto
+        return userPhoto;
     }
 
     async deleteProfilePhoto(userId: string) {
@@ -39,39 +38,27 @@ export class UploadService {
         });
 
         if (!userPhoto) {
-            throw new NotFoundException('Error in delete profile photo')
+            throw new NotFoundException('Error in delete profile photo');
         }
-        return this.db.profilePhoto.delete({ where: { userId }});
+        return this.db.profilePhoto.delete({ where: { userId } });
     }
 
-    async uploadProductPhoto(
-        userId: string,
-        productId: string,
-        file: Express.Multer.File
-    ) {
-        validateImageFile(file);
-
-        const product = await this.db.product.findUnique({
-            where: { id: productId },
-        });
-
-        if (!product) {
-            throw new NotFoundException('product not found');
-        }
-
-        if (product.sellerId !== userId) {
-            throw new ForbiddenException(
-                'You dont have permission to add a photo to this product',
-            );
-        }
-
-        const url = `./uploads/products/${file.filename}`;
-
-        return this.db.productPhoto.create({
-            data: { productId, url },
-        });
-    }
-
+async uploadProductPhoto(
+  userId: string,
+  productId: string,
+  files: Express.Multer.File[],
+) {
+  return Promise.all(
+    files.map((file) =>
+      this.db.productPhoto.create({
+        data: {
+          productId,
+          url: `http://localhost:4000/uploads/products/${file.filename}`,
+        },
+      }),
+    ),
+  );
+}
     async deleteProductPhoto(userId: string, photoId: string) {
         const photo = await this.db.productPhoto.findUnique({
             where: { id: photoId },
@@ -82,7 +69,7 @@ export class UploadService {
             throw new NotFoundException('photo not found');
         }
 
-        if(photo.product.sellerId !== userId) {
+        if (photo.product.sellerId !== userId) {
             throw new ForbiddenException(
                 'You dont have permission to remove this photo',
             );

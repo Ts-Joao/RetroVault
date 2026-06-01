@@ -19,7 +19,7 @@ export class AuthController {
     @Post('refresh')
     @UseGuards(RefreshGuard)
     async refresh(@CurrentUser() user: JwtPayload) {
-        return this.authService.generateToken(user.sub, user.email, user.role)
+        return this.authService.generateToken(user.sub, user.email, user.role, user.name)
     }
 
     @Post('logout')

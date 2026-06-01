@@ -36,6 +36,7 @@ export class RefreshGuard implements CanActivate {
             (request as any).user = {
                 sub: user.id,
                 email: user.email,
+                name: user.name,
                 role: user.role,
             };
 
