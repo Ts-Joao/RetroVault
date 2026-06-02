@@ -49,10 +49,10 @@ describe('Auth', () => {
             .expect(201)
 
         console.log(response.body)
-        expect(response.body).toHaveProperty('acess_token')
+        expect(response.body).toHaveProperty('access_token')
         expect(response.body).toHaveProperty('refresh_token')
 
-        accessToken = response.body.acess_token
+        accessToken = response.body.access_token
     })
 
     it('/POST auth/login - should fail with wrong password', async () => {
