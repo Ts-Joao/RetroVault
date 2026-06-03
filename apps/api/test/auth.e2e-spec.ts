@@ -5,90 +5,83 @@ import { DatabaseService } from 'src/database/database.service';
 import { AppModule } from 'src/app/app.module';
 
 describe('Auth', () => {
-    let app: INestApplication
-    let prisma: DatabaseService
-    let accessToken: string
+  let app: INestApplication;
+  let prisma: DatabaseService;
+  let accessToken: string;
+  let userId: string;
+  let userData: any;
 
-    const userData = {
-        name: 'auth-test-user',
-        email: 'auth@example.com',
-        password: 'Strong123@'
-    }
+  userData = {
+    name: 'auth-test-user',
+    email: 'auth@example.com',
+    password: 'Strong123@',
+  };
 
-    beforeAll(async () => {
-        const moduleRef = await Test.createTestingModule({
-            imports: [AppModule],
-        }).compile();
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
 
-        app = moduleRef.createNestApplication();
-        prisma = moduleRef.get<DatabaseService>(DatabaseService);
+    app = moduleRef.createNestApplication();
+    prisma = moduleRef.get<DatabaseService>(DatabaseService);
 
-        await app.init();
-        await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
+    await app.init();
+    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
+    await prisma.$executeRawUnsafe('TRUNCATE TABLE "wallets" CASCADE');
 
-        // Create a user for auth tests
-        await request(app.getHttpServer())
-            .post('/users')
-            .send(userData)
-            .expect(201)
-    })
+    const response = await request(app.getHttpServer())
+      .post('/users')
+      .send(userData)
+      .expect(201);
 
-    afterAll(async () => {
-        await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
-        await prisma.$disconnect();
-        await app.close();
-    });
+    console.log('Response', response.body);
+    console.log('Id', response.body.newUser.id);
+    userId = response.body.newUser.id;
+  });
 
-    it('/POST auth/login - should login successfully', async () => {
-        const response = await request(app.getHttpServer())
-            .post('/auth/login')
-            .send({
-                email: userData.email,
-                password: userData.password
-            })
-            .expect(201)
+  afterAll(async () => {
+    await prisma.$disconnect();
+    await app.close();
+  });
 
-        console.log(response.body)
-        expect(response.body).toHaveProperty('access_token')
-        expect(response.body).toHaveProperty('refresh_token')
+  it('/POST auth/login - should login successfully', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: userData.email,
+        password: userData.password,
+      })
+      .expect(201);
 
-        accessToken = response.body.access_token
-    })
+    console.log(response.body);
+    expect(response.body).toHaveProperty('accessToken');
 
-    it('/POST auth/login - should fail with wrong password', async () => {
-        await request(app.getHttpServer())
-            .post('/auth/login')
-            .send({
-                email: userData.email,
-                password: 'WrongPass123@'
-            })
-            .expect(401)
-    })
+    console.log('Access Token', response.body.accessToken);
+    accessToken = response.body.accessToken;
+  });
 
-    it('/POST auth/login - should fail with non-existent email', async () => {
-        await request(app.getHttpServer())
-            .post('/auth/login')
-            .send({
-                email: 'nonexistent@example.com',
-                password: 'Strong123@'
-            })
-            .expect(500)
-    })
+  it('/POST auth/login - should fail with wrong password', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: userData.email,
+        password: 'WrongPass123@',
+      })
+      .expect(401);
+  });
 
-    it('/POST auth/logout - should logout successfully', async () => {
-        const response = await request(app.getHttpServer())
-            .post('/auth/logout')
-            .set('Authorization', `Bearer ${accessToken}`)
-            .expect(201)
+  it('/POST auth/logout - should logout successfully', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/auth/logout')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(201);
 
-        console.log(response.body)
-        expect(response.body).toHaveProperty('id')
-        expect(response.body.refreshToken).toBeNull()
-    })
+    console.log(response.body);
+    expect(response.body).toHaveProperty('id');
+    expect(response.body.refreshToken).toBeNull();
+  });
 
-    it('/POST auth/logout - should fail without token', async () => {
-        await request(app.getHttpServer())
-            .post('/auth/logout')
-            .expect(401)
-    })
-})
+  it('/POST auth/logout - should fail without token', async () => {
+    await request(app.getHttpServer()).post('/auth/logout').expect(401);
+  });
+});

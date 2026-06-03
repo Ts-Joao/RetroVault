@@ -1,5 +1,4 @@
 import {
-  ForbiddenException,
   HttpException,
   Injectable,
   InternalServerErrorException,
@@ -29,14 +28,13 @@ export class ProductService {
         'product',
       );
 
-      const newProduct = await this.databaseService.product.create({
+      return await this.databaseService.product.create({
         data: {
           ...createProductDto,
           slug,
           sellerId: sellerId,
         },
       });
-      return newProduct;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -48,7 +46,7 @@ export class ProductService {
 
   async get() {
     try {
-      const findProduct = await this.databaseService.product.findMany({
+      return await this.databaseService.product.findMany({
         where: {
           isActive: true,
         },
@@ -56,8 +54,6 @@ export class ProductService {
           photos: true,
         },
       });
-
-      return findProduct;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;

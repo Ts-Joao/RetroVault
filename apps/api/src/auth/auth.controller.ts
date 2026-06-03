@@ -65,6 +65,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     await this.authService.logout(user.sub);
+    console.log(user.sub)
     res.clearCookie('refresh_token', { path: '/api/auth/refresh' });
 
     return { message: 'Logged out successfully!' };

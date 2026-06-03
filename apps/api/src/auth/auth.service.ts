@@ -54,6 +54,7 @@ export class AuthService {
       return { ...tokens };
     } catch (error) {
       if (error instanceof HttpException) {
+        console.error(error)
         throw error;
       }
 
@@ -74,7 +75,7 @@ export class AuthService {
         this.jwtService.signAsync(
           { sub },
           {
-            expiresIn: 900,
+            expiresIn: 90000,
             secret: this.jwtConfiguration.secret,
             audience: this.jwtConfiguration.audience,
             issuer: this.jwtConfiguration.issuer,
@@ -135,6 +136,7 @@ export class AuthService {
   async logout(userId: string) {
     try {
       return this.usersService.updateRefreshToken(userId, null);
+
     } catch (error) {
       throw new InternalServerErrorException('Failed to logout');
     }

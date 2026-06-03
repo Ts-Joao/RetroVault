@@ -119,7 +119,7 @@ export class UsersService {
   async getByEmail(email: string) {
     try {
       const findUser = await this.databaseService.user.findUnique({
-        where: { email },
+        where: { email }
       });
 
       if (!findUser) {
@@ -215,11 +215,11 @@ export class UsersService {
 
   async updateRefreshToken(userId: string, refreshToken: string | null) {
     try {
-      await this.getById(userId);
+      const user = await this.getByEmail(userId);
 
       if (!refreshToken) {
         const deleteRefreshToken = await this.databaseService.user.update({
-          where: { id: userId },
+          where: { id: user.id },
           data: { refreshToken: null },
           select: { refreshToken: true },
         });
@@ -227,11 +227,11 @@ export class UsersService {
         return deleteRefreshToken.refreshToken;
       }
 
-      const refreshTokenHased = await this.hashingService.hash(refreshToken);
+      const refreshTokenHashed = await this.hashingService.hash(refreshToken);
 
       const updateRefreshToken = await this.databaseService.user.update({
-        where: { id: userId },
-        data: { refreshToken: refreshTokenHased },
+        where: { id: user.id },
+        data: { refreshToken: refreshTokenHashed },
         select: { refreshToken: true },
       });
 
