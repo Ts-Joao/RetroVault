@@ -18,66 +18,66 @@ import { AuthTokenGuard } from 'src/auth/guard/auth-token.guard';
 
 @Controller('products')
 export class ProductsController {
-    constructor(private readonly productsService: ProductService) {}
+  constructor(private readonly productsService: ProductService) {}
 
-    @UseGuards(AuthTokenGuard)
-    @Post()
-    createProduct(
-        @Body() createProduct: CreateProductDto,
-        @TokenPayloadParam() payload: PayloadDto
-    ) {
-        return this.productsService.create(createProduct, payload.sub)
-    }
+  @UseGuards(AuthTokenGuard)
+  @Post()
+  createProduct(
+    @Body() createProduct: CreateProductDto,
+    @TokenPayloadParam() payload: PayloadDto,
+  ) {
+    return this.productsService.create(createProduct, payload.sub);
+  }
 
-    @Get()
-    getProducts() {
-        return this.productsService.get()
-    }
+  @Get()
+  getProducts() {
+    return this.productsService.get();
+  }
 
-    @Get(':productId')
-    getProductById(@Param('productId', ParseUUIDPipe) productId: string) {
-        return this.productsService.getById(productId)
-    }
+  @Get(':productId')
+  getProductById(@Param('productId', ParseUUIDPipe) productId: string) {
+    return this.productsService.getById(productId);
+  }
 
-    @Get('seller/:sellerId')
-    getProductsBySellerId(@Param('sellerId', ParseUUIDPipe) sellerId: string) {
-        return this.productsService.getActiveProductsBySellerId(sellerId)
-    }
+  @Get('seller/:sellerId')
+  getProductsBySellerId(@Param('sellerId', ParseUUIDPipe) sellerId: string) {
+    return this.productsService.getActiveProductsBySellerId(sellerId);
+  }
 
-    @UseGuards(AuthTokenGuard)
-    @Get('seller/all/:sellerId')
-    getAllProductsBySellerId(
-        @Param('sellerId', ParseUUIDPipe) sellerId: string,
-        @TokenPayloadParam() payload: PayloadDto
-    ) {
-        return this.productsService.getAllProductsBySellerId(sellerId, payload)
-    }
+  @UseGuards(AuthTokenGuard)
+  @Get('seller/all/:sellerId')
+  getAllProductsBySellerId(
+    @Param('sellerId', ParseUUIDPipe) sellerId: string,
+    @TokenPayloadParam() payload: PayloadDto,
+  ) {
+    return this.productsService.getAllProductsBySellerId(sellerId, payload);
+  }
 
-    @UseGuards(AuthTokenGuard)
-    @Patch(':productId')
-    updateProduct(
-        @Param('productId', ParseUUIDPipe) productId: string,
-        @Body() updateProduct: UpdateProductDto,
-        @TokenPayloadParam() payload: PayloadDto
-    ) {
-        return this.productsService.update(productId, updateProduct, payload)
-    }
+  @UseGuards(AuthTokenGuard)
+  @Patch(':productId')
+  updateProduct(
+    @Param('productId', ParseUUIDPipe) productId: string,
+    @Body() updateProduct: UpdateProductDto,
+    @TokenPayloadParam() payload: PayloadDto,
+  ) {
+    return this.productsService.update(productId, updateProduct, payload);
+  }
 
-    @UseGuards(AuthTokenGuard)
-    @Patch('soft-delete/:productId')
-    softDeleteProduct(
-        @Param('productId', ParseUUIDPipe) productId: string,
-        @TokenPayloadParam() payload: PayloadDto
-    ) {
-        return this.productsService.softDelete(productId, payload)
-    }
+  @UseGuards(AuthTokenGuard)
+  @Patch('soft-delete/:productId')
+  softDeleteProduct(
+    @Param('productId', ParseUUIDPipe) productId: string,
+    @TokenPayloadParam() payload: PayloadDto,
+  ) {
+    return this.productsService.softDelete(productId, payload);
+  }
 
-    @UseGuards(AuthTokenGuard)
-    @Delete(':productId')
-    deleteProduct(
-        @Param('productId', ParseUUIDPipe) productId: string,
-        @TokenPayloadParam() payload: PayloadDto
-    ) {
-        return this.productsService.delete(productId, payload)
-    }
+  @UseGuards(AuthTokenGuard)
+  @Delete(':productId')
+  deleteProduct(
+    @Param('productId', ParseUUIDPipe) productId: string,
+    @TokenPayloadParam() payload: PayloadDto,
+  ) {
+    return this.productsService.delete(productId, payload);
+  }
 }
