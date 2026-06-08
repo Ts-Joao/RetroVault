@@ -52,6 +52,9 @@ jobs:
           echo "DATABASE_URL_TEST=${{ secrets.DATABASE_URL_TEST }}" >> apps/api/.env
           echo "JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}" >> apps/api/.env
           echo "JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}" >> apps/api/.env
+          echo "JWT_TOKEN_AUDIENCE=${{ secrets.JWT_TOKEN_AUDIENCE }}" >> apps/api/.env
+          echo "JWT_TOKEN_ISSUER=${{ secrets.JWT_TOKEN_ISSUER }}" >> apps/api/.env
+          echo "JWT_TTL=${{ secrets.JWT_TTL }}" >> apps/api/.env
 
       - name: Generate Prisma Client
         run: pnpm prisma generate
