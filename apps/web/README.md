@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="../.github/logo.png" alt="RetroVault Logo" width="300"/>
+    <img src="../../.github/logo.png" alt="RetroVault Logo" width="300"/>
 
 # RetroVault Web
 
