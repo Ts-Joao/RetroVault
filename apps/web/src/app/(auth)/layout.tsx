@@ -7,8 +7,6 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
   if (!token) redirect('/login');
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      {children}
-    </div>
+    children
   )
 }

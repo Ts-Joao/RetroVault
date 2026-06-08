@@ -13,14 +13,14 @@ export class RefreshGuard implements CanActivate {
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest<Request>()
-        const token = request.headers.authorization?.split(' ')[1]
+        const token = request.cookies?.refresh_token
 
         if (!token) {
-            throw new UnauthorizedException()
+            throw new UnauthorizedException('Refresh token not found')
         }
 
         try {
-            const payload = await this.jwtService.verifyAsync(token, { secret: process.env.JWT_SECRET })
+            const payload = await this.jwtService.verifyAsync(token, { secret: process.env.REFRESH_SECRET })
             const user = await this.usersService.getById(payload.sub)
 
             if (!user?.refreshToken) {
