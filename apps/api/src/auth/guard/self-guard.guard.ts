@@ -17,7 +17,7 @@ export class SelfGuard implements CanActivate {
       throw new ForbiddenException('User not authenticated');
     }
 
-    if (user.sub === id) return true;
+    if (user.sub === id || user.role === 'ADMIN') return true;
 
     throw new ForbiddenException();
   }

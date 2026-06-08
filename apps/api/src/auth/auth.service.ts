@@ -144,7 +144,7 @@ export class AuthService {
 
   async validateTokenUser(tokenPayload: PayloadDto, userId: string) {
     try {
-      if (tokenPayload.sub !== userId || tokenPayload.role === 'ADMIN') {
+      if (tokenPayload.sub !== userId && tokenPayload.role !== 'ADMIN') {
         throw new ForbiddenException(
           'You are not authorized to perform this operation!',
         );

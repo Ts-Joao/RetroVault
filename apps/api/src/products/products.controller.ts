@@ -35,7 +35,7 @@ export class ProductsController {
   }
 
   @Get(':productId')
-  getProductById(@Param('productId', ParseUUIDPipe) productId: string) {
+  getProductById(@Param('productId') productId: string) {
     return this.productsService.getById(productId);
   }
 
@@ -56,7 +56,7 @@ export class ProductsController {
   @UseGuards(AuthTokenGuard)
   @Patch(':productId')
   updateProduct(
-    @Param('productId', ParseUUIDPipe) productId: string,
+    @Param('productId') productId: string,
     @Body() updateProduct: UpdateProductDto,
     @TokenPayloadParam() payload: PayloadDto,
   ) {
@@ -66,7 +66,7 @@ export class ProductsController {
   @UseGuards(AuthTokenGuard)
   @Patch('soft-delete/:productId')
   softDeleteProduct(
-    @Param('productId', ParseUUIDPipe) productId: string,
+    @Param('productId') productId: string,
     @TokenPayloadParam() payload: PayloadDto,
   ) {
     return this.productsService.softDelete(productId, payload);
@@ -75,7 +75,7 @@ export class ProductsController {
   @UseGuards(AuthTokenGuard)
   @Delete(':productId')
   deleteProduct(
-    @Param('productId', ParseUUIDPipe) productId: string,
+    @Param('productId') productId: string,
     @TokenPayloadParam() payload: PayloadDto,
   ) {
     return this.productsService.delete(productId, payload);

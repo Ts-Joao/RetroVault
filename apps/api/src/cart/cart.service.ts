@@ -125,6 +125,32 @@ export class CartService {
     }
   }
 
+  async updateItemAmount(userId: string, cartItemId: string, amount: number) {
+    try {
+      const cart = await this.getCart(userId);
+
+      const item = await this.databaseService.cartItem.findFirst({
+        where: { id: cartItemId, cartId: cart.id },
+      });
+
+      if (!item) {
+        throw new NotFoundException('Item not found in cart');
+      }
+
+      return this.databaseService.cartItem.update({
+        where: { id: cartItemId },
+        data: { amount },
+        include: { product: true },
+      });
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error updating item amount');
+    }
+  }
+
+
   async getCartTotal(tokenPayload: PayloadDto) {
     try {
       const cart = await this.getCart(tokenPayload.sub);
