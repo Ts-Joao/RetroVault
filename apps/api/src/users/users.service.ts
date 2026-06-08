@@ -1,203 +1,278 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
-import * as bcrypt from 'bcrypt'
-import slugify from 'slugify';
+import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
+import { Role } from '@prisma/client';
+import { PayloadDto } from 'src/auth/dto/payload.dto';
+import { SlugServiceProtocol } from 'src/common/utils/slug/slug.service';
 
 @Injectable()
 export class UsersService {
-    constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    private readonly databaseService: DatabaseService,
+    private readonly hashingService: HashingServiceProtocol,
+    private readonly slugService: SlugServiceProtocol
+  ) {}
 
-    private async generateSlug(name: string): Promise<string> {
-        const base = slugify(name, { lower: true, strict: true });
+  async create(createUserDto: CreateUserDto) {
+    try {
+      const userExists = await this.databaseService.user.findUnique({
+        where: { email: createUserDto.email },
+      });
 
-        const existing = await this.databaseService.user.findUnique({
-            where: { slug: base },
-            select: { slug: true },
+      if (userExists) {
+        throw new ConflictException('Email already in use!');
+      }
+
+      const hashed = await this.hashingService.hash(createUserDto.password);
+      const slug = await this.slugService.generateSlug(createUserDto.name, 'user');
+
+      const addUser = await this.databaseService.$transaction(async (tx) => {
+        const newUser = await tx.user.create({
+          data: {
+            ...createUserDto,
+            password: hashed,
+            slug: slug,
+          },
         });
 
-        if (!existing) {
-            return base;
-        }
+        const userWallet = await tx.wallet.create({
+          data: {
+            userId: newUser.id,
+          },
+        });
 
-        const suffix = Math.random().toString(36).substring(2, 10);
+        const userCart = await tx.cart.create({
+          data: {
+            userId: newUser.id,
+          },
+        });
 
-        return `${base}-${suffix}`;
+        const userPhoto = await tx.profilePhoto.create({
+          data: {
+            userId: newUser.id,
+            url: '',
+          },
+        });
+
+        return { newUser, userWallet, userCart, userPhoto };
+      });
+
+      return addUser;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error creating user!');
     }
+  }
 
-    async create(createUserDto: CreateUserDto) {
-        try {
-            const existUser = await this.databaseService.user.findUnique({
-                where: { email: createUserDto.email }
-            })
+  async get() {
+    try {
+      const findUsers = await this.databaseService.user.findMany();
 
-            if (existUser) {
-                throw new HttpException('Email already exists',HttpStatus.CONFLICT)
-            }
+      return findUsers;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
 
-            const hashed = await bcrypt.hash(createUserDto.password, 12)
-
-            const slug = await this.generateSlug(createUserDto.name);
-
-            const user = await this.databaseService.$transaction(async (tx) => {
-                const newUser = await tx.user.create({
-                    data: {
-                        ...createUserDto,
-                        password: hashed,
-                        slug: slug
-                    }
-                })
-                
-                const userWallet = await tx.wallet.create({
-                    data: {
-                        userId: newUser.id
-                    }
-                })
-
-                const userCart = await tx.cart.create({
-                    data: {
-                        userId: newUser.id
-                    }
-                })
-
-                return { newUser, userWallet, userCart }
-            })
-
-            return user
-        } catch (error) {
-            throw error
-        }
+      throw new InternalServerErrorException('Error getting users!');
     }
+  }
 
-    async get() {
-        try {
-            const findUsers = await this.databaseService.user.findMany()
+  async getById(userId: string) {
+    try {
+      const findUser = await this.databaseService.user.findUnique({
+        where: { id: userId },
+        include: {
+          wallet: true,
+          profilePic: true,
+          cart: true,
+        },
+      });
 
-            return findUsers
-        } catch (error) {
-            throw new HttpException(
-                'Error getting users!',
-                HttpStatus.INTERNAL_SERVER_ERROR
-            )
-        }
+      if (!findUser) {
+        throw new NotFoundException('User not found!');
+      }
+
+      return findUser;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error getting user!');
     }
+  }
 
-    async getById(id: string) {
-        try {
-            const findUser = await this.databaseService.user.findUnique({
-                where: { id }
-            })
+  async getByEmail(email: string) {
+    try {
+      const findUser = await this.databaseService.user.findUnique({
+        where: { email }
+      });
 
-            if (!findUser) {
-                throw new NotFoundException('User not found!')
-            }
+      if (!findUser) {
+        throw new NotFoundException('User not found!');
+      }
 
-            return findUser
-        } catch (error) {
-            throw new HttpException(
-                'Error finding user',
-                HttpStatus.INTERNAL_SERVER_ERROR
-            )
-        }
+      return findUser;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error getting user!');
     }
+  }
 
-    async getByEmail(email: string) {
-        try {
-            const findUser = await this.databaseService.user.findUnique({
-                where: { email }
-            })
+  async update(
+    userId: string,
+    updateUserDto: UpdateUserDto,
+    tokenPayload: PayloadDto,
+  ) {
+    try {
+      const findUser = await this.getById(userId);
 
-            if (!findUser) {
-                throw new NotFoundException('User not found!')
-            }
+      if (tokenPayload.sub !== userId && tokenPayload.role !== 'ADMIN') {
+        throw new ForbiddenException(
+          'You are not authorized to update this user!',
+        );
+      }
 
-            return findUser
-        } catch (error) {
-            throw new HttpException(
-                'Error finding user',
-                HttpStatus.INTERNAL_SERVER_ERROR
-            )
-        }
+      const passwordHased = await this.hashPassword(
+        updateUserDto.password,
+        findUser.password,
+      );
+
+      const slug = await this.slugService.adjustSlug(
+        findUser.name,
+        updateUserDto.name,
+        findUser.slug,
+        'user'
+      );
+
+      const updateUser = await this.databaseService.user.update({
+        where: { id: userId },
+        data: {
+          ...updateUserDto,
+          password: passwordHased,
+          slug,
+        },
+      });
+
+      return updateUser;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error updating user!');
     }
+  }
 
-    async update(id: string, updateUserDto: UpdateUserDto) {
-        try {
-            const findUser = await this.databaseService.user.findUnique({
-                where: { id }
-            })
+  async delete(userId: string, tokenPayload: PayloadDto) {
+    try {
+      const user = await this.getById(userId);
 
-            if (!findUser) {
-                throw new NotFoundException('User not found!')
-            }
+      if (tokenPayload.sub !== user.id && tokenPayload.role !== 'ADMIN') {
+        throw new ForbiddenException(
+          'You are not authorized to delete this user!',
+        );
+      }
 
-            let slug = findUser.slug;
-            if (updateUserDto.name && updateUserDto.name !== findUser.name) {
-                slug = await this.generateSlug(updateUserDto.name);
-            }
+      return this.databaseService.$transaction(async (tx) => {
+        const deleteOperations = [
+          user.wallet && tx.wallet.delete({ where: { userId } }),
+          user.cart && tx.cart.delete({ where: { userId } }),
+          user.profilePic && tx.profilePhoto.delete({ where: { userId } }),
+        ].filter((op) => op !== null);
 
-            const updateUser = await this.databaseService.user.update({
-                where: { id },
-                data: {
-                    ...updateUserDto,
-                    slug
-                }
-            })
+        await Promise.all(deleteOperations);
 
-            return updateUser
-        } catch (error) {
-            throw new HttpException(
-                'Error updating user!',
-                HttpStatus.INTERNAL_SERVER_ERROR
-            )
-        }
+        return tx.user.delete({
+          where: { id: userId },
+        });
+      });
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error deleting user!');
     }
+  }
 
-    async delete(id: string) {
-        try {
-            const findUser = await this.databaseService.user.findUnique({
-                where: { id },
-                include: {
-                    wallet: true,
-                    profilePic: true,
-                    cart: true,
-                }
-            })
+  async updateRefreshToken(userId: string, refreshToken: string | null) {
+    try {
+      const user = await this.getById(userId);
 
-            if (!findUser) {
-                throw new NotFoundException('User not found!')
-            }
+      if (!refreshToken) {
+        const deleteRefreshToken = await this.databaseService.user.update({
+          where: { id: user.id },
+          data: { refreshToken: null },
+          select: { refreshToken: true },
+        });
 
-            const deleteUser = await this.databaseService.$transaction(async (tx) => {
-                if (findUser.wallet) {
-                    await tx.walletTransaction.deleteMany({ where: { walletId: findUser.wallet.id } })
-                    await tx.wallet.delete({ where: { userId: id } })
-                }
-                if (findUser.cart) {
-                    await tx.cart.delete({ where: { userId: id } })
-                }
-                if (findUser.profilePic) {
-                    await tx.profilePhoto.delete({ where: { userId: id } })
-                }
+        return deleteRefreshToken.refreshToken;
+      }
 
-                return await tx.user.delete({
-                    where: { id }
-                })
-            })
+      const refreshTokenHashed = await this.hashingService.hash(refreshToken);
 
-            return deleteUser
-        } catch (error) {
-            throw new HttpException(
-                'Error deleting user!',
-                HttpStatus.INTERNAL_SERVER_ERROR
-            )
-        }
+      const updateRefreshToken = await this.databaseService.user.update({
+        where: { id: user.id },
+        data: { refreshToken: refreshTokenHashed },
+        select: { refreshToken: true },
+      });
+
+      return updateRefreshToken.refreshToken;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error updating refresh token!');
     }
+  }
 
-    async updateRefreshToken(userId: string, hash: string | null) {
-        return this.databaseService.user.update({
-            where: { id: userId },
-            data: {refreshToken: hash}
-        })
+  async updateRole(userId: string, updateRole: Role, tokenPayload: PayloadDto) {
+    try {
+      await this.getById(userId);
+
+      if (tokenPayload.role !== 'ADMIN') {
+        throw new ForbiddenException(
+          'You are not authorized to update this user!',
+        );
+      }
+
+      return this.databaseService.user.update({
+        where: { id: userId },
+        data: { role: updateRole },
+        select: { role: true },
+      });
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error updating user role!');
     }
+  }
+
+  async hashPassword(
+    password: string | undefined,
+    passowrdHased: string,
+  ): Promise<string> {
+    return password ? await this.hashingService.hash(password) : passowrdHased;
+  }
 }

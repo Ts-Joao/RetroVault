@@ -57,7 +57,7 @@ describe('Users', () => {
             .send(userData)
             .expect(201)
 
-        accessToken = response.body.acess_token
+        accessToken = response.body.accessToken
 
         return response
     })

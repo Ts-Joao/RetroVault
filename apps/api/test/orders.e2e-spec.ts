@@ -10,6 +10,7 @@ describe('Orders', () => {
     let userId: string
     let sellerId: string
     let accessToken: string
+    let sellerAccessToken: string
     let orderId: string
     let productId: string
 
@@ -43,7 +44,7 @@ describe('Orders', () => {
             .post('/auth/login')
             .send({ email: 'order-buyer@example.com', password: 'Strong123@' })
             .expect(201)
-        accessToken = loginRes.body.acess_token
+        accessToken = loginRes.body.accessToken
 
         // Create seller
         const sellerRes = await request(app.getHttpServer())
@@ -57,11 +58,18 @@ describe('Orders', () => {
             data: { role: 'SELLER' }
         })
 
+        // Login seller to get access token
+        const sellerLoginRes = await request(app.getHttpServer())
+            .post('/auth/login')
+            .send({ email: 'order-seller@example.com', password: 'Strong123@' })
+            .expect(201)
+        sellerAccessToken = sellerLoginRes.body.accessToken
+
         // Create product
         const mediaType = await prisma.mediaType.findFirst({ where: { name: 'GAME' } });
         const productRes = await request(app.getHttpServer())
             .post('/products')
-            .set('user-id', sellerId)
+            .set('Authorization', `Bearer ${sellerAccessToken}`)
             .send({
                 name: 'Order Test Product',
                 price: 29.99,
@@ -75,7 +83,7 @@ describe('Orders', () => {
         // Add product to cart
         await request(app.getHttpServer())
             .post('/cart')
-            .set('user-id', userId)
+            .set('Authorization', `Bearer ${accessToken}`)
             .send({ productId, amount: 2 })
             .expect(201)
     })
@@ -120,18 +128,18 @@ describe('Orders', () => {
 
     it('/GET orders - should find orders by user', async () => {
         const response = await request(app.getHttpServer())
-            .get('/orders')
+            .get(`/orders/user/${userId}`)
             .set('Authorization', `Bearer ${accessToken}`)
             .expect(200)
 
         console.log(response.body)
-        expect(response.body).toBeDefined()
-        expect(response.body.userId).toBe(userId)
+        expect(response.body).toBeInstanceOf(Array)
+        expect(response.body[0].userId).toBe(userId)
     })
 
-    it('/GET orders/:id - should find a specific order', async () => {
+    it('/GET orders/:orderId/user/:userId - should find a specific order', async () => {
         const response = await request(app.getHttpServer())
-            .get(`/orders/${orderId}`)
+            .get(`/orders/${orderId}/user/${userId}`)
             .set('Authorization', `Bearer ${accessToken}`)
             .expect(200)
 
@@ -142,7 +150,7 @@ describe('Orders', () => {
 
     it('/PATCH orders/:id - should update payment status', async () => {
         const response = await request(app.getHttpServer())
-            .patch(`/orders/${orderId}`)
+            .patch(`/orders/${orderId}/payment`)
             .set('Authorization', `Bearer ${accessToken}`)
             .send({ paymentStatus: 'CAPTURED' })
             .expect(200)
