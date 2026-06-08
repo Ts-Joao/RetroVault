@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Barlow_Condensed, Special_Elite, Chakra_Petch } from "next/font/google";
-import './globals.css';
+import "./globals.css";
+import Create from "./create/page";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 
 const barlowCondensed = Barlow_Condensed({
@@ -37,7 +38,7 @@ export default function RootLayout({
         className={`${barlowCondensed.variable} ${specialElite.variable} ${chakraPetch.variable} antialiased `}
       >
         <FavoritesProvider>
-          {children}
+          <Create/>
         </FavoritesProvider>
       </body>
     </html>
