@@ -42,7 +42,7 @@ export class OrdersController {
     @Get(':orderId/user/:userId')
     async findOne(
         @TokenPayloadParam() tokenPayload: PayloadDto,
-        @Param('orderId', ParseUUIDPipe) orderId: string,
+        @Param('orderId') orderId: string,
         @Param('userId', ParseUUIDPipe) userId: string
     ) {
         return this.ordersService.findOne(tokenPayload, orderId, userId)
@@ -51,7 +51,7 @@ export class OrdersController {
     @Patch(':orderId/payment')
     async changePaymentStatus(
         @TokenPayloadParam() tokenPayload: PayloadDto,
-        @Param('orderId', ParseUUIDPipe) orderId: string,
+        @Param('orderId') orderId: string,
         @Body() dto: UpdateOrderDto
     ) {
         return this.ordersService.updatePaymentStatus(tokenPayload, orderId, dto)
@@ -60,7 +60,7 @@ export class OrdersController {
     @Patch(':orderId/status')
     async update(
         @TokenPayloadParam() tokenPayload: PayloadDto,
-        @Param('orderId', ParseUUIDPipe) orderId: string,
+        @Param('orderId') orderId: string,
         @Body() dto: UpdateOrderDto
     ) {
         return this.ordersService.updateStatus(tokenPayload, orderId, dto)

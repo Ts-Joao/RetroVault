@@ -9,6 +9,7 @@ describe('Payment', () => {
     let prisma: DatabaseService
     let userId: string
     let accessToken: string
+    let sellerAccessToken: string
     let orderId: string
     let paymentToken: string
 
@@ -38,12 +39,12 @@ describe('Payment', () => {
             .expect(201)
         userId = buyerRes.body.newUser.id
 
-        // Login
+        // Login buyer
         const loginRes = await request(app.getHttpServer())
             .post('/auth/login')
             .send({ email: 'pay-buyer@example.com', password: 'Strong123@' })
             .expect(201)
-        accessToken = loginRes.body.acess_token
+        accessToken = loginRes.body.accessToken
 
         // Create seller
         const sellerRes = await request(app.getHttpServer())
@@ -57,11 +58,18 @@ describe('Payment', () => {
             data: { role: 'SELLER' }
         })
 
+        // Login seller to get access token
+        const sellerLoginRes = await request(app.getHttpServer())
+            .post('/auth/login')
+            .send({ email: 'pay-seller@example.com', password: 'Strong123@' })
+            .expect(201)
+        sellerAccessToken = sellerLoginRes.body.accessToken
+
         // Create product
         const mediaType = await prisma.mediaType.findFirst({ where: { name: 'GAME' } });
         const productRes = await request(app.getHttpServer())
             .post('/products')
-            .set('user-id', sellerId)
+            .set('Authorization', `Bearer ${sellerAccessToken}`)
             .send({
                 name: 'Payment Test Product',
                 price: 19.99,
@@ -74,7 +82,7 @@ describe('Payment', () => {
         // Add to cart
         await request(app.getHttpServer())
             .post('/cart')
-            .set('user-id', userId)
+            .set('Authorization', `Bearer ${accessToken}`)
             .send({ productId: productRes.body.id, amount: 1 })
             .expect(201)
 

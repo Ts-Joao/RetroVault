@@ -144,7 +144,7 @@ export class UsersService {
     try {
       const findUser = await this.getById(userId);
 
-      if (tokenPayload.sub !== userId) {
+      if (tokenPayload.sub !== userId && tokenPayload.role !== 'ADMIN') {
         throw new ForbiddenException(
           'You are not authorized to update this user!',
         );
@@ -185,7 +185,7 @@ export class UsersService {
     try {
       const user = await this.getById(userId);
 
-      if (tokenPayload.sub !== user.id || tokenPayload.role !== 'ADMIN') {
+      if (tokenPayload.sub !== user.id && tokenPayload.role !== 'ADMIN') {
         throw new ForbiddenException(
           'You are not authorized to delete this user!',
         );
@@ -215,7 +215,7 @@ export class UsersService {
 
   async updateRefreshToken(userId: string, refreshToken: string | null) {
     try {
-      const user = await this.getByEmail(userId);
+      const user = await this.getById(userId);
 
       if (!refreshToken) {
         const deleteRefreshToken = await this.databaseService.user.update({

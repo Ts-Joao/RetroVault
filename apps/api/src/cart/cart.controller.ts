@@ -7,6 +7,7 @@ import {
     Param,
     UseGuards,
     ParseUUIDPipe,
+    Patch,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { AddItemDto } from './dto/add.item.dto';
@@ -32,9 +33,18 @@ export class CartController {
         return this.cartService.addItem(user.sub, dto);
     }
 
+    @Patch(':cartItemId')
+    updateItem(
+        @Param('cartItemId') cartItemId: string,
+        @Body() dto: { amount: number },
+        @TokenPayloadParam() user: PayloadDto
+    ) {
+        return this.cartService.updateItemAmount(user.sub, cartItemId, dto.amount);
+    }
+
     @Delete(':cartId')
     removeItem(
-        @Param('cartId', ParseUUIDPipe) cartId: string,
+        @Param('cartId') cartId: string,
         @Body() itemId: {id: string},
         @TokenPayloadParam() user: PayloadDto
     ) {
@@ -43,7 +53,7 @@ export class CartController {
 
     @Delete('clear/:cartId')
     clearCart(
-        @Param('cartId', ParseUUIDPipe) cartId: string,
+        @Param('cartId') cartId: string,
         @TokenPayloadParam() user: PayloadDto,
     ) {
         return this.cartService.clearCart(user, cartId);

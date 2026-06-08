@@ -68,7 +68,7 @@ export class WalletService {
 
     await tx.walletTransaction.create({
       data: {
-        type: 'WITHDRAWAL',
+        type: 'DEPOSIT',
         amount: order.totalAmount,
         description: `Estorno do pedido #${order.id}`,
         walletId: wallet.id,
@@ -100,7 +100,7 @@ export class WalletService {
 
     await tx.walletTransaction.create({
       data: {
-        type: 'DEPOSIT',
+        type: 'WITHDRAWAL',
         amount: totalAmount,
         description: 'Pagamento do pedido',
         walletId: wallet.id,

@@ -44,7 +44,7 @@ export class UsersController {
     return this.usersService.getByEmail(email);
   }
 
-  @UseGuards(AuthTokenGuard, SelfGuard || AdminGuard)
+  @UseGuards(AuthTokenGuard, SelfGuard)
   @Patch(':id')
   updateUser(
     @Param('id', ParseUUIDPipe) id: string,
@@ -64,7 +64,7 @@ export class UsersController {
     return this.usersService.updateRole(id, updateRole, tokenPayload);
   }
 
-  @UseGuards(AuthTokenGuard, SelfGuard || AdminGuard)
+  @UseGuards(AuthTokenGuard, SelfGuard)
   @Delete(':id')
   deleteUser(@Param('id', ParseUUIDPipe) id: string, @TokenPayloadParam() tokenPayload: PayloadDto) {
     return this.usersService.delete(id, tokenPayload);

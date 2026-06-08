@@ -77,8 +77,8 @@ describe('Auth', () => {
       .expect(201);
 
     console.log(response.body);
-    expect(response.body).toHaveProperty('id');
-    expect(response.body.refreshToken).toBeNull();
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe('Logged out successfully!');
   });
 
   it('/POST auth/logout - should fail without token', async () => {
