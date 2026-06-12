@@ -13,6 +13,7 @@ import { CurrentUser } from './decorator/current-user.decorator';
 import type { Response, Request } from 'express';
 import { PayloadDto } from './dto/payload.dto';
 import { AuthTokenGuard } from './guard/auth-token.guard';
+import { RefreshGuard } from './guard/refresh.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -43,7 +44,7 @@ export class AuthController {
 
     @Post('refresh')
     @UseGuards(RefreshGuard)
-    async refresh(@CurrentUser() user: JwtPayload) {
+    async refresh(@CurrentUser() user: PayloadDto) {
         return this.authService.generateToken(user.sub, user.email, user.role)
     }
 
