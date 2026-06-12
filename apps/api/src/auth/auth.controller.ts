@@ -13,6 +13,7 @@ import { CurrentUser } from './decorator/current-user.decorator';
 import type { Response, Request } from 'express';
 import { PayloadDto } from './dto/payload.dto';
 import { AuthTokenGuard } from './guard/auth-token.guard';
+import { RefreshGuard } from './guard/refresh.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -41,22 +42,11 @@ export class AuthController {
     return user.sub;
   }
 
-  @Post('refresh')
-  async refresh(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const { accessToken, refreshToken: newRefreshToken } = await this.authService.refresh(req.cookies?.refresh_token);
-
-    res.cookie('refresh_token', newRefreshToken, {
-      httpOnly: true,
-      sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production',
-      path: '/api/auth/refresh'
-    });
-
-    return { message: 'Token refreshed successfully!', accessToken };
-  }
+    @Post('refresh')
+    @UseGuards(RefreshGuard)
+    async refresh(@CurrentUser() user: PayloadDto) {
+        return this.authService.generateToken(user.sub, user.email, user.role)
+    }
 
   @Post('logout')
   @UseGuards(AuthTokenGuard)

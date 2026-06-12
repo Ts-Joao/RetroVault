@@ -11,6 +11,7 @@ import {
 import { UploadService } from './upload.service';
 import { ProfilePhotoInterceptor } from './interceptors/profile-photo.interceptor';
 import { ProductPhotoInterceptor } from './interceptors/product-photo.interceptor';
+import { UploadedFiles } from '@nestjs/common';
 
 @Controller('uploads')
 export class UploadController {
@@ -20,9 +21,9 @@ export class UploadController {
     @UseInterceptors(ProfilePhotoInterceptor)
     uploadProfile(
         @Headers('user-id') userId: string,
-        @UploadedFile() file: Express.Multer.File,
+        @UploadedFile() files: Express.Multer.File,
     ) {
-        return this.uploadService.uploadProfilePhoto(userId, file);
+        return this.uploadService.uploadProfilePhoto(userId, files);
     }
 
     @Get('profile')
@@ -35,15 +36,21 @@ export class UploadController {
         return this.uploadService.deleteProfilePhoto(userId);
     }
 
-    @Post('products/:productId')
-    @UseInterceptors(ProductPhotoInterceptor)
-    uploadProductphoto(
-        @Headers('user-id') userId: string,
-        @Param('productId') productId: string,
-        @UploadedFile() file: Express.Multer.File
-    ) {
-        return this.uploadService.uploadProductPhoto(userId, productId, file)
-    }
+   @Post('products/:productId')
+@UseInterceptors(ProductPhotoInterceptor)
+uploadProductphoto(
+    @Headers('user-id') userId: string,
+    @Param('productId') productId: string,
+    @UploadedFiles() files: Express.Multer.File[],
+) {
+    console.log(files);
+
+    return this.uploadService.uploadProductPhoto(
+        userId,
+        productId,
+        files,
+    );
+}
 
     @Get('products/:productId')
     getProductPhotos(@Param('productId') productId: string) {
