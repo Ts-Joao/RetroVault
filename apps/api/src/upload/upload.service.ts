@@ -46,9 +46,11 @@ export class UploadService {
     async uploadProductPhoto(
         userId: string,
         productId: string,
-        file: Express.Multer.File
+        files: Express.Multer.File[]
     ) {
-        validateImageFile(file);
+        if (!files || files.length === 0) {
+            throw new NotFoundException('No files uploaded');
+        }
 
         const product = await this.db.product.findUnique({
             where: { id: productId },
@@ -64,11 +66,17 @@ export class UploadService {
             );
         }
 
-        const url = `./uploads/products/${file.filename}`;
+        const photos: any[] = [];
+        for (const file of files) {
+            validateImageFile(file);
+            const url = `./uploads/products/${file.filename}`;
+            const created = await this.db.productPhoto.create({
+                data: { productId, url },
+            });
+            photos.push(created);
+        }
 
-        return this.db.productPhoto.create({
-            data: { productId, url },
-        });
+        return photos;
     }
 
     async deleteProductPhoto(userId: string, photoId: string) {

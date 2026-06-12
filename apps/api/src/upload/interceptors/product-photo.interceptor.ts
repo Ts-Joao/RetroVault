@@ -14,7 +14,7 @@ export const ProductPhotoInterceptor = FilesInterceptor(
         const uniqueSuffix =
           `${Date.now()}-${Math.random() * 1e9}`;
 
-            callback(null, `$products-${uniqueSuffix}${extension}`)
+            cb(null, `products-${uniqueSuffix}${extension}`)
         },
     }),
   },
