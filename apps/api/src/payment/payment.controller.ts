@@ -1,6 +1,6 @@
 import { Controller, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { PaymentService } from './payment.service';
-import { AuthGuard } from '@nestjs/passport';
+import { AuthTokenGuard } from 'src/auth/guard/auth-token.guard';
 import { CurrentUser } from 'src/auth/decorator/current-user.decorator';
 
 @Controller('payment')
@@ -8,9 +8,9 @@ export class PaymentController {
     constructor(private readonly paymentService: PaymentService) { }
 
     @Post('simulation/:orderId')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthTokenGuard)
     async simulation(@Param('orderId') orderId: string, @CurrentUser() user: any) {
-        return this.paymentService.simulation(orderId, user.id);
+        return this.paymentService.simulation(orderId, user.sub);
     }
 
     @Patch('confirmation/:token')

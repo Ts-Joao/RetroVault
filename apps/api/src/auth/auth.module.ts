@@ -2,25 +2,46 @@ import { forwardRef, Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from 'src/users/users.module';
-import { JwtStrategy } from './jwt/jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigType } from '@nestjs/config';
 import { RolesGuard } from './guard/roles.guard';
-import { SelfOrAdminGuard } from './guard/owner-or-admin.guard';
+import { SelfGuard } from './guard/self-guard.guard';
+import { BcryptService } from './hash/bcrypt.service';
+import { HashingServiceProtocol } from './hash/hashing.service';
+import jwtConfig from './config/jwt.config';
+import { AuthTokenGuard } from './guard/auth-token.guard';
 
 @Module({
   imports: [
     forwardRef(() => UsersModule),
+    ConfigModule.forFeature(jwtConfig), // <-- adiciona isso
     JwtModule.registerAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_ACCESS_SECRET'),
-        signOptions: { expiresIn: '10m' }
+      imports: [ConfigModule.forFeature(jwtConfig)], // <-- e aqui também
+      inject: [jwtConfig.KEY],
+      useFactory: (config: ConfigType<typeof jwtConfig>) => ({
+        secret: config.secret,
+        signOptions: { expiresIn: 3600 },
       }),
     }),
   ],
-  providers: [AuthService, JwtStrategy, RolesGuard, SelfOrAdminGuard],
+  providers: [
+    AuthService,
+    RolesGuard,
+    SelfGuard,
+    {
+      provide: HashingServiceProtocol,
+      useClass: BcryptService
+    },
+    AuthTokenGuard
+  ],
   controllers: [AuthController],
-  exports: [JwtModule, JwtStrategy, RolesGuard, SelfOrAdminGuard]
+  exports: [
+    JwtModule,
+    RolesGuard,
+    SelfGuard,
+    HashingServiceProtocol,
+    AuthService,
+    AuthTokenGuard
+  ],
 })
-export class AuthModule { }
+export class AuthModule {}

@@ -1,35 +1,35 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateProductDto } from './dto/create.product.dto';
 import { UpdateProductDto } from './dto/update.product.dto';
- 
+
 @Injectable()
 export class ProductService {
     constructor(private readonly databaseService: DatabaseService) {}
- 
+
     async create(createProductDto: CreateProductDto, sellerId: string) {
         try {
             const findSeller = await this.databaseService.user.findUnique({
                 where: { id: sellerId }
             });
- 
+
             if (!findSeller) {
                 throw new NotFoundException('Seller not found');
             }
- 
+
             if (findSeller.role != 'SELLER') {
                 throw new UnauthorizedException('User is not a seller');
             }
- 
+
             const newProduct = await this.databaseService.product.create({
                 data: {
                     ...createProductDto,
                     sellerId: sellerId
-                },
-                include: {
-                    photos: true,
-                    seller: { select: { id: true, name: true } },
-                    mediaType: true,
                 }
             });
             return newProduct;
@@ -38,22 +38,15 @@ export class ProductService {
             throw err
         };
     }
- 
+
     async get() {
         try {
             const findProduct = await this.databaseService.product.findMany({
                 where: {
                     isActive: true
-                },
-                include: {
-                    photos: true,
-                    seller: { select: { id: true, name: true } },
-                    mediaType: true,
                 }
             })
 
-                console.log(JSON.stringify(findProduct, null, 2));
- 
             return findProduct;
         } catch (err) {
             throw new HttpException (
@@ -62,19 +55,13 @@ export class ProductService {
             )
         };
     }
- 
+
     async getById(id: string) {
         try {
             const findProduct = await this.databaseService.product.findUnique({
-                where: { id },
-                include: {
-                    photos: true,
-                    seller: { select: { id: true, name: true } },
-                    mediaType: true,
-                    genre: true,
-                }
+                where: { id }
             });
- 
+
             if (!findProduct) {
                 throw new NotFoundException('Product not found');
             }
@@ -86,27 +73,22 @@ export class ProductService {
             )
         };
     }
- 
+
     async update(id: string, UpdateProductDto: UpdateProductDto) {
         try {
             const findProduct = await this.databaseService.product.findUnique({
                 where: { id }
             });
- 
+
             if (!findProduct) {
                 throw new NotFoundException('Product not found');
             }
             
             const updateProduct = await this.databaseService.product.update({
                 where: { id },
-                data: UpdateProductDto,
-                include: {
-                    photos: true,
-                    seller: { select: { id: true, name: true } },
-                    mediaType: true,
-                }
+                data: UpdateProductDto
             });
- 
+
             return updateProduct;
         } catch (err) {
             throw new HttpException(
@@ -115,22 +97,22 @@ export class ProductService {
             )
         };
     }
- 
+
     async softDelete(id: string) {
         try {
             const findProduct = await this.databaseService.product.findUnique({
                 where: { id }
             });
- 
+
             if (!findProduct) {
                 throw new NotFoundException('Product not found');
             }
- 
+
             const softDeleteProduct = await this.databaseService.product.update({
                 where: { id },
                 data: { isActive: false }
             });
- 
+
             return softDeleteProduct;
         } catch (err) {
             throw new HttpException(
@@ -139,21 +121,21 @@ export class ProductService {
             )
         };
     }
- 
+
     async delete(id: string) {
         try {
             const findProduct = await this.databaseService.product.findUnique({
                 where: { id }
             });
- 
+
             if (!findProduct) {
                 throw new NotFoundException('Product not fund');
             }
- 
+
             const deleteProduct = await this.databaseService.product.delete({
                 where: { id }
             });
- 
+
             return deleteProduct;
         }catch (err) {
             throw new HttpException(

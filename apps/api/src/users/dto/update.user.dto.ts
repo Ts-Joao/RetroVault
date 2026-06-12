@@ -6,4 +6,8 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
     @IsOptional()
     @IsString({ message: 'PhotoUrl must be a string' })
     readonly photoUrl?: string
+
+    @IsOptional()
+    @IsString()
+    readonly refreshToken?: string
 }
