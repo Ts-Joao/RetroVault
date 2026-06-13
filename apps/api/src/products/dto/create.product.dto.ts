@@ -1,28 +1,36 @@
-import {
-    IsString,
-    IsNotEmpty,
-    IsNumber,
-    IsDate,
-} from 'class-validator';
+import { IsOptional, IsArray, IsString, IsNumber, IsNotEmpty } from 'class-validator';
 
 export class CreateProductDto {
-    @IsString({ message: 'the name to be a have string'})
-    @IsNotEmpty({ message: 'name is required'})
-    readonly name: string;
+  @IsString()
+  @IsNotEmpty()
+  readonly name: string;
 
-    @IsNumber()
-    @IsNotEmpty({ message: 'price is required'})
-    readonly price: number;
+  @IsNumber()
+  @IsNotEmpty()
+  readonly price: number;
 
-    @IsString({ message: 'the description to be a have string'})
-    @IsNotEmpty({ message: 'description is required'})
-    readonly description: string;
+  @IsString()
+  @IsNotEmpty()
+  readonly description: string;
 
-    @IsNumber()
-    @IsNotEmpty({ message: 'amount is required'})
-    readonly amount: number;
+  @IsNumber()
+  @IsNotEmpty()
+  readonly amount: number;
 
-    @IsNumber()
-    @IsNotEmpty({ message: 'media type is required'})
-    readonly mediaTypeId: number;
+  @IsNumber()
+  @IsNotEmpty()
+  readonly mediaTypeId: number;
+
+  @IsNumber()
+  @IsOptional()
+  readonly maxInstallments?: number;
+
+  @IsNumber()
+  @IsOptional()
+  readonly freeInstallments?: number;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  readonly genres?: string[]; // array de nomes de gênero
 }

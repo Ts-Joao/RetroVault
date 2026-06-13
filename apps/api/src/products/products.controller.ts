@@ -34,6 +34,11 @@ export class ProductsController {
     return this.productsService.get();
   }
 
+  @Get('media-types')
+async getMediaTypes() {
+  return this.productsService.getMediaTypes();
+}
+
   @Get(':productId')
   getProductById(@Param('productId') productId: string) {
     return this.productsService.getById(productId);

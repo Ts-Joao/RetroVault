@@ -1,58 +1,79 @@
-
 "use client";
- 
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { jwtDecode } from "jwt-decode";
-import { MdPerson } from "react-icons/md"; 
+import { MdPerson } from "react-icons/md";
 import { FaLock } from "react-icons/fa";
 
+interface JwtPayload {
+  name: string;
+  role: "SELLER" | "ADMIN";
+  sub: string;
+  exp: number;
+}
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
- 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
- 
+  const [error, setError] = useState("");
+
+async function handleLogin(e: React.FormEvent) {
+  e.preventDefault();
+  setLoading(true);
+  setError("");
+
+  try {
     const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
+      credentials: "include", // necessário para receber o cookie do refresh_token
     });
- 
+
     if (!response.ok) {
-      alert("Credenciais inválidas");
-      setLoading(false);
+      const body = await response.json().catch(() => ({}));
+      setError(body?.message || "Credenciais inválidas");
       return;
     }
- 
+
     const data = await response.json();
-    const token = data.acess_token;
- 
+
+    // backend retorna "accessToken" agora (não mais "acess_token")
+    const token = data.accessToken;
+
+    if (!token) {
+      setError("Resposta inválida do servidor");
+      return;
+    }
+
     localStorage.setItem("token", token);
-    localStorage.setItem("refresh_token", data.refresh_token); 
- 
-    const decoded: any = jwtDecode(token);
-    localStorage.setItem("userName", decoded.name);
- 
-    const role = decoded.role;
- 
-    if (role === "SELLER") {
+    // refresh_token agora vem em cookie HttpOnly, não precisa salvar manualmente
+
+    const decoded = jwtDecode<{ sub: string; email: string; role: string }>(token);
+    console.log("JWT decoded:", decoded);
+
+    // name não está no JWT, salva o email como identificador
+    localStorage.setItem("userEmail", decoded.email);
+    localStorage.setItem("userId", decoded.sub);
+
+    if (decoded.role === "SELLER") {
       router.push("/Painel-seller");
-    } else if (role === "ADMIN") {
+    } else if (decoded.role === "ADMIN") {
       router.push("/Painel-adm");
     } else {
-      alert("Você não possui acesso");
+      setError(`Perfil sem acesso: ${decoded.role}`);
       localStorage.removeItem("token");
     }
- 
+  } catch (err) {
+    console.error("Erro no login:", err);
+    setError("Erro de conexão com o servidor");
+  } finally {
     setLoading(false);
   }
- 
+}
   return (
 <div className="flex h-screen w-screen bg-[#261F1A] font-serif">
   <div

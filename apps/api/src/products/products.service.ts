@@ -20,88 +20,116 @@ export class ProductService {
   ) {}
 
   async create(createProductDto: CreateProductDto, sellerId: string) {
-    try {
-      const findSeller = await this.databaseService.user.findUnique({
-        where: { id: sellerId },
-      });
+  try {
+    const findSeller = await this.databaseService.user.findUnique({
+      where: { id: sellerId },
+    });
 
-      if (!findSeller) {
-        throw new NotFoundException('Seller not found');
-      }
+    if (!findSeller) throw new NotFoundException('Seller not found');
+    if (findSeller.role !== 'SELLER') throw new UnauthorizedException('User is not a seller');
 
-      if (findSeller.role !== 'SELLER') {
-        throw new UnauthorizedException('User is not a seller');
-      }
+    const slug = await this.slugService.generateSlug(createProductDto.name, 'product');
 
-      const slug = await this.slugService.generateSlug(createProductDto.name, 'product');
+    const { genres, ...productData } = createProductDto;
 
-      const newProduct = await this.databaseService.product.create({
-        data: {
-          ...createProductDto,
-          sellerId: sellerId,
-          slug,
-        },
-      });
-      return newProduct;
-    } catch (err) {
-      if (err instanceof HttpException) throw err;
-      console.error('Erro ao criar produto');
-      throw new InternalServerErrorException('Error creating product!');
-    }
+    const newProduct = await this.databaseService.product.create({
+      data: {
+        ...productData,
+        sellerId,
+        slug,
+        ...(genres && genres.length > 0
+          ? {
+              genre: {
+                connectOrCreate: genres.map((name) => ({
+                  where: { name },
+                  create: { name },
+                })),
+              },
+            }
+          : {}),
+      },
+      include: { photos: true, genre: true },
+    });
+
+    return newProduct;
+  } catch (err) {
+    if (err instanceof HttpException) throw err;
+    console.error('Erro ao criar produto:', err);
+    throw new InternalServerErrorException('Error creating product!');
   }
+}
 
-  async get() {
-    try {
-      const findProduct = await this.databaseService.product.findMany({
-        where: { isActive: true },
-      });
-      return findProduct;
-    } catch (err) {
-      if (err instanceof HttpException) throw err;
-      throw new InternalServerErrorException('Error getting products!');
-    }
+async get() {
+  try {
+    return await this.databaseService.product.findMany({
+      where: { isActive: true },
+      include: {
+        photos: true,
+        seller: { select: { id: true, name: true } },
+      },
+    });
+  } catch (err) {
+    if (err instanceof HttpException) throw err;
+    throw new InternalServerErrorException('Error getting products!');
   }
+}
 
-  async getById(id: string) {
-    try {
-      const findProduct = await this.databaseService.product.findUnique({
-        where: { id },
-      });
+async getMediaTypes() {
+  return this.databaseService.mediaType.findMany();
+}
 
-      if (!findProduct) {
-        throw new NotFoundException('Product not found');
-      }
-      return findProduct;
-    } catch (err) {
-      if (err instanceof HttpException) throw err;
-      throw new InternalServerErrorException('Error finding product');
-    }
+async getById(id: string) {
+  try {
+    const findProduct = await this.databaseService.product.findUnique({
+      where: { id },
+      include: {
+        photos: true,
+        seller: { select: { id: true, name: true } },
+        mediaType: true,
+        genre: true,
+      },
+    });  // <-- correto
+
+    if (!findProduct) throw new NotFoundException('Product not found');
+    return findProduct;
+  } catch (err) {
+    if (err instanceof HttpException) throw err;
+    throw new InternalServerErrorException('Error finding product');
   }
+}
 
-  async getActiveProductsBySellerId(sellerId: string) {
-    try {
-      return this.databaseService.product.findMany({
-        where: { sellerId, isActive: true },
-      });
-    } catch (err) {
-      if (err instanceof HttpException) throw err;
-      throw new InternalServerErrorException('Error getting seller products!');
-    }
+async getActiveProductsBySellerId(sellerId: string) {
+  try {
+    return this.databaseService.product.findMany({
+      where: { sellerId, isActive: true },
+      include: {
+        photos: true,
+        seller: { select: { id: true, name: true } },
+      },
+    });
+  } catch (err) {
+    if (err instanceof HttpException) throw err;
+    throw new InternalServerErrorException('Error getting seller products!');
   }
+}
 
-  async getAllProductsBySellerId(sellerId: string, payload: PayloadDto) {
-    try {
-      if (payload.sub !== sellerId && payload.role !== 'ADMIN') {
-        throw new UnauthorizedException('Not authorized to view these products');
-      }
-      return this.databaseService.product.findMany({
-        where: { sellerId },
-      });
-    } catch (err) {
-      if (err instanceof HttpException) throw err;
-      throw new InternalServerErrorException('Error getting seller products!');
+async getAllProductsBySellerId(sellerId: string, payload: PayloadDto) {
+  try {
+    if (payload.sub !== sellerId && payload.role !== 'ADMIN') {
+      throw new UnauthorizedException('Not authorized to view these products');
     }
+    return this.databaseService.product.findMany({
+      where: { sellerId },
+      include: {
+        photos: true,
+        seller: { select: { id: true, name: true } },
+      },
+    });
+  } catch (err) {
+    if (err instanceof HttpException) throw err;
+    throw new InternalServerErrorException('Error getting seller products!');
   }
+}
 
   async update(id: string, updateProductDto: UpdateProductDto, payload?: PayloadDto) {
     try {

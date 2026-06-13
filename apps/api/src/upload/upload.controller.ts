@@ -5,52 +5,55 @@ import {
     Get,
     Param,
     UploadedFile,
+    UploadedFiles,
     UseInterceptors,
-    Headers,
+    UseGuards,
 } from '@nestjs/common';
 import { UploadService } from './upload.service';
 import { ProfilePhotoInterceptor } from './interceptors/profile-photo.interceptor';
 import { ProductPhotoInterceptor } from './interceptors/product-photo.interceptor';
-import { UploadedFiles } from '@nestjs/common';
+import { AuthTokenGuard } from 'src/auth/guard/auth-token.guard';
+import { TokenPayloadParam } from 'src/auth/param/token-payload.param';
+import { PayloadDto } from 'src/auth/dto/payload.dto';
 
 @Controller('uploads')
 export class UploadController {
-    constructor(private readonly uploadService: UploadService) { }
+    constructor(private readonly uploadService: UploadService) {}
 
     @Post('profile')
+    @UseGuards(AuthTokenGuard)
     @UseInterceptors(ProfilePhotoInterceptor)
     uploadProfile(
-        @Headers('user-id') userId: string,
-        @UploadedFile() files: Express.Multer.File,
+        @TokenPayloadParam() payload: PayloadDto,
+        @UploadedFile() file: Express.Multer.File,
     ) {
-        return this.uploadService.uploadProfilePhoto(userId, files);
+        return this.uploadService.uploadProfilePhoto(payload.sub, file);
     }
 
     @Get('profile')
-    getProfilesPhoto(@Headers('user-id') userId: string) {
-        return this.uploadService.getProfilePhoto(userId);
+    @UseGuards(AuthTokenGuard)
+    getProfilesPhoto(@TokenPayloadParam() payload: PayloadDto) {
+        return this.uploadService.getProfilePhoto(payload.sub);
     }
 
     @Delete('profile')
-    deleteProfilePhoto(@Headers('user-id') userId: string) {
-        return this.uploadService.deleteProfilePhoto(userId);
+    @UseGuards(AuthTokenGuard)
+    deleteProfilePhoto(@TokenPayloadParam() payload: PayloadDto) {
+        return this.uploadService.deleteProfilePhoto(payload.sub);
     }
 
-   @Post('products/:productId')
-@UseInterceptors(ProductPhotoInterceptor)
-uploadProductphoto(
-    @Headers('user-id') userId: string,
-    @Param('productId') productId: string,
-    @UploadedFiles() files: Express.Multer.File[],
-) {
-    console.log(files);
-
-    return this.uploadService.uploadProductPhoto(
-        userId,
-        productId,
-        files,
-    );
-}
+    @Post('products/:productId')
+    @UseGuards(AuthTokenGuard)
+    @UseInterceptors(ProductPhotoInterceptor)
+    uploadProductPhoto(
+        @TokenPayloadParam() payload: PayloadDto,
+        @Param('productId') productId: string,
+        @UploadedFiles() files: Express.Multer.File[],
+    ) {
+        console.log('userId:', payload.sub);
+        console.log('files:', files);
+        return this.uploadService.uploadProductPhoto(payload.sub, productId, files);
+    }
 
     @Get('products/:productId')
     getProductPhotos(@Param('productId') productId: string) {
@@ -58,10 +61,11 @@ uploadProductphoto(
     }
 
     @Delete('photo/:photoId')
+    @UseGuards(AuthTokenGuard)
     deleteProductPhoto(
-        @Headers('user-id') userId: string,
+        @TokenPayloadParam() payload: PayloadDto,
         @Param('photoId') photoId: string,
     ) {
-        return this.uploadService.deleteProductPhoto(userId, photoId);
+        return this.uploadService.deleteProductPhoto(payload.sub, photoId);
     }
-} 
+}
