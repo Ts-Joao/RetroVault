@@ -14,11 +14,21 @@ import type { Response, Request } from 'express';
 import { PayloadDto } from './dto/payload.dto';
 import { AuthTokenGuard } from './guard/auth-token.guard';
 import { RefreshGuard } from './guard/refresh.guard';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @ApiOperation({ summary: 'Login user' })
+  @ApiBody({ type: LoginDto })
+  @ApiResponse({ status: 200, description: 'User logged in successfully' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @Post('login')
   async login(
     @Body() loginDto: LoginDto,
@@ -36,18 +46,29 @@ export class AuthController {
     return { message: 'Logged in successfully!', accessToken };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user' })
+  @ApiResponse({ status: 200, description: 'User found successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Get('me')
   @UseGuards(AuthTokenGuard)
   me(@CurrentUser() user: PayloadDto) {
     return user.sub;
   }
 
-    @Post('refresh')
-    @UseGuards(RefreshGuard)
-    async refresh(@CurrentUser() user: PayloadDto) {
-        return this.authService.generateToken(user.sub, user.email, user.role)
-    }
+  @ApiOperation({ summary: 'Refresh token' })
+  @ApiResponse({ status: 200, description: 'Token refreshed successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @Post('refresh')
+  @UseGuards(RefreshGuard)
+  async refresh(@CurrentUser() user: PayloadDto) {
+    return this.authService.generateToken(user.sub, user.email, user.role)
+  }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Logout user' })
+  @ApiResponse({ status: 200, description: 'User logged out successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Post('logout')
   @UseGuards(AuthTokenGuard)
   async logout(
