@@ -1,27 +1,27 @@
-import type { ProductPhoto } from "./productPhoto"
+import type { ProductPhoto } from "./productPhoto";
 
 export interface Product {
-    id: string
-    name: string
-    slug?: string
-    description?: string
-    amount?: number
-    comments?: string
-    price: number
-    photos?: ProductPhoto[]
-    sellerId: string
-    rating: number
-    max_installments: number
-    free_installments: number
-    monthly_interest_rate: number
-    min_installment_amount: number
-    shipping_cost: number
-    type?: string[]
-    genre?: string[]
+  id: string;
+  name: string;
+  slug?: string;
+  description?: string;
+  amount?: number;
+  comments?: string;
+  price: number;
+  photos?: ProductPhoto[];
+  sellerId: string;
+  rating: number;
+  max_installments: number;
+  free_installments: number;
+  monthly_interest_rate: number;
+  min_installment_amount: number;
+  shipping_cost: number;
+  type?: string[];
+  genre?: string[];
 }
 
 export interface ProductDetails extends Product {
-    description: string
-    amount: number
-    comments: string
+  description: string;
+  amount: number;
+  comments: string;
 }

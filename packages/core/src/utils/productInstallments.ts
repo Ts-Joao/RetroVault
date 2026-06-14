@@ -1,8 +1,11 @@
-import type { Product } from "../types/product"
-import type { Installment } from "../types/installments"
-import { calculeCartInstallments } from "./installmentsUtils"
+import type { Product } from "../types/product";
+import type { Installment } from "../types/installments";
+import { calculeCartInstallments } from "./installmentsUtils";
 
-export function getProductInstallments(product: Product, quantity = 1): Installment[] {
+export function getProductInstallments(
+  product: Product,
+  quantity = 1,
+): Installment[] {
   return calculeCartInstallments([
     {
       price: product.price,
@@ -12,11 +15,14 @@ export function getProductInstallments(product: Product, quantity = 1): Installm
       min_installment_amount: product.min_installment_amount,
       monthly_interest_rate: product.monthly_interest_rate,
     },
-  ])
+  ]);
 }
 
-export function getBestProductInstallment(product: Product, quantity = 1): Installment {
-  const installments = getProductInstallments(product, quantity)
+export function getBestProductInstallment(
+  product: Product,
+  quantity = 1,
+): Installment {
+  const installments = getProductInstallments(product, quantity);
   return (
     installments.at(-1) ?? {
       amount: 1,
@@ -27,5 +33,5 @@ export function getBestProductInstallment(product: Product, quantity = 1): Insta
       label: `1x de R$ ${product.price}`,
       sublabel: "",
     }
-  )
+  );
 }

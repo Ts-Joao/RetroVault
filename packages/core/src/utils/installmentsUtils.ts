@@ -1,48 +1,54 @@
-import { Installment, InstallmentProduct } from '../types/installments';
-import { formatPrice } from './formatPrice';
+import { Installment, InstallmentProduct } from "../types/installments";
+import { formatPrice } from "./formatPrice";
 
-export function calculeCartInstallments(items: InstallmentProduct[], totalOverride?: number): Installment[] {
-    if (items.length === 0) return []
-    
-    const total = totalOverride ?? items.reduce((acc, item) => acc + item.price * item.quantity, 0)
+export function calculeCartInstallments(
+  items: InstallmentProduct[],
+  totalOverride?: number,
+): Installment[] {
+  if (items.length === 0) return [];
 
-    const maxIntallments = Math.min(...items.map((i) => i.max_installments))
-    const freeUnits = Math.max(...items.map((i) => i.free_installments))
-    const minAmount = Math.max(...items.map((i) => i.min_installment_amount))
+  const total =
+    totalOverride ??
+    items.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-    const monthlyRate = items.reduce((a, b) =>
-        b.price > a.price ? b : a
-    ).monthly_interest_rate
+  const maxIntallments = Math.min(...items.map((i) => i.max_installments));
+  const freeUnits = Math.max(...items.map((i) => i.free_installments));
+  const minAmount = Math.max(...items.map((i) => i.min_installment_amount));
 
-    const results: Installment[] = []
+  const monthlyRate = items.reduce((a, b) =>
+    b.price > a.price ? b : a,
+  ).monthly_interest_rate;
 
-    for (let i = 1; i <= maxIntallments; i++) {
-        const hasInterest = i > freeUnits
+  const results: Installment[] = [];
 
-        let installmentAmount: number
-        let totalAmount: number
+  for (let i = 1; i <= maxIntallments; i++) {
+    const hasInterest = i > freeUnits;
 
-        if (!hasInterest) {
-            installmentAmount = total / i
-            totalAmount = total
-        } else {
-            const r = monthlyRate
-            installmentAmount = (total * r * Math.pow(1 + r, i)) / (Math.pow(1 + r, i) - 1)
-            totalAmount = installmentAmount * i
-        }
+    let installmentAmount: number;
+    let totalAmount: number;
 
-        if (installmentAmount < minAmount ) break;
-
-        results.push({
-            amount: i,
-            installments: i,
-            installment_amount: Number(installmentAmount.toFixed(2)),
-            total_amount: Number(totalAmount.toFixed(2)),
-            has_Interest: hasInterest,
-            label: `${i}x de R$ ${formatPrice(installmentAmount)}${hasInterest ? " com juros" : " sem juros"}`,
-            sublabel: hasInterest ? `Total: R$ ${formatPrice(totalAmount)}` : "",
-        })
+    if (!hasInterest) {
+      installmentAmount = total / i;
+      totalAmount = total;
+    } else {
+      const r = monthlyRate;
+      installmentAmount =
+        (total * r * Math.pow(1 + r, i)) / (Math.pow(1 + r, i) - 1);
+      totalAmount = installmentAmount * i;
     }
 
-    return results
+    if (installmentAmount < minAmount) break;
+
+    results.push({
+      amount: i,
+      installments: i,
+      installment_amount: Number(installmentAmount.toFixed(2)),
+      total_amount: Number(totalAmount.toFixed(2)),
+      has_Interest: hasInterest,
+      label: `${i}x de R$ ${formatPrice(installmentAmount)}${hasInterest ? " com juros" : " sem juros"}`,
+      sublabel: hasInterest ? `Total: R$ ${formatPrice(totalAmount)}` : "",
+    });
+  }
+
+  return results;
 }
