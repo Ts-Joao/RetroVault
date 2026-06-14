@@ -22,7 +22,8 @@ model User {
   products     Product[]
   profilePic   ProfilePhoto?
   wallet       Wallet?
-   favorites Favorite[]
+  favorites    Favorite[]
+  reviews      Review[]
 
   @@map("users")
 }
@@ -90,7 +91,8 @@ model Product {
   mediaType            MediaType      @relation(fields: [mediaTypeId], references: [id])
   seller               User           @relation(fields: [sellerId], references: [id])
   genre                Genre[]        @relation("GenreToProduct")
-  favoritedBy Favorite[] 
+  favoritedBy          Favorite[] 
+  reviews              Review[]
 
   @@index([name])
   @@index([mediaTypeId])
@@ -99,6 +101,21 @@ model Product {
   @@index([rating])
   @@index([viewCount])
   @@map("products")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int      
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt      @map("updated_at")
+
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String   @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("reviews")
 }
 
 model ProductView {
