@@ -4,6 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCartStore } from '@retrovault/store';
 import { CartItem, formatPrice } from '@retrovault/core';
+import { getProductImage } from '@/lib/productImages';
 
 const DRAWER_WIDTH = Dimensions.get('window').width * 0.75;
 
@@ -14,7 +15,7 @@ interface Props {
 
 export default function CartDrawer({ visible, onClose }: Props) {
   const translateX = useRef(new Animated.Value(DRAWER_WIDTH)).current;
-  const { items, increment, decrement, total } = useCartStore();
+  const { items, increment, decrement, computeTotal } = useCartStore();
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
@@ -29,7 +30,7 @@ export default function CartDrawer({ visible, onClose }: Props) {
     <View className="flex-row items-center gap-3 py-3 border-b border-gray-100">
       <View className='flex justify-center items-center h-20 w-20 bg-white'>
         <Image
-          source={item.product.photo as any}
+          source={getProductImage(item.product)}
           style={{ width: '100%', height: '100%' }}
           resizeMode="contain"
         />
@@ -103,7 +104,7 @@ export default function CartDrawer({ visible, onClose }: Props) {
                 <View className="flex-row justify-between items-center">
                   <Text className="text-gray-500 text-sm font-chakra">Total</Text>
                   <Text className="text-primary font-bold text-lg font-chakra">
-                    R$ {formatPrice(total())}
+                    R$ {formatPrice(computeTotal())}
                   </Text>
                 </View>
                 <TouchableOpacity className="bg-primary py-3 rounded-xl items-center">

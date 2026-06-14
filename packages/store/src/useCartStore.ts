@@ -8,6 +8,9 @@ type CartStore = {
     isLoading: boolean
     setCart: (items: CartItem[], total: number, itemCount: number) => void
     setItems: (items: CartItem[]) => void
+    addItem: (product: CartItem['product'], quantity?: number) => void
+    increment: (productId: string) => void
+    decrement: (productId: string) => void
     updateItemLocally: (itemId: string, amount: number) => void
     removeItemLocally: (itemId: string) => void
     clearLocally: () => void
@@ -25,6 +28,55 @@ export const useCartStore = create<CartStore>((set, get) => ({
 
     setItems: (items) => set({ items }),
 
+    addItem: (product, quantity = 1) =>
+        set((state) => {
+            const existingItem = state.items.find((item) => item.productId === product.id)
+
+            if (existingItem) {
+                return {
+                    items: state.items.map((item) =>
+                        item.productId === product.id
+                            ? { ...item, amount: item.amount + quantity, quantity: item.quantity + quantity }
+                            : item
+                    ),
+                }
+            }
+
+            const newItem: CartItem = {
+                id: product.id,
+                amount: quantity,
+                quantity,
+                price: product.price,
+                cartId: product.id,
+                productId: product.id,
+                product,
+            }
+
+            return {
+                items: [...state.items, newItem],
+            }
+        }),
+
+    increment: (productId) =>
+        set((state) => ({
+            items: state.items.map((item) =>
+                item.productId === productId
+                    ? { ...item, amount: item.amount + 1, quantity: item.quantity + 1 }
+                    : item
+            ),
+        })),
+
+    decrement: (productId) =>
+        set((state) => ({
+            items: state.items
+                .map((item) =>
+                    item.productId === productId
+                        ? { ...item, amount: Math.max(item.amount - 1, 0), quantity: Math.max(item.quantity - 1, 0) }
+                        : item
+                )
+                .filter((item) => item.amount > 0),
+        })),
+
     updateItemLocally: (itemId, amount) => set((state) => {
         if (amount <= 0) {
             return {
@@ -33,7 +85,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
         }
         return {
             items: state.items.map((item) =>
-                item.id === itemId ? { ...item, amount } : item
+                item.id === itemId ? { ...item, amount, quantity: amount } : item
             ),
         }
     }),

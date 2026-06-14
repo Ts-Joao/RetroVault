@@ -35,6 +35,7 @@ export function calculeCartInstallments(items: InstallmentProduct[], totalOverri
 
         results.push({
             amount: i,
+            installments: i,
             installment_amount: Number(installmentAmount.toFixed(2)),
             total_amount: Number(totalAmount.toFixed(2)),
             has_Interest: hasInterest,

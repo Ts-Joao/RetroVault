@@ -3,6 +3,7 @@ import { Product } from "./product"
 export type CartItem = {
     id: string
     amount: number
+    quantity: number
     price: number
     cartId: string
     productId: string

@@ -3,8 +3,12 @@ import type { ProductPhoto } from "./productPhoto"
 export interface Product {
     id: string
     name: string
+    slug?: string
+    description?: string
+    amount?: number
+    comments?: string
     price: number
-    photos: ProductPhoto[]
+    photos?: ProductPhoto[]
     sellerId: string
     rating: number
     max_installments: number
@@ -12,8 +16,8 @@ export interface Product {
     monthly_interest_rate: number
     min_installment_amount: number
     shipping_cost: number
-    type: string[]
-    genre: string[]
+    type?: string[]
+    genre?: string[]
 }
 
 export interface ProductDetails extends Product {

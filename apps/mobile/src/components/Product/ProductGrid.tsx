@@ -14,8 +14,8 @@ export default function ProductGrid() {
     return (
     <View style={styles.grid}>
         {products.map((product) => (
-            <View className="w-[48%]">
-                <ProductCard key={product.id} product={product} />
+            <View key={product.id} className="w-[48%]">
+                <ProductCard product={product} />
             </View>
         ))}
     </View>

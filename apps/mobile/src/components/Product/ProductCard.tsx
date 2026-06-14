@@ -1,10 +1,11 @@
-import { calculeCartInstallments, formatPrice, Product, splitPrice } from "@retrovault/core"
-import { Image, View, Text, TouchableOpacity, StyleSheet } from "react-native"
+import { formatPrice, getProductInstallments, getProductUrl, getBestProductInstallment, Product, splitPrice } from "@retrovault/core"
+import { Image, View, Text, TouchableOpacity, StyleSheet, Pressable } from "react-native"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { mockUsers } from "@/services/user.service"
 import { useCartStore } from '@retrovault/store'
 import StarRating from "../StarRating"
 import { Link } from "expo-router"
+import { getProductImage } from "@/lib/productImages"
 
 type Prop = {
     product: Product
@@ -12,38 +13,33 @@ type Prop = {
 
 export default function ProductCard({ product }: Prop) {
     const addItem = useCartStore(state => state.addItem)
-    const seller = mockUsers.find(user => user.id === product.seller_id)
+    const seller = mockUsers.find(user => user.id === product.sellerId)
+    const productUrl = getProductUrl(product)
 
-    const installments = calculeCartInstallments([{
-        price: product.price,
-        quantity: 1,
-        max_installments: product.max_installments,
-        free_installments: product.free_installments,
-        min_installment_amount: product.min_installment_amount,
-        monthly_interest_rate: product.monthly_interest_rate,
-    }])
-
-    const best = installments.at(-1) ?? {
-        installment_amount: product.price,
-        installments: 1,
-    }
-
+    const installments = getProductInstallments(product)
+    const best = getBestProductInstallment(product)
     const { units, cents } = splitPrice(best.installment_amount)
 
     return (
         <View className="p-2 bg-[#d9d9d9] rounded-2xl flex-1">
 
-            <View className="bg-white justify-center items-center rounded-t-xl overflow-hidden" style={{ aspectRatio: 1 }}>
-                <Image
-                    source={product.photo as any}
-                    style={{ width: '100%', height: '100%' }}
-                    resizeMode="contain"
-                />
-            </View>
+            <Link href={productUrl} asChild>
+                <Pressable className="bg-white justify-center items-center rounded-t-xl overflow-hidden" style={{ aspectRatio: 1 }}>
+                    <Image
+                        source={getProductImage(product)}
+                        style={{ width: '100%', height: '100%' }}
+                        resizeMode="contain"
+                    />
+                </Pressable>
+            </Link>
 
-            <Text style={styles.title} numberOfLines={2}>
-                {product.name}
-            </Text>
+            <Link href={productUrl} asChild>
+                <Pressable>
+                    <Text style={styles.title} numberOfLines={2}>
+                        {product.name}
+                    </Text>
+                </Pressable>
+            </Link>
 
             <Text className="text-2xl font-barlow">
                 Por{' '}
