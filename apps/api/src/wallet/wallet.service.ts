@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { DepositWalletDto } from './dto/deposit-wallet.dto';
 import { Order, Prisma } from '@prisma/client';
@@ -8,6 +8,10 @@ export class WalletService {
   constructor(private readonly databaseService: DatabaseService) {}
 
   async get(userId: string) {
+    if (!userId) {
+      throw new BadRequestException('User ID is required!');
+    }
+
     const wallet = await this.databaseService.wallet.findUnique({
       where: { userId },
     });

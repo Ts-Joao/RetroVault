@@ -6,8 +6,8 @@ export async function getServerApi() {
   const token = cookieStore.get("access_token")?.value;
 
   const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
-    headers: token ? { Cookie: `access_token=${token}` } : {},
+    baseURL: process.env.NEXT_PUBLIC_API_URL + '/api',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
     withCredentials: true,
   });
 

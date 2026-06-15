@@ -1,52 +1,36 @@
 'use client'
 
-import { FaHeart } from "react-icons/fa"
-import { useFavorites } from "../../lib/context/FavoritesContext"
+import { FaHeart } from 'react-icons/fa'
+import { useFavoritesStore } from '@retrovault/store'
+import { useAuth } from '@/lib/context/auth.context'
+import { toggleFavorite as toggleFavoriteService } from '@/lib/services/favorites.service'
 
 type Props = {
-   productId: string
+  productId: string
 }
 
-export default function ButtonFavorites({
-   productId
-}: Props) {
+export default function ButtonFavorites({ productId }: Props) {
+  const { user } = useAuth()
+  const { favorites, syncFavorite } = useFavoritesStore()
 
-   const {
-      toggleFavorite,
-      isFavorite
-   } = useFavorites()
+  const favorited = favorites.includes(productId)
 
-   const favorited =
-      isFavorite(productId)
+  const handleToggle = async () => {
+    if (!user?.sub) return
 
-   return (
+    syncFavorite(productId, !favorited)
 
-      <button
-         onClick={() =>
-            toggleFavorite(productId)
-         }
-         className="
-            transition-all
-            duration-300
-            hover:scale-110
-            active:scale-90
-         "
-      >
+    try {
+      await toggleFavoriteService(user.sub, productId)
+    } catch (error) {
+      console.error('Erro ao favoritar/desfavoritar produto:', error)
+      syncFavorite(productId, favorited)
+    }
+  }
 
-         <FaHeart
-            className={`
-               text-xl
-               transition-all
-               duration-300
-
-               ${
-                  favorited
-                     ? 'text-red-500 scale-125'
-                     : 'text-gray-400'
-               }
-            `}
-         />
-
-      </button>
-   )
+  return (
+    <button onClick={handleToggle} className="transition-all duration-300 hover:scale-110 active:scale-90">
+      <FaHeart className={`text-xl transition-all duration-300 ${favorited ? 'scale-125 text-red-500' : 'text-gray-400'}`} />
+    </button>
+  )
 }

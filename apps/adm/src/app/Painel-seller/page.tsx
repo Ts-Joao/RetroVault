@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { MdPerson } from "react-icons/md";
@@ -10,14 +10,13 @@ import PainelInicialSeller from "@/components/painel-seller/Painel-inicial-seler
 import PainelPostSeller from "@/components/painel-seller/Painel-criar-seller/page";
 import PainelEditSeller from "@/components/painel-seller/painel-editar-seller/page";
 import { authFetch } from "@/lib/authFetch";
+import { useSellerDashboardStore } from "@/lib/stores/useSellerDashboardStore";
 
 import logo from "@/../public/logo.png";
 
 export default function PainelSellerPage() {
   const router = useRouter();
-  const [abaAtual, setAbaAtual] = useState("painelinicial");
-  const [userName, setUserName] = useState("");
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const { abaAtual, setAbaAtual, userName, setUserName, selectedProductId, setSelectedProductId } = useSellerDashboardStore();
 
   useEffect(() => {
     const token = localStorage.getItem("token");

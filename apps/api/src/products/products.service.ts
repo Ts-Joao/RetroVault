@@ -84,7 +84,7 @@ async getById(id: string) {
       where: { id },
       include: {
         photos: true,
-        seller: { select: { id: true, name: true } },
+        seller: true,
         mediaType: true,
         genre: true,
       },

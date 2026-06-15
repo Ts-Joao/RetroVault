@@ -1,5 +1,5 @@
-import { getOrdersByUserId } from "@/lib/services/orders.service";
-import { getUserById } from "@/lib/services/user.service";
+import { getOrdersByUserId } from "@/lib/services/orders.server";
+import { getUserById } from "@/lib/services/user.server";
 import SellerPage from "./SellerPage";
 import BuyerPage from "./BuyerPage";
 import Image from "next/image";
@@ -31,14 +31,12 @@ export default async function Profile({ params }: ProfileProps) {
 
   return (
     <>
-      <NavBar />
-
       <div className="min-h-[87dvh] pt-5 bg-[#d9d9d9] font-chakra-petch">
         <div className="max-w-4xl mx-auto">
           {/* Card container */}
           <div className="relative mx-4 my-8 md:mx-8 md:my-12 rounded-2xl overflow-visible border border-white/10 shadow-2xl">
             {/* Banner */}
-            <div className="relative w-full h-48 md:h-56 rounded-t-2xl overflow-hidden bg-bg]">
+            <div className="relative w-full h-48 md:h-56 rounded-t-2xl overflow-hidden bg-bg">
               <Image
                 src="/image/placeholder-pfp.webp"
                 fill
