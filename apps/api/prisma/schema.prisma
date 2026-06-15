@@ -21,6 +21,7 @@ model User {
   order        Order[]
   products     Product[]
   profilePic   ProfilePhoto?
+  favorites    Favorite[]
   wallet       Wallet?
 
   @@map("users")
@@ -88,6 +89,7 @@ model Product {
   mediaType            MediaType      @relation(fields: [mediaTypeId], references: [id])
   seller               User           @relation(fields: [sellerId], references: [id])
   genre                Genre[]        @relation("GenreToProduct")
+  favorites           Favorite[]
 
   @@index([name])
   @@index([mediaTypeId])
@@ -197,6 +199,20 @@ model Payment {
 
   @@map("payments")
 }
+
+model Favorite {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId    String  @map("user_id")
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("favorites")
+}
+
 
 enum Role {
   ADMIN  @map("admin")
