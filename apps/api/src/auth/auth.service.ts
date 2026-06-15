@@ -53,7 +53,7 @@ export class AuthService {
       ),
       this.jwtService.signAsync(
         { sub, email, role },
-        { expiresIn: '7d', secret: process.env.REFRESH_SECRET! },
+        { expiresIn: '7d', secret: process.env.JWT_REFRESH_SECRET! },
       ),
     ]);
 

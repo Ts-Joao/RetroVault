@@ -50,6 +50,10 @@ export class OrdersService {
             userId,
             address: dto.address,
             totalAmount,
+            status:
+              dto.paymentMethod === PaymentMethod.WALLET
+                ? OrderStatus.PAID
+                : OrderStatus.PENDING,
             orderItems: {
               create: cart.cartItem.map((item) => ({
                 productId: item.productId,
