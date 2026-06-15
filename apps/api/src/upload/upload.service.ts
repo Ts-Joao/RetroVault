@@ -48,7 +48,8 @@ export class UploadService {
         productId: string,
         files: Express.Multer.File[]
     ) {
-        if (!files || files.length === 0) {
+        try {
+            if (!files || files.length === 0) {
             throw new NotFoundException('No files uploaded');
         }
 
@@ -77,6 +78,10 @@ export class UploadService {
         }
 
         return photos;
+        } catch (error) {
+            console.error(error)
+            throw error;
+        }
     }
 
     async deleteProductPhoto(userId: string, photoId: string) {

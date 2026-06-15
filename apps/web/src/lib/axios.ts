@@ -3,7 +3,7 @@ import { useSessionStore } from "@retrovault/store";
 import { clearAccessTokenCookie, setAccessTokenCookie } from "./session";
 
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL as string,
+    baseURL: process.env.NEXT_PUBLIC_API_URL as string + '/api',
     withCredentials: true,
 });
 

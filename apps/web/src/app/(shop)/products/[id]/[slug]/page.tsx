@@ -117,6 +117,8 @@ export default function ProductPage({ params }: ProductPageProps) {
     }
   }
 
+  const image = `${process.env.NEXT_PUBLIC_API_URL}${product.photos?.[0]?.url}`
+
   return (
     <div className="w-full bg-[#F4F4F6] font-chakra-petch min-h-screen text-zinc-900">
       <div className="mx-auto w-[92%] max-w-7xl py-10">
@@ -133,7 +135,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                 <div className="relative w-full aspect-square max-w-[350px]">
                   {product.photos?.[0]?.url ? (
                     <Image
-                      src={product.photos?.[0]?.url}
+                      src={image}
                       alt={product.name}
                       fill
                       priority

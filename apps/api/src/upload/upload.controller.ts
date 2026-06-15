@@ -22,12 +22,12 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 
-@ApiBearerAuth()
-@UseGuards(AuthTokenGuard)
 @Controller('uploads')
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
+  @ApiBearerAuth()
+  @UseGuards(AuthTokenGuard)
   @ApiOperation({ summary: 'Upload profile photo' })
   @ApiBody({ type: 'file' })
   @ApiResponse({
@@ -52,6 +52,8 @@ export class UploadController {
     return this.uploadService.getProfilePhoto(payload.sub);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(AuthTokenGuard)
   @ApiOperation({ summary: 'Delete profile photo' })
   @ApiResponse({
     status: 200,
@@ -63,6 +65,8 @@ export class UploadController {
     return this.uploadService.deleteProfilePhoto(payload.sub);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(AuthTokenGuard)
   @ApiOperation({ summary: 'Upload product photo' })
   @ApiBody({ type: 'file' })
   @ApiResponse({
@@ -77,8 +81,6 @@ export class UploadController {
     @Param('productId') productId: string,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
-    console.log('userId:', payload.sub);
-    console.log('files:', files);
     return this.uploadService.uploadProductPhoto(payload.sub, productId, files);
   }
 
@@ -93,6 +95,8 @@ export class UploadController {
     return this.uploadService.getProductPhoto(productId);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(AuthTokenGuard)
   @ApiOperation({ summary: 'Delete product photo' })
   @ApiResponse({
     status: 200,
