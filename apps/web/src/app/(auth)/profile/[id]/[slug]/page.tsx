@@ -31,8 +31,6 @@ export default async function Profile({ params }: ProfileProps) {
 
   return (
     <>
-      <NavBar />
-
       <div className="min-h-[87dvh] pt-5 bg-[#d9d9d9] font-chakra-petch">
         <div className="max-w-4xl mx-auto">
           {/* Card container */}
