@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { authFetch } from "@/lib/authFetch";
+import { useSellerDashboardStore } from "@/lib/stores/useSellerDashboardStore";
 import ProductCard from "@/components/painel-seller/product-card/page"; 
 
 interface Product {
@@ -23,9 +24,7 @@ interface Props {
 }
 
 export default function PainelInicialSeller({ onEditProduct }: Props) {
-
-
-
+  const { setSelectedProductId, setAbaAtual } = useSellerDashboardStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
@@ -87,7 +86,11 @@ export default function PainelInicialSeller({ onEditProduct }: Props) {
                 <ProductCard
                   key={product.id}
                   product={product}
-                  onEdit={onEditProduct}
+                  onEdit={(id) => {
+                    setSelectedProductId(id);
+                    setAbaAtual("painelEditSeller");
+                    onEditProduct?.(id);
+                  }}
                 />
               ))}
             </div>

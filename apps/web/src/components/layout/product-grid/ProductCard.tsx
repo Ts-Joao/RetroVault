@@ -7,7 +7,6 @@ import { PiBag } from "react-icons/pi";
 import StarRating from "@/components/StarRating";
 import { Product, calculeCartInstallments, formatPrice, splitPrice } from "@retrovault/core"
 import ButtonFavorites from "@/components/Favoritos/ButtonFavorites";
-import { getFavorites } from "@/lib/services/favorites.service";
 import { User } from "@retrovault/core";
 
 type Props = {

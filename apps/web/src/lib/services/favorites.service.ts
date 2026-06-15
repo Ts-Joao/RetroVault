@@ -1,61 +1,31 @@
 import { Favorite } from '@retrovault/core'
+import api from '../axios'
 
-export async function getFavorites(): Promise<Favorite[]> {
-    return mockFavorites
+export async function getFavorites(userId: string): Promise<Favorite[]> {
+    const { data } = await api.get<Favorite[]>('/favorites', {
+        headers: { 'user-id': userId }
+    })
+    return data ?? []
 }
 
-const mockFavorites: Favorite[] = [
-    {
-        id: "1",
-        userId: "1",
-        productId: "1"
-    },
-    {
-        id: "2",
-        userId: "1",
-        productId: "3"
+export async function isFavorite(userId: string, productId: string): Promise<boolean> {
+    const { data } = await api.get<boolean>(`/favorites/${productId}`, {
+        headers: { 'user-id': userId }
+    })
+    return data
+}
+
+export async function toggleFavorite(userId: string, productId: string): Promise<boolean> {
+    const favorited = await isFavorite(userId, productId)
+    if (favorited) {
+        await api.delete(`/favorites/${productId}`, {
+            headers: { 'user-id': userId }
+        })
+        return false
+    } else {
+        await api.post(`/favorites/${productId}`, {}, {
+            headers: { 'user-id': userId }
+        })
+        return true
     }
-]
-
-export async function isFavorite(
-   userId: string,
-   productId: string
-) {
-
-   const favorites = await getFavorites()
-
-   return favorites.some(
-      favorite =>
-         favorite.userId === userId &&
-         favorite.productId === productId
-   )
-}
-
-
-export async function toggleFavorite(
-   userId: string,
-   productId: string
-) {
-
-   const index = mockFavorites.findIndex(
-      favorite =>
-         favorite.userId === userId &&
-         favorite.productId === productId
-   )
-
-   if (index !== -1) {
-
-      mockFavorites.splice(index, 1)
-
-      return false
-   }
-
-
-   mockFavorites.push({
-      id: crypto.randomUUID(),
-      userId,
-      productId
-   })
-
-   return true
 }

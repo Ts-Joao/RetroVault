@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@retrovault/store": "workspace:*",
     "jwt-decode": "^4.0.0",
     "next": "16.2.6",
     "react": "19.2.4",

@@ -7,7 +7,7 @@ export async function getServerApi() {
 
   const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
-    headers: token ? { Cookie: `access_token=${token}` } : {},
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
     withCredentials: true,
   });
 

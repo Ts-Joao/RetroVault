@@ -1,4 +1,5 @@
 import { getProductById } from "@/lib/services/product.service"
+import { getUserById } from "@/lib/services/user.server"
 import { notFound } from "next/navigation"
 import CheckoutClient from "@/components/checkout/checkoutProducts"
 
@@ -11,5 +12,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         return notFound()
     }
 
-    return <CheckoutClient product={product} />
+    const seller = await getUserById(product.sellerId)
+
+    return <CheckoutClient product={product} seller={seller} />
 }

@@ -1,11 +1,34 @@
 import { Review } from '@retrovault/core'
+import api from '../axios'
 
-export async function getReview(): Promise<Review[]> {
-    return mockReview
+export async function getProductReviews(productId: string): Promise<Review[]> {
+    const { data } = await api.get<Review[]>(`/reviews/products/${productId}`)
+    return data ?? []
 }
 
-const mockReview: Review[] = [
-    { productId: "1", id: "1", name: "Maria", comments: "jogo mito essa F1, melhor doq o sonic raciing"},
-    { productId: "2", id: "2", name: "Cladio", comments: "jogo da minha infacia essa colossos" },
-    { productId: "2", id: "3", name: "Joao",  comments: "Nunca vi esse jogo na minha vida"},
-]
+export async function getUserReview(userId: string, productId: string): Promise<Review> {
+    const { data } = await api.get<Review>(`/reviews/products/${productId}/me`, {
+        headers: { 'user-id': userId }
+    })
+    return data
+}
+
+export async function createReview(userId: string, productId: string, comment: string, rating: number): Promise<Review> {
+    const { data } = await api.post<Review>(`/reviews/products/${productId}`, { comment, rating }, {
+        headers: { 'user-id': userId }
+    })
+    return data
+}
+
+export async function updateReview(userId: string, productId: string, comment: string, rating: number): Promise<Review> {
+    const { data } = await api.patch<Review>(`/reviews/products/${productId}`, { comment, rating }, {
+        headers: { 'user-id': userId }
+    })
+    return data
+}
+
+export async function deleteReview(userId: string, productId: string): Promise<void> {
+    await api.delete(`/reviews/products/${productId}`, {
+        headers: { 'user-id': userId }
+    })
+}

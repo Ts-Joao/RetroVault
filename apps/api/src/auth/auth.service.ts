@@ -40,19 +40,27 @@ export class AuthService {
       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
     }
 
-    const tokens = await this.generateToken(user.id, user.email, user.role);
+    const tokens = await this.generateToken(user.id, user.email, user.role, user.name, user.slug);
     await this.saveRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
 
-  async generateToken(sub: string, email: string, role: Role) {
+  async generateToken(sub: string, email: string, role: Role, name?: string, slug?: string) {
+    if (!name || !slug) {
+      const user = await this.usersService.getById(sub);
+      name = user.name;
+      slug = user.slug;
+    }
+
+    const payload = { sub, email, role, name, slug };
+
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
-        { sub, email, role },
+        payload,
         { expiresIn: '15m', secret: process.env.JWT_ACCESS_SECRET! },
       ),
       this.jwtService.signAsync(
-        { sub, email, role },
+        payload,
         { expiresIn: '7d', secret: process.env.JWT_REFRESH_SECRET! },
       ),
     ]);

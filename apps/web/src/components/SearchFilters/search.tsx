@@ -1,72 +1,73 @@
-"use client";
+'use client'
 
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Product } from "@retrovault/core";
-import { searchProducts } from "../../../../../packages/core/src/utils/search";
-import SearchFilters from "@/components/SearchFilters/SearchFilters";
-import { mockProducts } from "@/services/product";
-import ProductGrid from "@/components/layout/product-grid/ProductGrid";
-import NavBar from "@/components/layout/nav-bar/NavBar";
-import Footer from "@/components/layout/footer/Footer";
+type Props = {
+  minPrice: string
+  maxPrice: string
+  type: string
+  genre: string
+  setMinPrice: (value: string) => void
+  setMaxPrice: (value: string) => void
+  setType: (value: string) => void
+  setGenre: (value: string) => void
+}
 
-export default function SearchPage() {
-  const searchParams = useSearchParams();
-
-  const query = searchParams.get("q") || "";
-
-  const [results, setResults] = useState<Product[]>([]);
-
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-
-  const [type, setType] = useState("");
-  const [genre, setGenre] = useState("");
-
-  useEffect(() => {
-    async function fetchData() {
-      const data = searchProducts(mockProducts, {
-        query,
-        minPrice: minPrice ? Number(minPrice) : undefined,
-        maxPrice: maxPrice ? Number(maxPrice) : undefined,
-        type,
-        genre,
-      });
-
-      setResults(data);
-    }
-
-    fetchData();
-  }, [query, minPrice, maxPrice, type, genre]);
-
+export default function SearchFilters({
+  minPrice,
+  maxPrice,
+  type,
+  genre,
+  setMinPrice,
+  setMaxPrice,
+  setType,
+  setGenre
+}: Props) {
   return (
-    <div className="min-h-screen flex flex-col">
-      <NavBar />
+    <div className="flex flex-col gap-5 rounded-2xl border border-gray-200 bg-gray-200 p-4">
+      <h1 className="text-2xl font-barlow-condensed font-bold text-red-600">Filtros</h1>
 
-      <main className="flex-1">
-        <h1 className="text-2xl font-bold m-6">Resultados para: "{query}"</h1>
+      <div className="flex gap-4">
+        <input
+          type="number"
+          placeholder="Preço mínimo"
+          value={minPrice}
+          onChange={(e) => setMinPrice(e.target.value)}
+          className="rounded border border-red-700 p-2 font-barlow-condensed text-xl font-semibold text-red-600"
+        />
 
-        <section className="flex gap-5 m-6 items-start">
-          <SearchFilters
-            minPrice={minPrice}
-            maxPrice={maxPrice}
-            type={type}
-            genre={genre}
-            setMinPrice={setMinPrice}
-            setMaxPrice={setMaxPrice}
-            setType={setType}
-            setGenre={setGenre}
-          />
+        <input
+          type="number"
+          placeholder="Preço máximo"
+          value={maxPrice}
+          onChange={(e) => setMaxPrice(e.target.value)}
+          className="rounded border border-red-700 p-2 font-barlow-condensed text-xl font-semibold text-red-600"
+        />
+      </div>
 
-          {results.length === 0 && <p>Nenhum resultado encontrado</p>}
+      <div className="flex flex-col gap-5">
+        <select
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          className="rounded border border-red-700 p-2 font-barlow-condensed text-xl font-semibold text-red-600"
+        >
+          <option value="">Todos os tipos</option>
+          <option value="game">Jogo</option>
+          <option value="movie">Filme</option>
+        </select>
 
-          <div>
-            <ProductGrid products={results} />
-          </div>
-        </section>
-      </main>
-
-      <Footer />
+        <select
+          value={genre}
+          onChange={(e) => setGenre(e.target.value)}
+          className="rounded border border-red-700 p-2 font-barlow-condensed text-xl font-semibold text-red-600"
+        >
+          <option value="">Todos os gêneros</option>
+          <option value="action">Ação</option>
+          <option value="adventure">Aventura</option>
+          <option value="racing">Corrida</option>
+          <option value="sports">Esporte</option>
+          <option value="rpg">RPG</option>
+          <option value="stealth">Stealth</option>
+        </select>
+      </div>
     </div>
-  );
+  )
 }
