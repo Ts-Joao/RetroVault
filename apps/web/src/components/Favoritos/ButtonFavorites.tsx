@@ -29,7 +29,7 @@ export default function ButtonFavorites({ productId }: Props) {
   }
 
   return (
-    <button onClick={handleToggle} className="transition-all duration-300 hover:scale-110 active:scale-90">
+    <button onClick={handleToggle} className="transition-all duration-300 hover:scale-110 active:scale-90 cursor-pointer">
       <FaHeart className={`text-xl transition-all duration-300 ${favorited ? 'scale-125 text-red-500' : 'text-gray-400'}`} />
     </button>
   )

@@ -5,7 +5,6 @@ import { UsersService } from './users.service';
 import { AuthModule } from 'src/auth/auth.module';
 import { WalletModule } from 'src/wallet/wallet.module';
 import { CommonModule } from 'src/common/common.module';
-import { AuthTokenGuard } from 'src/auth/guard/auth-token.guard';
 
 @Module({
   imports: [

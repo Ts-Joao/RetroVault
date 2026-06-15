@@ -13,6 +13,7 @@ import { FavoritesModule } from 'src/favorites/favorite.module';
 import { CircularReferenceFilter } from 'src/common/circular-reference.filter';
 import { APP_FILTER } from '@nestjs/core';
 import { ReviewsModule } from 'src/reviews/reviews.module';
+import { ShippingModule } from 'src/shipping/shipping.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ReviewsModule } from 'src/reviews/reviews.module';
     PaymentModule,
     FavoritesModule,
     ReviewsModule,
+    ShippingModule
   ],
   providers: [
     AppService,
