@@ -46,9 +46,10 @@ export default function PaymentAndActionSelector({ itens }: Props) {
   const selectedInstallment = installmentIndex != null ? installmentOptions[installmentIndex] : null;
 
   const paymentOptions = useMemo(() => [
-    { value: "wallet" as PaymentValue, label: "Carteira Digital", sublabel: wallet ? `Saldo: R$ ${Number(wallet.balance).toFixed(2).replace(".", ",")}` : "Saldo indisponível", icon: <PiWalletBold />, iconClass: "bg-emerald-50 text-emerald-700" },
+    { value: "wallet" as PaymentValue, label: "Carteira Digital", sublabel: wallet ? `Saldo: R$ ${Number(wallet.balance).toFixed(2).replace(".", ",")}` : "Saldo indisponível", icon: <PiWalletBold />, iconClass: "bg-yellow-50 text-yellow-600" },
     { value: "pix" as PaymentValue, label: "PIX Instantâneo", sublabel: "Aprovação imediata na hora", icon: <PiPixLogoBold />, iconClass: "bg-teal-50 text-teal-700" },
     { value: "credit_card" as PaymentValue, label: "Cartão de Crédito", sublabel: "Visa, Mastercard, Elo", icon: <PiCreditCardBold />, iconClass: "bg-red-50 text-red-600" },
+    { value: "debit_card" as PaymentValue, label: "Cartão de Débito", sublabel: "Visa, Mastercard, Elo", icon: <PiCreditCardBold />, iconClass: "bg-blue-50 text-blue-600" },
   ], [wallet]);
 
   const selectedOption = paymentOptions.find((p) => p.value === selectedPayment);
