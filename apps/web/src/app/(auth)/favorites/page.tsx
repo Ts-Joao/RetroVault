@@ -1,24 +1,22 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { FaHeart } from 'react-icons/fa'
-import { PiBag } from 'react-icons/pi'
 
-import Footer from '@/components/layout/footer/Footer'
-import NavBar from '@/components/layout/nav-bar/NavBar'
-import FavoriteButton from '@/components/Favoritos/ButtonFavorites'
 import { useAuth } from '@/lib/context/auth.context'
 import { getFavorites } from '@/lib/services/favorites.service'
 import { getProducts } from '@/lib/services/product.service'
 import { useFavoritesStore } from '@retrovault/store'
-import type { Product } from '@retrovault/core'
+import type { Product, User } from '@retrovault/core'
+import ProductCard from '@/components/layout/product-grid/ProductCard'
+import { getUsers } from '@/lib/services/user.server'
 
 export default function FavoritesPage() {
   const { user } = useAuth()
   const { favorites, setFavorites, isLoading, setLoading, hydrated } = useFavoritesStore()
   const [products, setProducts] = useState<Product[]>([])
+  const [users, setUsers] = useState<User[]>([])
 
   useEffect(() => {
     let alive = true
@@ -30,6 +28,15 @@ export default function FavoritesPage() {
           getProducts(),
           user?.sub ? getFavorites(user.sub) : Promise.resolve([]),
         ])
+
+        const getUsers = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        })
+        setUsers(await getUsers.json())
 
         if (!alive) return
         setProducts(allProducts)
@@ -55,48 +62,42 @@ export default function FavoritesPage() {
   )
 
   return (
-    <main className="flex-1 p-5">
-      <div className="mb-4 flex items-center gap-2">
-        <FaHeart className="text-red-500 text-2xl" />
-        <h1 className="text-3xl font-barlow-condensed">Meus Favoritos</h1>
-      </div>
+    <div className="w-full bg-[#F4F4F6] font-chakra-petch text-zinc-900">
+      <main className="mx-auto w-[92%] max-w-7xl py-10">
+        
+        {/* Cabeçalho da Página */}
+        <div className="mb-8 flex items-center gap-3 border-b border-zinc-200 pb-5">
+          <div className="bg-red-50 p-2.5 rounded-xl border border-red-100 flex items-center justify-center">
+            <FaHeart className="text-red-500 text-xl" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-zinc-900">Meus Favoritos</h1>
+            <p className="text-xs text-zinc-400 mt-0.5">Gerencie os itens que você salvou de toda a loja</p>
+          </div>
+        </div>
 
-      <div className="flex flex-col gap-4 rounded-lg bg-gray-200 p-5">
+        {/* Estado de Carregamento / Vazio */}
         {isLoading || !hydrated ? (
-          <p className="py-10 text-center text-gray-500">Carregando favoritos...</p>
+          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-zinc-200 shadow-sm">
+            <p className="text-zinc-500 text-sm animate-pulse">Carregando seus favoritos...</p>
+          </div>
         ) : favoriteProducts.length === 0 ? (
-          <p className="py-10 text-center text-gray-500">Você ainda não adicionou nenhum favorito.</p>
+          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-zinc-200 shadow-sm px-4 text-center">
+            <div className="bg-zinc-50 p-4 rounded-full mb-3 text-zinc-300">
+              <FaHeart className="text-3xl" />
+            </div>
+            <p className="text-zinc-700 font-medium">Sua lista de favoritos está vazia</p>
+            <p className="text-xs text-zinc-400 mt-1 max-w-xs">Navegue pela loja e clique no coração para salvar produtos por aqui.</p>
+          </div>
         ) : (
-          favoriteProducts.map((product) => (
-            <article key={product.id} className="flex items-center justify-between gap-4 rounded-lg bg-white p-4 shadow-sm">
-              <div className="flex items-center gap-4">
-                {product.photos?.[0]?.url ? (
-                  <Image
-                    src={product.photos[0].url}
-                    alt={product.name}
-                    width={100}
-                    height={150}
-                    className="h-[150px] w-[100px] rounded-lg object-cover"
-                  />
-                ) : (
-                  <div className="flex h-[150px] w-[100px] items-center justify-center rounded-lg bg-gray-100 text-xs text-gray-400">Sem foto</div>
-                )}
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">{product.name}</h2>
-                  <p className="text-sm text-gray-500">Preço: R$ {Number(product.price).toFixed(2)}</p>
-                </div>
-              </div>
-
-              <div className="flex flex-col items-end gap-4">
-                <FavoriteButton productId={product.id} />
-                <Link href={`/checkout/${product.id}`} className="inline-flex items-center gap-2 rounded bg-third px-3 py-2 text-xs text-black">
-                  <PiBag /> Comprar agora
-                </Link>
-              </div>
-            </article>
-          ))
+          /* Grid de Cards de Favoritos */
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {favoriteProducts.map((product) => (
+              <ProductCard product={product} users={users} key={product.id} />
+            ))}
+          </div>
         )}
-      </div>
-    </main>
+      </main>
+    </div>
   )
 }

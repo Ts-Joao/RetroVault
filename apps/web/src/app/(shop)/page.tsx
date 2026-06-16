@@ -10,11 +10,13 @@ export default async function Home() {
   return (
     <div className="flex flex-col gap-10 mt-10">
       <CategoryBar />
-      {products.length ? (
-        <ProductGrid products={products} users={user} />
-      ) : (
-        <span className="text-center">Nenhum produto disponível</span>
-      )}
+      <div className="flex flex-col items-center justify-center">
+        {products.length ? (
+          <ProductGrid products={products} users={user} />
+        ) : (
+          <span className="text-center">Nenhum produto disponível</span>
+        )}
+      </div>
     </div>
   );
 }

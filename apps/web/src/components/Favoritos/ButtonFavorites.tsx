@@ -32,12 +32,12 @@ export default function ButtonFavorites({ productId }: Props) {
   return (
     <button
       onClick={handleToggle}
-      className="transition-all duration-300 hover:scale-110 active:scale-90 cursor-pointer"
+      className="transition-all duration-300 hover:scale-110 active:scale-90 cursor-pointer p-1 bg-white/80 backdrop-blur-sm p-1 rounded-lg shadow-sm border border-zinc-100 transition hover:scale-105"
     >
       <FaHeart
         className={`text-xl transition-all duration-300 ${
           isFavorited
-            ? 'scale-125 text-red-500'
+            ? 'scale-110 text-red-500'
             : 'text-gray-400'
         }`}
       />
