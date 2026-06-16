@@ -10,8 +10,9 @@ import { useCartStore as useSharedCartStore } from '@retrovault/store'
 
 type CartActions = {
   loading: boolean
+  updating: boolean
 
-  loadCart: (userId: string) => Promise<void>
+  loadCart: (userId: string, silent?: boolean) => Promise<void>
 
   incrementItem: (
     userId: string,
@@ -27,12 +28,17 @@ type CartActions = {
 export const useCartActionsStore =
   create<CartActions>((set, get) => ({
     loading: false,
+    updating: false,
 
-    loadCart: async (userId) => {
-      set({ loading: true })
+    loadCart: async (userId, silent = false) => {
+      if (silent) {
+        set({ updating: true })
+      } else {
+        set({ loading: true })
+      }
 
       try {
-        const data = await getCart(userId)
+        const data = await getCart()
 
         useSharedCartStore
           .getState()
@@ -42,7 +48,7 @@ export const useCartActionsStore =
             data.itemCount ?? 0
           )
       } finally {
-        set({ loading: false })
+        set({ loading: false, updating: false })
       }
     },
 
@@ -60,12 +66,11 @@ export const useCartActionsStore =
       if (!item) return
 
       await updateCartItem(
-        userId,
         itemId,
         item.amount + 1
       )
 
-      await get().loadCart(userId)
+      await get().loadCart(userId, true)
     },
 
     decrementItem: async (
@@ -83,18 +88,16 @@ export const useCartActionsStore =
 
       if (item.amount <= 1) {
         await removeCartItem(
-          userId,
           item.cartId,
           item.id
         )
       } else {
         await updateCartItem(
-          userId,
           item.id,
           item.amount - 1
         )
       }
 
-      await get().loadCart(userId)
+      await get().loadCart(userId, true)
     },
   }))

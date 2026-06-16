@@ -13,6 +13,8 @@ import {
 } from "@retrovault/core";
 import ButtonFavorites from "@/components/Favoritos/ButtonFavorites";
 import { User } from "@retrovault/core";
+import { addCartItem } from "@/lib/services/cart.service";
+import { useToast } from "@/components/ui/toast-provider";
 
 type Props = {
   product: Product;
@@ -22,6 +24,7 @@ type Props = {
 export default function ProductCard({ product, users }: Props) {
   const router = useRouter();
   const seller = users?.find((u) => u.id === product.sellerId);
+  const toast = useToast()
 
   const firstPhoto = product.photos?.[0]?.url || "";
   const imageUrl = firstPhoto.startsWith("/uploads")
@@ -123,13 +126,20 @@ export default function ProductCard({ product, users }: Props) {
           Comprar
         </Link>
         
-        <Link
-          href={productLink}
-          className="bg-zinc-900 text-white p-1.5 rounded-xl transition hover:bg-zinc-800 flex items-center justify-center shadow-sm"
+        <button
+          onClick={async () => {
+            const cart = await addCartItem(product.id, 1) 
+            if(cart) {
+              toast.success("Produto adicionado à sacola!")
+            } else {
+              toast.error("Erro ao adicionar produto à sacola!")
+            }
+          }}
+          className="bg-zinc-900 text-white p-1.5 rounded-xl transition hover:bg-zinc-800 flex items-center justify-center shadow-sm cursor-pointer"
           title="Adicionar à Sacola"
         >
           <PiBag className="text-base" />
-        </Link>
+        </button>
       </div>
 
     </div>
