@@ -35,15 +35,17 @@ export class ShippingService {
         cep: cleanCep,
         city: address.localidade,
         state: address.uf,
+        neighborhood: address.bairro,
+        logradouro: address.logradouro,
 
         pac: {
-          name: 'PAC',
+          name: 'PAC - Econômico',
           price: Number((12 * multiplier).toFixed(2)),
           deadline: Math.ceil(5 * multiplier),
         },
 
         sedex: {
-          name: 'SEDEX',
+          name: 'SEDEX - Expresso',
           price: Number((20 * multiplier).toFixed(2)),
           deadline: Math.max(
             1,
