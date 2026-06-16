@@ -5,6 +5,7 @@ import { formatPrice } from "@retrovault/core";
 import { useShippingStore } from "@/store/shipping.store";
 import { useCheckoutStore } from "@/store/checkout.store";
 import { useToast } from "@/components/ui/toast-provider";
+import { useUserStore } from "@/store/user.store";
 
 function formatCep(value: string) {
   return value
@@ -18,6 +19,9 @@ export default function ShippingCalculator() {
   const [isCalculado, setIsCalculado] = useState(false);
   const [isModalFreteOpen, setIsModalFreteOpen] = useState(false);
   const [freteSelecionado, setFreteSelecionado] = useState<number | null>(null);
+
+  const user = useUserStore((state) => state.user)
+  console.log(user?.defaultCep)
 
   const { shipping, calculate, shippingLoading } = useShippingStore();
   const setShippingData = useCheckoutStore((state) => state.setShippingData);

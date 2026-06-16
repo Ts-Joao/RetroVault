@@ -38,13 +38,13 @@ export default function RootLayout({
       <body
         className={`${barlowCondensed.variable} ${specialElite.variable} ${chakraPetch.variable} antialiased `}
       >
-        <AuthProvider>
-          <FavoritesProvider>
-            <ToastProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <FavoritesProvider>
               {children}
-            </ToastProvider>
-          </FavoritesProvider>
-        </AuthProvider>
+            </FavoritesProvider>
+          </AuthProvider>
+        </ToastProvider>
       </body>
     </html>
   );
