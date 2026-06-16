@@ -20,6 +20,7 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { UpdatedItemDto } from './dto/update.item.dto';
+import { CurrentUser } from 'src/auth/decorator/current-user.decorator';
 
 @Controller('cart')
 @ApiBearerAuth()
@@ -40,7 +41,7 @@ export class CartController {
   @ApiResponse({ status: 200, description: 'Item added successfully' })
   @ApiResponse({ status: 404, description: 'Item not found' })
   @Post()
-  addItem(@Body() dto: AddItemDto, @TokenPayloadParam() user: PayloadDto) {
+  addItem(@Body() dto: AddItemDto, @CurrentUser() user: PayloadDto) {
     return this.cartService.addItem(user.sub, dto);
   }
 
@@ -52,7 +53,7 @@ export class CartController {
   updateItem(
     @Param('cartItemId') cartItemId: string,
     @Body() dto: { amount: number },
-    @TokenPayloadParam() user: PayloadDto,
+    @CurrentUser() user: PayloadDto,
   ) {
     return this.cartService.updateItemAmount(user.sub, cartItemId, dto.amount);
   }

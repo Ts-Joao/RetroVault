@@ -9,6 +9,9 @@ import { getProductById } from '@/lib/services/product.service'
 import { getUserByIdClient } from '@/lib/services/user.client'
 import { getProductReviews } from '@/lib/services/review.service'
 import { addCartItem } from '@/lib/services/cart.service'
+import { useShippingStore } from '@/store/shipping.store'
+import { formatPrice } from '@retrovault/core'
+import Link from 'next/link'
 
 interface ProductPageProps {
   params: Promise<{
@@ -19,9 +22,10 @@ interface ProductPageProps {
 
 export default function ProductPage({ params }: ProductPageProps) {
   const [unwrappedParams, setUnwrappedParams] = useState<{ id: string; slug: string } | null>(null)
-  const [cep, setCep] = useState('')
   const [freteSelecionado, setFreteSelecionado] = useState<number | null>(null)
   const [isCalculado, setIsCalculado] = useState(false)
+  const [cep, setCep] = useState('');
+  const { shipping, calculate, shippingLoading } = useShippingStore();
 
   const [product, setProduct] = useState<any>(null)
   const [seller, setSeller] = useState<any>(null)
@@ -70,20 +74,30 @@ export default function ProductPage({ params }: ProductPageProps) {
     load()
   }, [params])
 
+  function handleCepChange(value: string) {
+    const onlyNumbers = value.replace(/\D/g, '');
 
-  const opcoesFrete = [
-    { id: 'sedex', nome: 'SEDEX (Expresso)', valor: 22.50, prazo: '2 a 4 dias úteis' },
-    { id: 'pac', nome: 'PAC (Normal)', valor: 12.90, prazo: '5 a 10 dias úteis' }
-  ]
+    const formattedCep = onlyNumbers.replace(
+      /^(\d{5})(\d{0,3}).*/,
+      '$1-$2',
+    );
 
-  const handleCalcularCep = (e: React.FormEvent) => {
+    setCep(formattedCep)
+  }
+
+  const handleCalcularCep = async (
+    e: React.FormEvent
+  ) => {
     e.preventDefault()
+
     if (cep.length >= 8) {
       setIsCalculado(true)
-      setFreteSelecionado(opcoesFrete[0].valor)
+      await calculate(cep)
+      setFreteSelecionado(shipping?.sedex.price || 0)
     }
   }
 
+  const shippinOptions = [shipping?.sedex, shipping?.pac]
   const precoProduto = Number(product?.price || 0)
   const valorFrete = freteSelecionado ?? 0
   const precoTotal = precoProduto + valorFrete
@@ -108,7 +122,6 @@ export default function ProductPage({ params }: ProductPageProps) {
       }
 
       await addCartItem(
-        user.sub,
         product.id,
         1
       )
@@ -126,100 +139,129 @@ export default function ProductPage({ params }: ProductPageProps) {
         {/* Grid Principal - Estilo Checkout Lado a Lado */}
         <div className="grid gap-8 lg:grid-cols-[1fr_380px] items-start">
 
-          {/* Coluna da Esquerda: Detalhes do Produto */}
-          <main className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-6 md:p-8">
-            <div className="grid gap-10 lg:grid-cols-[400px_1fr]">
+          <div>
+            {/* Coluna da Esquerda: Detalhes do Produto */}
+            <main className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-6 md:p-8">
+              <div className="grid gap-10 lg:grid-cols-[400px_1fr]">
 
-              {/* Imagem do Produto */}
-              <div className="rounded-xl border border-zinc-100 bg-zinc-50 p-4 flex items-center justify-center">
-                <div className="relative w-full aspect-square max-w-[350px]">
-                  {product.photos?.[0]?.url ? (
-                    <Image
-                      src={image}
-                      alt={product.name}
-                      fill
-                      priority
-                      sizes="400px"
-                      className="object-contain"
+                {/* Imagem do Produto */}
+                <div className="rounded-xl border border-zinc-100 bg-zinc-50 p-4 flex items-center justify-center">
+                  <div className="relative w-full aspect-square max-w-[350px]">
+                    {product.photos?.[0]?.url ? (
+                      <Image
+                        src={image}
+                        alt={product.name}
+                        fill
+                        priority
+                        sizes="400px"
+                        className="object-contain"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-zinc-400">
+                        Sem imagem
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Informações de Texto */}
+                <div className="flex flex-col">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <span className="text-xs uppercase tracking-wider text-zinc-400 font-bold">Produto Oficial</span>
+                      <h1 className="text-4xl font-bold text-zinc-900 mt-1 leading-tight">
+                        {product.name}
+                      </h1>
+                      <p className="mt-2 text-sm text-zinc-500">
+                        Vendido e entregue por
+                        <Link
+                          className="text-zinc-700 font-semibold ml-1"
+                          href={`/profile/${seller?.id}/${seller?.slug}`}
+                        >
+                          {seller?.name ?? 'Vendedor'}
+                        </Link>
+                      </p>
+
+                      {/* Bloco de Avaliações Simplificado (Apenas Estrelas) */}
+                      <div className="mt-4 flex items-center gap-2 bg-zinc-50 px-3 py-1.5 rounded-lg w-fit border border-zinc-100">
+                        <StarRating rating={product.rating ?? 0} />
+                        <span className="font-bold text-sm text-zinc-800 mt-0.5">
+                          {product.rating ?? 0}
+                        </span>
+                        <span className="text-xs text-zinc-400 mt-0.5">
+                          ({totalReviews} avaliações)
+                        </span>
+                      </div>
+                    </div>
+
+                    <FavoriteButton
+                      productId={product?.id}
                     />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-zinc-400">
-                      Sem imagem
+                  </div>
+
+                  {/* Gêneros */}
+                  {product.genre?.length ? (
+                    <div className="mt-6">
+                      <p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-400">Gêneros</p>
+                      <div className="flex flex-wrap gap-2">
+                        {product.genre.map((genre: string) => (
+                          <span key={genre} className="rounded-md bg-zinc-100 border border-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700">
+                            {genre}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Tipo */}
+                  {product.type?.length ? (
+                    <div className="mt-4">
+                      <p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-400">Tipo</p>
+                      <div className="flex flex-wrap gap-2">
+                        {product.type.map((type: string) => (
+                          <span key={type} className="rounded-md bg-zinc-100 border border-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700">
+                            {type}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Descrição */}
+                  {product.description && (
+                    <div className="mt-6 border-t border-zinc-100 pt-6">
+                      <h2 className="mb-2 text-sm font-bold uppercase tracking-wider text-zinc-400">Descrição</h2>
+                      <p className="leading-relaxed text-zinc-600 text-sm">
+                        {product.description}
+                      </p>
                     </div>
                   )}
                 </div>
               </div>
+            </main>
 
-              {/* Informações de Texto */}
-              <div className="flex flex-col">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <span className="text-xs uppercase tracking-wider text-zinc-400 font-bold">Produto Oficial</span>
-                    <h1 className="text-4xl font-bold text-zinc-900 mt-1 leading-tight">
-                      {product.name}
-                    </h1>
-                    <p className="mt-2 text-sm text-zinc-500">
-                      Vendido e entregue por <span className="font-semibold text-zinc-700">{seller?.name ?? 'Vendedor'}</span>
-                    </p>
+            {/* Seção Inferior: Apenas Avaliações em Estrelas (Sem comentários textuais) */}
+            <section className="mt-8 bg-white rounded-2xl shadow-sm border border-zinc-200 p-6 md:p-8">
+              <h2 className="text-xl font-bold text-zinc-900 mb-2">Avaliações dos Clientes</h2>
+              <p className="text-sm text-zinc-500 mb-6">Média de satisfação com base nas notas enviadas pelos compradores.</p>
 
-                    {/* Bloco de Avaliações Simplificado (Apenas Estrelas) */}
-                    <div className="mt-4 flex items-center gap-2 bg-zinc-50 px-3 py-1.5 rounded-lg w-fit border border-zinc-100">
-                      <StarRating rating={product.rating ?? 0} />
-                      <span className="font-bold text-sm text-zinc-800 mt-0.5">
-                        {product.rating ?? 0}
-                      </span>
-                      <span className="text-xs text-zinc-400 mt-0.5">
-                        ({totalReviews} avaliações)
-                      </span>
-                    </div>
-                  </div>
-
-                  <FavoriteButton
-                    productId={product?.id}
-                  />
-                </div>
-
-                {/* Gêneros */}
-                {product.genre?.length ? (
-                  <div className="mt-6">
-                    <p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-400">Gêneros</p>
-                    <div className="flex flex-wrap gap-2">
-                      {product.genre.map((genre: string) => (
-                        <span key={genre} className="rounded-md bg-zinc-100 border border-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700">
-                          {genre}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-
-                {/* Tipo */}
-                {product.type?.length ? (
-                  <div className="mt-4">
-                    <p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-400">Tipo</p>
-                    <div className="flex flex-wrap gap-2">
-                      {product.type.map((type: string) => (
-                        <span key={type} className="rounded-md bg-zinc-100 border border-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700">
-                          {type}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-
-                {/* Descrição */}
-                {product.description && (
-                  <div className="mt-6 border-t border-zinc-100 pt-6">
-                    <h2 className="mb-2 text-sm font-bold uppercase tracking-wider text-zinc-400">Descrição</h2>
-                    <p className="leading-relaxed text-zinc-600 text-sm">
-                      {product.description}
-                    </p>
-                  </div>
-                )}
-              </div>
-
+              <div className="flex flex-col sm:flex-row items-center gap-6 bg-zinc-50 p-6 rounded-xl border border-zinc-100 w-fit">
+                <div className="text-center">
+              <p className="text-5xl font-black text-zinc-900">{product.rating ?? 0}</p>
+              <p className="text-xs text-zinc-400 font-medium mt-1">de 5.0 estrelas</p>
             </div>
-          </main>
+
+            <div className="h-px sm:h-12 w-12 sm:w-px bg-zinc-200" />
+
+            <div className="flex flex-col items-center sm:items-start gap-1">
+              <StarRating rating={product.rating ?? 0} />
+              <p className="text-xs font-semibold text-zinc-600 mt-1">
+                {totalReviews} clientes avaliaram este produto positivamente.
+              </p>
+            </div>
+          </div>
+        </section>
+          </div>
 
           {/* Coluna da Direita: Checkout Preview & Frete */}
           <aside className="sticky top-6 grid gap-6">
@@ -252,15 +294,26 @@ export default function ProductPage({ params }: ProductPageProps) {
 
               {/* Ações */}
               <div className="mt-6 space-y-2.5">
-                <button className="w-full rounded-xl bg-[#D9A128] py-3.5 text-sm font-bold text-white shadow-sm transition hover:brightness-95 tracking-wide uppercase">
-                  Comprar Agora
-                </button>
-                <button
-                  onClick={handleAddToCart}
-                  className="w-full rounded-xl border border-zinc-300 bg-white py-3.5 text-sm font-bold text-zinc-700 transition hover:bg-zinc-50 tracking-wide uppercase"
-                >
-                  Adicionar ao Carrinho
-                </button>
+                <div>
+                  <Link href={`/checkout/${product.id}`}>
+                    <button
+                      className="w-full rounded-xl bg-[#D9A128] py-3.5 text-sm font-bold text-white shadow-sm transition hover:brightness-95 tracking-wide uppercase cursor-pointer"
+                    >
+                      Comprar Agora
+                    </button>
+                  </Link>
+                </div>
+
+                <div>
+                  <Link href="/cart">
+                    <button
+                      onClick={handleAddToCart}
+                      className="w-full rounded-xl border border-zinc-300 bg-white py-3.5 text-sm font-bold text-zinc-700 transition hover:bg-zinc-50 tracking-wide uppercase cursor-pointer"
+                      >
+                      Adicionar ao Carrinho
+                    </button>
+                  </Link>
+                </div>
               </div>
             </div>
 
@@ -271,13 +324,14 @@ export default function ProductPage({ params }: ProductPageProps) {
               <form onSubmit={handleCalcularCep} className="flex gap-2">
                 <input
                   type="text"
-                  maxLength={8}
-                  placeholder="Digite seu CEP (Ex: 00000000)"
+                  maxLength={9}
+                  placeholder="00000-000"
+                  disabled={shippingLoading}
                   value={cep}
-                  onChange={(e) => setCep(e.target.value.replace(/\D/g, ''))}
+                  onChange={(e) => handleCepChange(e.target.value)}
                   className="flex-1 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm focus:outline-none focus:border-zinc-500 font-sans"
                 />
-                <button type="submit" className="rounded-xl bg-zinc-900 px-4 py-2.5 text-xs font-bold text-white uppercase tracking-wider hover:bg-zinc-800 transition">
+                <button type="submit" disabled={shippingLoading} className="rounded-xl bg-zinc-900 px-4 py-2.5 text-xs font-bold text-white uppercase tracking-wider hover:bg-zinc-800 transition cursor-pointer">
                   Calcular
                 </button>
               </form>
@@ -285,29 +339,32 @@ export default function ProductPage({ params }: ProductPageProps) {
               {/* Lista de Resultados do Frete */}
               {isCalculado && (
                 <div className="mt-4 pt-4 border-t border-zinc-100 space-y-2">
-                  {opcoesFrete.map((opcao) => (
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-bold text-zinc-900">Frete para <span className="font-medium text-sm text-zinc-900 uppercase ml-1">{shipping?.city} - {shipping?.state}</span></h2>
+                  </div>
+                  {shippinOptions.map((shipping) => (
                     <label
-                      key={opcao.id}
-                      className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${freteSelecionado === opcao.valor
-                          ? 'border-[#D9A128] bg-amber-50/40'
-                          : 'border-zinc-200 hover:bg-zinc-50'
+                      key={`${shipping?.price}-${shipping?.deadline}`}
+                      className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${freteSelecionado === shipping?.price
+                        ? 'border-[#D9A128] bg-amber-50/40'
+                        : 'border-zinc-200 hover:bg-zinc-50'
                         }`}
                     >
                       <div className="flex items-center gap-3">
                         <input
                           type="radio"
                           name="frete"
-                          checked={freteSelecionado === opcao.valor}
-                          onChange={() => setFreteSelecionado(opcao.valor)}
+                          checked={freteSelecionado === shipping?.price}
+                          onChange={() => setFreteSelecionado(Number(shipping?.price))}
                           className="accent-[#D9A128] h-4 w-4"
                         />
                         <div>
-                          <p className="text-xs font-bold text-zinc-800">{opcao.nome}</p>
-                          <p className="text-[11px] text-zinc-400">{opcao.prazo}</p>
+                          <p className="text-sm font-bold text-zinc-800">{shipping?.name}</p>
+                          <p className="text-sm text-zinc-400">{shipping?.deadline} dias</p>
                         </div>
                       </div>
-                      <span className="text-xs font-bold text-zinc-900">
-                        R$ {opcao.valor.toFixed(2).replace('.', ',')}
+                      <span className="text-sm font-bold text-zinc-900">
+                        R$ {formatPrice(Number(shipping?.price))}
                       </span>
                     </label>
                   ))}
@@ -317,28 +374,6 @@ export default function ProductPage({ params }: ProductPageProps) {
 
           </aside>
         </div>
-
-        {/* Seção Inferior: Apenas Avaliações em Estrelas (Sem comentários textuais) */}
-        <section className="mt-8 bg-white rounded-2xl shadow-sm border border-zinc-200 p-6 md:p-8">
-          <h2 className="text-xl font-bold text-zinc-900 mb-2">Avaliações dos Clientes</h2>
-          <p className="text-sm text-zinc-500 mb-6">Média de satisfação com base nas notas enviadas pelos compradores.</p>
-
-          <div className="flex flex-col sm:flex-row items-center gap-6 bg-zinc-50 p-6 rounded-xl border border-zinc-100 w-fit">
-            <div className="text-center">
-              <p className="text-5xl font-black text-zinc-900">{product.rating ?? 0}</p>
-              <p className="text-xs text-zinc-400 font-medium mt-1">de 5.0 estrelas</p>
-            </div>
-
-            <div className="h-px sm:h-12 w-12 sm:w-px bg-zinc-200" />
-
-            <div className="flex flex-col items-center sm:items-start gap-1">
-              <StarRating rating={product.rating ?? 0} />
-              <p className="text-xs font-semibold text-zinc-600 mt-1">
-                {totalReviews} clientes avaliaram este produto positivamente.
-              </p>
-            </div>
-          </div>
-        </section>
 
       </div>
     </div>

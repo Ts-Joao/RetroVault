@@ -17,6 +17,8 @@ model User {
   updatedAt    DateTime      @updatedAt @map("updated_at")
   refreshToken String?       @map("refresh_token")
   slug         String        @unique
+  defaultCep   String?       @map("default_cep")
+
   cart         Cart?
   order        Order[]
   products     Product[]

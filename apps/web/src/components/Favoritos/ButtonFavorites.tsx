@@ -13,24 +13,34 @@ export default function ButtonFavorites({ productId }: Props) {
   const { user } = useAuth()
   const { favorites, syncFavorite } = useFavoritesStore()
 
-  const favorited = favorites.includes(productId)
+  const isFavorited = favorites.includes(productId)
 
   const handleToggle = async () => {
     if (!user?.sub) return
 
-    syncFavorite(productId, !favorited)
+    syncFavorite(productId, !isFavorited)
 
     try {
-      await toggleFavoriteService(user.sub, productId)
+      await toggleFavoriteService(productId)
     } catch (error) {
       console.error('Erro ao favoritar/desfavoritar produto:', error)
-      syncFavorite(productId, favorited)
+
+      syncFavorite(productId, isFavorited)
     }
   }
 
   return (
-    <button onClick={handleToggle} className="transition-all duration-300 hover:scale-110 active:scale-90">
-      <FaHeart className={`text-xl transition-all duration-300 ${favorited ? 'scale-125 text-red-500' : 'text-gray-400'}`} />
+    <button
+      onClick={handleToggle}
+      className="transition-all duration-300 hover:scale-110 active:scale-90 cursor-pointer"
+    >
+      <FaHeart
+        className={`text-xl transition-all duration-300 ${
+          isFavorited
+            ? 'scale-125 text-red-500'
+            : 'text-gray-400'
+        }`}
+      />
     </button>
   )
 }
