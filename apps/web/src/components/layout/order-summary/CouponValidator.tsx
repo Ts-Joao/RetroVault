@@ -16,7 +16,9 @@ export default function CouponValidator() {
 
   return (
     <div className="space-y-1.5 font-chakra-petch">
-      <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">Cupom de Desconto</label>
+      <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+        Cupom de Desconto
+      </label>
       <div className="flex gap-2">
         <input
           type="text"
