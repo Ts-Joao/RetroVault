@@ -11,6 +11,7 @@ import { getProductReviews } from '@/lib/services/review.service'
 import { addCartItem } from '@/lib/services/cart.service'
 import { useShippingStore } from '@/store/shipping.store'
 import { formatPrice } from '@retrovault/core'
+import Link from 'next/link'
 
 interface ProductPageProps {
   params: Promise<{
@@ -73,6 +74,17 @@ export default function ProductPage({ params }: ProductPageProps) {
     load()
   }, [params])
 
+  function handleCepChange(value: string) {
+    const onlyNumbers = value.replace(/\D/g, '');
+
+    const formattedCep = onlyNumbers.replace(
+      /^(\d{5})(\d{0,3}).*/,
+      '$1-$2',
+    );
+
+    setCep(formattedCep)
+  }
+
   const handleCalcularCep = async (
     e: React.FormEvent
   ) => {
@@ -110,7 +122,6 @@ export default function ProductPage({ params }: ProductPageProps) {
       }
 
       await addCartItem(
-        user.sub,
         product.id,
         1
       )
@@ -162,7 +173,13 @@ export default function ProductPage({ params }: ProductPageProps) {
                         {product.name}
                       </h1>
                       <p className="mt-2 text-sm text-zinc-500">
-                        Vendido e entregue por <span className="font-semibold text-zinc-700">{seller?.name ?? 'Vendedor'}</span>
+                        Vendido e entregue por
+                        <Link
+                          className="text-zinc-700 font-semibold ml-1"
+                          href={`/profile/${seller?.id}/${seller?.slug}`}
+                        >
+                          {seller?.name ?? 'Vendedor'}
+                        </Link>
                       </p>
 
                       {/* Bloco de Avaliações Simplificado (Apenas Estrelas) */}
@@ -277,15 +294,26 @@ export default function ProductPage({ params }: ProductPageProps) {
 
               {/* Ações */}
               <div className="mt-6 space-y-2.5">
-                <button className="w-full rounded-xl bg-[#D9A128] py-3.5 text-sm font-bold text-white shadow-sm transition hover:brightness-95 tracking-wide uppercase cursor-pointer">
-                  Comprar Agora
-                </button>
-                <button
-                  onClick={handleAddToCart}
-                  className="w-full rounded-xl border border-zinc-300 bg-white py-3.5 text-sm font-bold text-zinc-700 transition hover:bg-zinc-50 tracking-wide uppercase cursor-pointer"
-                >
-                  Adicionar ao Carrinho
-                </button>
+                <div>
+                  <Link href={`/checkout/${product.id}`}>
+                    <button
+                      className="w-full rounded-xl bg-[#D9A128] py-3.5 text-sm font-bold text-white shadow-sm transition hover:brightness-95 tracking-wide uppercase cursor-pointer"
+                    >
+                      Comprar Agora
+                    </button>
+                  </Link>
+                </div>
+
+                <div>
+                  <Link href="/cart">
+                    <button
+                      onClick={handleAddToCart}
+                      className="w-full rounded-xl border border-zinc-300 bg-white py-3.5 text-sm font-bold text-zinc-700 transition hover:bg-zinc-50 tracking-wide uppercase cursor-pointer"
+                      >
+                      Adicionar ao Carrinho
+                    </button>
+                  </Link>
+                </div>
               </div>
             </div>
 
@@ -296,11 +324,11 @@ export default function ProductPage({ params }: ProductPageProps) {
               <form onSubmit={handleCalcularCep} className="flex gap-2">
                 <input
                   type="text"
-                  maxLength={8}
-                  placeholder="Digite seu CEP (Ex: 00000000)"
+                  maxLength={9}
+                  placeholder="00000-000"
                   disabled={shippingLoading}
                   value={cep}
-                  onChange={(e) => setCep(e.target.value.replace(/\D/g, ''))}
+                  onChange={(e) => handleCepChange(e.target.value)}
                   className="flex-1 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm focus:outline-none focus:border-zinc-500 font-sans"
                 />
                 <button type="submit" disabled={shippingLoading} className="rounded-xl bg-zinc-900 px-4 py-2.5 text-xs font-bold text-white uppercase tracking-wider hover:bg-zinc-800 transition cursor-pointer">
@@ -311,6 +339,9 @@ export default function ProductPage({ params }: ProductPageProps) {
               {/* Lista de Resultados do Frete */}
               {isCalculado && (
                 <div className="mt-4 pt-4 border-t border-zinc-100 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-bold text-zinc-900">Frete para <span className="font-medium text-sm text-zinc-900 uppercase ml-1">{shipping?.city} - {shipping?.state}</span></h2>
+                  </div>
                   {shippinOptions.map((shipping) => (
                     <label
                       key={`${shipping?.price}-${shipping?.deadline}`}
@@ -328,11 +359,11 @@ export default function ProductPage({ params }: ProductPageProps) {
                           className="accent-[#D9A128] h-4 w-4"
                         />
                         <div>
-                          <p className="text-xs font-bold text-zinc-800">{shipping?.name}</p>
-                          <p className="text-[11px] text-zinc-400">{shipping?.deadline} dias</p>
+                          <p className="text-sm font-bold text-zinc-800">{shipping?.name}</p>
+                          <p className="text-sm text-zinc-400">{shipping?.deadline} dias</p>
                         </div>
                       </div>
-                      <span className="text-xs font-bold text-zinc-900">
+                      <span className="text-sm font-bold text-zinc-900">
                         R$ {formatPrice(Number(shipping?.price))}
                       </span>
                     </label>

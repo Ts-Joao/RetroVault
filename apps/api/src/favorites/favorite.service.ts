@@ -29,6 +29,7 @@ export class FavoriteService {
   }
 
   async isFavorited(userId: string, productId: string) {
+    console.log(userId, productId)
     const favorite = await this.findFavorite(userId, productId);
     return { isFavorited: !!favorite };
   }
@@ -62,18 +63,26 @@ export class FavoriteService {
   }
 
   async deleteFavorite(userId: string, productId: string) {
-    const favorite = await this.findFavorite(userId, productId)
+    const favorite = await this.db.favorite.findUnique({
+      where: {
+        userId_productId: {
+          userId,
+          productId,
+        },
+      },
+    });
 
     if (!favorite) {
-      throw new NotFoundException('favorite not found');
+      return;
     }
 
     await this.db.favorite.delete({
       where: {
-        userId_productId: { userId, productId },
-      }
+        userId_productId: {
+          userId,
+          productId,
+        },
+      },
     });
-
-    return { message: 'favorite deleted sucessfully' };
   }
 }

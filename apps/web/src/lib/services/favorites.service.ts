@@ -1,31 +1,31 @@
 import { Favorite } from '@retrovault/core'
 import api from '../axios'
 
-export async function getFavorites(userId: string): Promise<Favorite[]> {
-    const { data } = await api.get<Favorite[]>('/favorites', {
-        headers: { 'user-id': userId }
-    })
+export async function getFavorites(): Promise<Favorite[]> {
+    const { data } = await api.get<Favorite[]>('/favorites')
     return data ?? []
 }
 
-export async function isFavorite(userId: string, productId: string): Promise<boolean> {
-    const { data } = await api.get<boolean>(`/favorites/${productId}`, {
-        headers: { 'user-id': userId }
-    })
-    return data
+export async function isFavorite(productId: string): Promise<boolean> {
+    const { data } = await api.get<{ isFavorited: boolean }>(
+        `/favorites/${productId}`
+    )
+
+    return data.isFavorited
 }
 
-export async function toggleFavorite(userId: string, productId: string): Promise<boolean> {
-    const favorited = await isFavorite(userId, productId)
+export async function toggleFavorite(productId: string): Promise<boolean> {
+    const favorited = await isFavorite(productId)
+
+    console.log('favorited?', favorited)
+
     if (favorited) {
-        await api.delete(`/favorites/${productId}`, {
-            headers: { 'user-id': userId }
-        })
+        console.log('DELETE')
+        await api.delete(`/favorites/${productId}`)
         return false
     } else {
-        await api.post(`/favorites/${productId}`, {}, {
-            headers: { 'user-id': userId }
-        })
+        console.log('POST')
+        await api.post(`/favorites/${productId}`)
         return true
     }
 }
