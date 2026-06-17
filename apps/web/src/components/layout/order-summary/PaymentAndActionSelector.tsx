@@ -51,7 +51,9 @@ export default function PaymentAndActionSelector({ itens }: Props) {
     selectOption: selectInst,
   } = useSelect<number>();
 
-  const installmentProducts: InstallmentProduct[] = itens.map((item) => ({
+  const safeItens = itens || [];
+
+  const installmentProducts: InstallmentProduct[] = safeItens.map((item) => ({
     price: item.product.price,
     quantity: item.amount,
     max_installments: item.product.max_installments,
@@ -110,8 +112,13 @@ export default function PaymentAndActionSelector({ itens }: Props) {
   async function handleCheckout() {
     if (!user?.sub)
       return (toast.error("Faça login para continuar."), router.push("/login"));
+
+    if (safeItens.length === 0)
+      return toast.error("Nenhum produto selecionado para a compra.");
+
     if (!address)
       return toast.error("Calcule o CEP e selecione uma opção de frete.");
+
     if (!selectedPayment) return toast.error("Selecione a forma de pagamento.");
 
     setCheckoutLoading(true);
@@ -122,11 +129,13 @@ export default function PaymentAndActionSelector({ itens }: Props) {
         debit_card: "DEBIT_CARD",
         wallet: "WALLET",
       };
+
       const order = await checkoutOrder(
         user.sub,
         address,
         paymentMethodMap[selectedPayment],
         selectedPayment === "credit_card" ? (installmentIndex ?? 0) + 1 : 1,
+        safeItens
       );
 
       if (selectedPayment === "wallet") {

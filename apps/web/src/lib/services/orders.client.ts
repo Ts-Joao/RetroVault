@@ -1,10 +1,16 @@
 import api from '../axios'
-import type { Order } from '@retrovault/core'
+import type { CartItem, Order } from '@retrovault/core'
 
 export type PaymentMethod = 'PIX' | 'BOLETO' | 'DEBIT_CARD' | 'CREDIT_CARD' | 'WALLET'
 
-export async function checkoutOrder(userId: string, address: string, paymentMethod: PaymentMethod, installments = 1) {
-  const { data } = await api.post<Order>('/orders', { address, paymentMethod, installments }, {
+export async function checkoutOrder(
+  userId: string,
+  address: string,
+  paymentMethod: PaymentMethod,
+  installments: number = 1,
+  orderItens?: CartItem[],
+) {
+  const { data } = await api.post<Order>('/orders', { address, paymentMethod, installments, orderItens }, {
     headers: { 'user-id': userId },
   })
   return data

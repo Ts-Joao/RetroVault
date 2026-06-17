@@ -2,14 +2,14 @@ import api from '../axios'
 
 type Wallet = {
   id: string
-  balance: string | number
+  balance: number
   userId: string
 }
 
 type WalletTransaction = {
   id: string
-  amount: string | number
-  type: string
+  amount: number
+  type: 'DEPOSIT' | 'WITHDRAW' | 'PURCHASE'
   description: string
   createdAt: string
 }
