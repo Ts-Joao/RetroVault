@@ -139,32 +139,23 @@ export default function PaymentAndActionSelector({ itens }: Props) {
       );
 
       if (selectedPayment === "wallet") {
-        toast.success("Pagamento aprovado.");
-        (clearLocally(),
-          clearWallet(),
-          router.push(`/profile/${user.sub}/${user.slug}`));
+        toast.success("Pagamento aprovado com saldo.");
+        clearLocally();
+        clearWallet();
+        router.push(`/profile/${user.sub}/${user.slug}`);
         return;
       }
+
+      // Gera o token de simulação da API
       const token = await simulatePayment(order.id, user.sub);
       setPaymentToken(token);
-      toast.success("Pedido criado.");
+      
+      toast.success("Pedido criado! Redirecionando para o pagamento...");
+      
+      router.push(`/checkout/payment/${order.id}?method=${selectedPayment}`);
+
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "Erro no checkout.");
-    } finally {
-      setCheckoutLoading(false);
-    }
-  }
-
-  async function handleConfirmPayment() {
-    if (!paymentToken) return;
-    setCheckoutLoading(true);
-    try {
-      await confirmPayment(paymentToken);
-      toast.success("Pagamento confirmado.");
-      clearLocally();
-      router.push(`/profile/${user?.sub}/${user?.slug}`);
-    } catch (error: any) {
-      toast.error("Erro ao confirmar.");
     } finally {
       setCheckoutLoading(false);
     }
@@ -271,23 +262,6 @@ export default function PaymentAndActionSelector({ itens }: Props) {
               ? "Pagar com carteira"
               : "Confirmar e Gerar Pagamento"}
         </button>
-        {paymentToken && selectedPayment !== "wallet" && (
-          <div className="mt-2 grid gap-2 rounded-xl bg-zinc-50 border p-3.5 animate-fadeIn">
-            <p className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-              Token de Validação
-            </p>
-            <div className="rounded-xl border bg-white px-3 py-2.5 font-mono text-xs break-all text-center text-zinc-700 font-bold">
-              {paymentToken}
-            </div>
-            <button
-              onClick={handleConfirmPayment}
-              disabled={checkoutLoading}
-              className="w-full rounded-xl bg-zinc-900 py-3 text-xs font-bold text-white uppercase tracking-wider cursor-pointer"
-            >
-              {checkoutLoading ? "Confirmando..." : "Confirmar liquidação"}
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
