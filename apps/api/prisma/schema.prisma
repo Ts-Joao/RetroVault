@@ -75,6 +75,9 @@ model Product {
   amount               Int
   rating               Decimal?       @default(0.0) @db.Decimal(2, 1)
   mediaTypeId          Int            @map("media_type_id")
+  city                 String?
+  state                String?
+  cep                  String         @default("11665-310")
   discountEnd          DateTime?      @map("discount_end")
   discountPrice        Decimal?       @map("discount_price") @db.Decimal(5, 2)
   discountStart        DateTime?      @map("discount_start")

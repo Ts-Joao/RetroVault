@@ -11,12 +11,14 @@ import { CreateProductDto } from './dto/create.product.dto';
 import { UpdateProductDto } from './dto/update.product.dto';
 import { PayloadDto } from 'src/auth/dto/payload.dto';
 import { SlugServiceProtocol } from 'src/common/utils/slug/slug.service';
+import { ShippingService } from 'src/shipping/shipping.service';
 
 @Injectable()
 export class ProductService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly slugService: SlugServiceProtocol,
+    private readonly shippingService: ShippingService,
   ) {}
 
   async create(createProductDto: CreateProductDto, sellerId: string) {
@@ -30,13 +32,18 @@ export class ProductService {
 
     const slug = await this.slugService.generateSlug(createProductDto.name, 'product');
 
-    const { genres, ...productData } = createProductDto;
+    const { genres, cep, ...productData } = createProductDto;
+
+    const cepInfo = await this.shippingService.verifyAddress(cep);
 
     const newProduct = await this.databaseService.product.create({
       data: {
         ...productData,
         sellerId,
         slug,
+        cep: cepInfo.cep,
+        city: cepInfo.city,
+        state: cepInfo.state,
         ...(genres && genres.length > 0
           ? {
               genre: {
@@ -54,7 +61,7 @@ export class ProductService {
     return newProduct;
   } catch (err) {
     if (err instanceof HttpException) throw err;
-    console.error('Erro ao criar produto:', err);
+
     throw new InternalServerErrorException('Error creating product!');
   }
 }
@@ -88,7 +95,7 @@ async getById(id: string) {
         mediaType: true,
         genre: true,
       },
-    });  // <-- correto
+    });
 
     if (!findProduct) throw new NotFoundException('Product not found');
     return findProduct;
