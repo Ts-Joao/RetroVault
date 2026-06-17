@@ -35,6 +35,7 @@ export class ProductService {
     const { genres, cep, ...productData } = createProductDto;
 
     const cepInfo = await this.shippingService.verifyAddress(cep);
+    console.log(cepInfo)
 
     const newProduct = await this.databaseService.product.create({
       data: {
@@ -42,8 +43,8 @@ export class ProductService {
         sellerId,
         slug,
         cep: cepInfo.cep,
-        city: cepInfo.city,
-        state: cepInfo.state,
+        city: cepInfo.localidade,
+        state: cepInfo.uf,
         ...(genres && genres.length > 0
           ? {
               genre: {
