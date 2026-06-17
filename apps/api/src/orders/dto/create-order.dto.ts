@@ -31,4 +31,13 @@ export class CreateOrderDto {
   @IsInt()
   @IsOptional()
   readonly installments?: number = 1;
+
+  @ApiProperty({
+    example: 'RETRO10',
+    description: 'Coupon code for discount',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  readonly couponCode?: string;
 }

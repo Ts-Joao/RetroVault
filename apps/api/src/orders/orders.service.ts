@@ -22,6 +22,7 @@ import { ProductService } from 'src/products/products.service';
 import { AuthService } from 'src/auth/auth.service';
 import { PayloadDto } from 'src/auth/dto/payload.dto';
 import { WalletService } from 'src/wallet/wallet.service';
+import { CouponService } from 'src/coupon/coupon.service';
 
 @Injectable()
 export class OrdersService {
@@ -30,7 +31,8 @@ export class OrdersService {
     private readonly cartService: CartService,
     private readonly productService: ProductService,
     private readonly authService: AuthService,
-    private readonly walletService: WalletService
+    private readonly walletService: WalletService,
+    private readonly couponService: CouponService,
   ) {}
 
   async checkout(userId: string, dto: CreateOrderDto) {
@@ -38,18 +40,31 @@ export class OrdersService {
       const cart = await this.validateCart(userId);
       await this.validateStock(cart.cartItem);
 
-      const totalAmount = this.calculateCartTotal(cart.cartItem);
+      const cartTotal = this.calculateCartTotal(cart.cartItem);
+
+      let finalAmount = cartTotal;
+      let couponId: string | null = null;
+
+      if (dto.couponCode) {
+        const couponResult = await this.couponService.validateCoupon(
+          dto.couponCode,
+          Number(cartTotal),
+          userId,
+        );
+        finalAmount = new Prisma.Decimal(couponResult.total);
+        couponId = couponResult.coupon.id;
+      }
 
       const order = await this.databaseService.$transaction(async (tx) => {
         if (dto.paymentMethod === PaymentMethod.WALLET) {
-          await this.walletService.processWalletPayment(tx, userId, totalAmount);
+          await this.walletService.processWalletPayment(tx, userId, finalAmount);
         }
 
         const newOrder = await tx.order.create({
           data: {
             userId,
             address: dto.address,
-            totalAmount,
+            totalAmount: finalAmount,
             status:
               dto.paymentMethod === PaymentMethod.WALLET
                 ? OrderStatus.PAID
@@ -77,6 +92,17 @@ export class OrdersService {
             payment: true,
           },
         });
+
+        // Register coupon usage inside the transaction
+        if (couponId) {
+          await tx.couponUsage.create({
+            data: {
+              couponId,
+              userId,
+              orderId: newOrder.id,
+            },
+          });
+        }
 
         await tx.cartItem.deleteMany({
           where: { cartId: cart.id },

@@ -96,6 +96,64 @@ async function bootstrap() {
     skipDuplicates: true,
   });
 
+  // ──────────────────────────────────────────
+  // Coupons
+  // ──────────────────────────────────────────
+  await prisma.coupon.createMany({
+    data: [
+      {
+        code: 'WELCOME10',
+        type: 'PERCENTAGE',
+        value: 10,
+        maxUses: 100,
+        isActive: true,
+        expiresAt: new Date('2027-12-31'),
+      },
+      {
+        code: 'RETRO20',
+        type: 'PERCENTAGE',
+        value: 20,
+        maxUses: 50,
+        isActive: true,
+        expiresAt: new Date('2027-12-31'),
+      },
+      {
+        code: 'SAVE50',
+        type: 'FIXED',
+        value: 50,
+        maxUses: 25,
+        isActive: true,
+        expiresAt: new Date('2027-12-31'),
+      },
+      {
+        code: 'FREESHIP',
+        type: 'FIXED',
+        value: 20,
+        maxUses: 200,
+        isActive: true,
+        expiresAt: new Date('2027-12-31'),
+      },
+      {
+        code: 'EXPIRED10',
+        type: 'PERCENTAGE',
+        value: 10,
+        maxUses: 100,
+        isActive: true,
+        expiresAt: new Date('2025-01-01'),
+      },
+      {
+        code: 'INACTIVE15',
+        type: 'PERCENTAGE',
+        value: 15,
+        maxUses: 100,
+        isActive: false,
+        expiresAt: new Date('2027-12-31'),
+      },
+    ],
+    skipDuplicates: true,
+  })
+
+
   const actionGenre    = await prisma.genre.findUnique({ where: { name: 'Action' } });
   const rpgGenre       = await prisma.genre.findUnique({ where: { name: 'RPG' } });
   const horrorGenre    = await prisma.genre.findUnique({ where: { name: 'Horror' } });

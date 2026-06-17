@@ -22,7 +22,7 @@ function getBackendMessage(err: unknown) {
 
 export default function RegisterPage() {
   const router = useRouter()
-  const { toast } = useToast()
+  const toast = useToast()
   const { clearUser } = useSessionStore()
   const [ name, setName ] = useState<string>('')
   const [ email, setEmail ] = useState<string>('')
@@ -35,10 +35,10 @@ export default function RegisterPage() {
     try {
       await createUser(name, email, password)
       clearUser()
-      toast('Conta criada com sucesso.', 'success')
+      toast.success('Conta criada com sucesso.')
       router.push('/login')
     } catch (err) {
-      toast(getBackendMessage(err), 'error')
+      toast.error(getBackendMessage(err))
     } finally {
       setLoading(false)
     }

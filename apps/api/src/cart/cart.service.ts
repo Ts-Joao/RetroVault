@@ -22,7 +22,7 @@ export class CartService {
         where: { userId },
         include: {
           cartItem: {
-            include: { product: true },
+            include: { product: { include: { photos: true } } },
           },
         },
       });

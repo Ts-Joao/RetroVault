@@ -26,6 +26,7 @@ model User {
   wallet       Wallet?
   favorites    Favorite[]
   reviews      Review[]
+  couponUsages CouponUsage[]
 
   @@map("users")
 }
@@ -187,6 +188,7 @@ model Order {
   address     String
   userId      String      @map("user_id")
   orderItems  OrderItem[]
+  couponUsages CouponUsage?
   user        User        @relation(fields: [userId], references: [id])
   payment     Payment?
 
@@ -231,6 +233,43 @@ model Favorite {
 
   @@unique([userId, productId])
   @@map("favorites")
+}
+
+model Coupon {
+  id String @id @default(uuid())
+  code String @unique
+  type CouponType
+  value Decimal @db.Decimal(5, 2)
+
+  maxUses Int @default(0) @map("max_uses")
+  isActive Boolean @default(true) @map("is_active")
+  expiresAt DateTime? @map("expires_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  usages CouponUsage[]
+}
+
+model CouponUsage {
+  id        String   @id @default(cuid())
+  usedAt    DateTime @default(now()) @map("used_at")
+
+  userId    String  @map("user_id")
+  couponId String  @map("coupon_id")
+  orderId   String  @unique @map("order_id")
+
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coupon   Coupon  @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, couponId, orderId])
+  @@map("coupon_usages")
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED
 }
 
 enum Role {
