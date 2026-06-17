@@ -262,7 +262,7 @@ export class OrdersService {
         const isCaptured = order.payment?.status === PaymentStatus.CAPTURED;
 
         if (isCanceled) {
-          this.restoreProductStock(tx, order.orderItems);
+          await this.restoreProductStock(tx, order.orderItems);
         }
 
         if (isCanceled && isCaptured) {
@@ -312,11 +312,11 @@ export class OrdersService {
     }
   }
 
-  private restoreProductStock(
+  private async restoreProductStock(
     tx: Prisma.TransactionClient,
     orderItems: OrderItem[],
   ) {
-    Promise.all(
+    await Promise.all(
       orderItems.map(async (item) => {
         await tx.product.update({
           where: { id: item.productId },

@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { DepositWalletDto } from './dto/deposit-wallet.dto';
 import { Order, Prisma } from '@prisma/client';
@@ -99,7 +104,11 @@ export class WalletService {
 
     await tx.wallet.update({
       where: { userId },
-      data: { balance: { decrement: totalAmount } },
+      data: {
+        balance: {
+          decrement: totalAmount,
+        },
+      },
     });
 
     await tx.walletTransaction.create({

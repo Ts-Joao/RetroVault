@@ -44,6 +44,7 @@ export class CartService {
   async addItem(userId: string, dto: AddItemDto) {
     try {
       const cart = await this.getCart(userId);
+      await this.productService.getActiveProductById(dto.productId)
 
       const product = await this.productService.getById(dto.productId);
 

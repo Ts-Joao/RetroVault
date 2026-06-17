@@ -5,7 +5,7 @@ import Image from 'next/image'
 import FavoriteButton from '@/components/Favoritos/ButtonFavorites'
 import StarRating from '@/components/StarRating'
 import { useAuth } from '@/lib/context/auth.context'
-import { getProductById } from '@/lib/services/product.service'
+import { getActiveProductById } from '@/lib/services/product.service'
 import { getUserByIdClient } from '@/lib/services/user.client'
 import { getProductReviews } from '@/lib/services/review.service'
 import { addCartItem } from '@/lib/services/cart.service'
@@ -44,7 +44,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         setUnwrappedParams(resolvedParams)
 
         const productData =
-          await getProductById(
+          await getActiveProductById(
             resolvedParams.id
           )
 
