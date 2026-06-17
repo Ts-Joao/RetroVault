@@ -95,7 +95,7 @@ export class CouponService {
     }
   }
 
-  async validateCoupon(code: string, userId: string, orderTotal: number) {
+  async validateCoupon(code: string, orderTotal: number, userId: string) {
     try {
       const coupon = await this.findOne(code);
       await this.usersService.getById(userId);
@@ -113,6 +113,13 @@ export class CouponService {
       if (coupon.type === CouponType.FIXED){
         discount = Number(coupon.value);
       }
+
+      console.log({
+        orderTotal,
+        orderTotalType: typeof orderTotal,
+        couponValue: coupon.value,
+        couponValueType: typeof coupon.value,
+      });
       
       return  {
         coupon,
@@ -128,7 +135,7 @@ export class CouponService {
     }
   }
 
-  async useCoupon(code: string, userId: string, orderId: string) {
+  async useCoupon(code: string, orderId: string, userId: string) {
     try {
       const coupon = await this.findOne(code);
       await this.usersService.getById(userId);

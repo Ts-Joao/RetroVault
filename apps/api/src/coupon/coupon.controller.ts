@@ -17,6 +17,7 @@ import { CreateCouponDto } from './dto/create-coupon.dto';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { AdminGuard } from 'src/common/guards/admin.guard';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
+import { ValidateCouponDto } from './dto/validate-coupon.dto';
 
 @UseGuards(AuthTokenGuard)
 @ApiBearerAuth()
@@ -32,20 +33,19 @@ export class CouponController {
 
   @Post('validate')
   validateCoupon(
-    @Body('code') code: string,
+    @Body() dto: ValidateCouponDto,
     @CurrentUser() user: PayloadDto,
-    @Body('orderTotal') orderTotal: number,
   ) {
-    return this.couponService.validateCoupon(code, user.sub, orderTotal);
+    return this.couponService.validateCoupon(dto.code, dto.orderTotal, user.sub);
   }
 
   @Post('use/:code')
   useCoupon(
     @Param('code') code: string,
-    @CurrentUser() user: PayloadDto,
     @Body('orderId') orderId: string,
+    @CurrentUser() user: PayloadDto,
   ) {
-    return this.couponService.useCoupon(code, user.sub, orderId);
+    return this.couponService.useCoupon(code, orderId, user.sub);
   }
 
   @Get()
