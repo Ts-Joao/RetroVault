@@ -37,7 +37,16 @@ export class OrdersService {
 
   async checkout(userId: string, dto: CreateOrderDto) {
     try {
-      const cart = await this.validateCart(userId);
+      let orderItens: CartItem[] = [];
+
+      if (dto.orderItens && dto.orderItens.length > 0) {
+        orderItens = dto.orderItens;
+      } else {
+        await this.validateCart(userId);
+
+      }
+
+      const cart = await this.cartService.getCart(userId)
       await this.validateStock(cart.cartItem);
 
       const cartTotal = this.calculateCartTotal(cart.cartItem);
@@ -93,7 +102,6 @@ export class OrdersService {
           },
         });
 
-        // Register coupon usage inside the transaction
         if (couponId) {
           await tx.couponUsage.create({
             data: {
