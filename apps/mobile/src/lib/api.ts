@@ -106,7 +106,16 @@ export async function getProfile() {
   // returns user object from /users/:id
   const meRes = await request('/auth/me', { method: 'GET' })
   if (!meRes.ok) throw new Error('Failed to get user id')
-  const id = await meRes.json()
+  
+  const text = await meRes.text()
+  let id: string
+  try {
+    const parsed = JSON.parse(text)
+    id = typeof parsed === 'object' && parsed !== null ? (parsed.id || parsed.sub || text) : String(parsed)
+  } catch {
+    id = text
+  }
+
   const userRes = await request(`/users/${id}`, { method: 'GET' })
   if (!userRes.ok) throw new Error('Failed to get user profile')
   const user = await userRes.json()

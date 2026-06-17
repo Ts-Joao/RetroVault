@@ -24,12 +24,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY)
       if (stored) {
-        set({ token: stored })
+        // keep token across reloads; if profile fetch fails, keep token and leave profile null
+        set({ token: stored, profile: null })
         try {
           const user = await api.getProfile()
           set({ profile: user })
         } catch (_) {
-          // ignore profile fetch errors
+          // don't remove token here — user should remain logged in until they explicitly logout
+          set({ profile: null })
         }
       } else {
         // try refresh using server cookie
@@ -37,11 +39,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           const refreshed = await api.refresh()
           if (refreshed) {
             await AsyncStorage.setItem(STORAGE_KEY, refreshed)
-            set({ token: refreshed })
+            set({ token: refreshed, profile: null })
             try {
               const user = await api.getProfile()
               set({ profile: user })
-            } catch (_) {}
+            } catch (_) {
+              // keep refreshed token; profile may load later or on demand
+              set({ profile: null })
+            }
           }
         } catch (_) {
           // ignore
@@ -53,11 +58,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
   login: async (token: string) => {
     await AsyncStorage.setItem(STORAGE_KEY, token)
-    set({ token })
+    set({ token, profile: null })
     try {
       const user = await api.getProfile()
       set({ profile: user })
     } catch (_) {
+      // if profile fetch fails right after login, keep token and leave profile null
       set({ profile: null })
     }
   },
@@ -67,9 +73,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (token) await api.logout(token)
     } catch (e) {
       // ignore network errors
+    } finally {
+      await AsyncStorage.removeItem(STORAGE_KEY)
+      set({ token: null, profile: null })
     }
-    await AsyncStorage.removeItem(STORAGE_KEY)
-    set({ token: null, profile: null })
   },
 }))
 
