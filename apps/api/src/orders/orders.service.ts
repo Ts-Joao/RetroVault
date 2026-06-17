@@ -23,6 +23,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { PayloadDto } from 'src/auth/dto/payload.dto';
 import { WalletService } from 'src/wallet/wallet.service';
 import { CouponService } from 'src/coupon/coupon.service';
+import { Decimal } from '@prisma/client/runtime/client';
 
 @Injectable()
 export class OrdersService {
@@ -38,20 +39,21 @@ export class OrdersService {
   async checkout(userId: string, dto: CreateOrderDto) {
     try {
       let orderItens: CartItem[] = [];
+      let finalAmount: Decimal;
+
+      const cart = await this.cartService.getCart(userId)
+      finalAmount = this.calculateCartTotal(cart.cartItem);
 
       if (dto.orderItens && dto.orderItens.length > 0) {
         orderItens = dto.orderItens;
+        finalAmount = this.calculateCartTotal(orderItens);
       } else {
         await this.validateCart(userId);
-
       }
 
-      const cart = await this.cartService.getCart(userId)
       await this.validateStock(cart.cartItem);
 
       const cartTotal = this.calculateCartTotal(cart.cartItem);
-
-      let finalAmount = cartTotal;
       let couponId: string | null = null;
 
       if (dto.couponCode) {
