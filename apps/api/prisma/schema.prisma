@@ -26,6 +26,7 @@ model User {
   wallet       Wallet?
   reviews      Review[]
   couponUsages CouponUsage[]
+  favorites    Favorite[]
 
   @@map("users")
 }

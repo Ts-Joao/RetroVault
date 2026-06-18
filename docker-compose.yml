@@ -39,7 +39,7 @@ services:
       - "3000:3000"
 
   mobile:
-    build: 
+    build:
       context: .
       dockerfile: apps/mobile/Dockerfile
     container_name: retrovault-mobile
