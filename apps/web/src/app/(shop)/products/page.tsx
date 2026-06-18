@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { FaSearch, FaHeart } from 'react-icons/fa'
 
 import FavoriteButton from '@/components/Favoritos/ButtonFavorites'
-import { getProducts } from '@/lib/services/product.service'
+import { getProducts } from '@/lib/services/product.client'
 import { searchProducts } from '@retrovault/core'
 import { useFavoritesStore } from '@retrovault/store'
 import type { Product } from '@retrovault/core'
