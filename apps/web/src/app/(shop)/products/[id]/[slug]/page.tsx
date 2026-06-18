@@ -206,26 +206,22 @@ export default function ProductPage({ params }: ProductPageProps) {
                     <div className="mt-6">
                       <p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-400">Gêneros</p>
                       <div className="flex flex-wrap gap-2">
-                        {product.genre.map((genre: string) => (
-                          <span key={genre} className="rounded-md bg-zinc-100 border border-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700">
-                            {genre}
+                        {product.genre.map((genre: { id: number; name: string }) => (
+                          <span key={genre.id} className="rounded-md bg-zinc-100 border border-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700">
+                            {genre.name}
                           </span>
                         ))}
                       </div>
                     </div>
                   ) : null}
 
-                  {/* Tipo */}
-                  {product.type?.length ? (
+                  {/* Tipos */}
+                  {product.mediaType ? (
                     <div className="mt-4">
                       <p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-400">Tipo</p>
-                      <div className="flex flex-wrap gap-2">
-                        {product.type.map((type: string) => (
-                          <span key={type} className="rounded-md bg-zinc-100 border border-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700">
-                            {type}
-                          </span>
-                        ))}
-                      </div>
+                      <span className="rounded-md bg-zinc-100 border border-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700">
+                        {product.mediaType.name}
+                      </span>
                     </div>
                   ) : null}
 
