@@ -6,7 +6,7 @@ import ProductGrid from "@/components/Product/ProductGrid";
 import { useState } from "react";
 import FilterSheet from "@/components/FilterSheet";
 import { useFilters } from "@retrovault/ui-hooks";
-import  banner  from "@/../assets/image/banner.jpeg";
+import banner from "@/../assets/image/banner.jpeg";
 
 export default function Home() {
   const [recentlySeen, setRecentlySeen] = useState(false);

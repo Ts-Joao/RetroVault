@@ -26,7 +26,7 @@ export function searchProducts(
     const matchQuery =
       !query ||
       product.name.toLowerCase().includes(query.toLowerCase()) ||
-      product.seller_id.toLowerCase().includes(query.toLowerCase())
+      product.sellerId.toLowerCase().includes(query.toLowerCase())
 
     const matchMinPrice =
       minPrice === undefined ||

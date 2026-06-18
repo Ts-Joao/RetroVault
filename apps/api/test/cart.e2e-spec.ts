@@ -90,7 +90,11 @@ describe('Cart', () => {
                 price: 29.99,
                 description: 'Product for cart tests',
                 amount: 20,
-                mediaTypeId: mediaType!.id
+                mediaTypeId: mediaType!.id,
+                state: 'SP',
+                city: 'São Paulo',
+                slug: 'cart-test-product',
+                cep: '11665-310'
             })
             .expect(201)
 

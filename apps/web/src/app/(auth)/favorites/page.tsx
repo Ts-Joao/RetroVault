@@ -1,77 +1,102 @@
 'use client'
 
-import { useFavorites } from "@/lib/context/FavoritesContext"
-import Footer from "@/components/layout/footer/Footer"
-import NavBar from "@/components/layout/nav-bar/NavBar"
-import { FaHeart } from "react-icons/fa"
-import Image from "next/image"
-import FavoriteButton from "@/components/Favoritos/ButtonFavorites"
+import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
+import { FaHeart } from 'react-icons/fa'
 
-import { mockProducts }
-   from "@/lib/services/product.service"
-import { PiBag } from "react-icons/pi"
-import Link from "next/dist/client/link"
+import { useAuth } from '@/lib/context/auth.context'
+import { getFavorites } from '@/lib/services/favorites.service'
+import { getProducts } from '@/lib/services/product.client'
+import { useFavoritesStore } from '@retrovault/store'
+import type { Product, User } from '@retrovault/core'
+import ProductCard from '@/components/layout/product-grid/ProductCard'
 
 export default function FavoritesPage() {
+  const { user } = useAuth()
+  const { favorites, setFavorites, isLoading, setLoading, hydrated } = useFavoritesStore()
+  const [products, setProducts] = useState<Product[]>([])
+  const [users, setUsers] = useState<User[]>([])
 
-   const { favorites } =
-      useFavorites()
+  useEffect(() => {
+    let alive = true
 
-   const favoriteProducts =
-      mockProducts.filter(product =>
-         favorites.includes(product.id)
-      )
+    async function loadData() {
+      setLoading(true)
+      try {
+        const [allProducts, userFavorites] = await Promise.all([
+          getProducts(),
+          user?.sub ? getFavorites() : Promise.resolve([]),
+        ])
 
-   return (
+        const getUsers = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        })
+        setUsers(await getUsers.json())
 
-      <div className="min-h-screen flex flex-col">
+        if (!alive) return
+        setProducts(allProducts)
+        if (user?.sub) {
+          setFavorites(userFavorites.map((favorite) => favorite.productId))
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados de favoritos:', error)
+      } finally {
+        if (alive) setLoading(false)
+      }
+    }
 
-         <NavBar />
+    loadData()
+    return () => {
+      alive = false
+    }
+  }, [user?.sub, setFavorites, setLoading])
 
-         <main className="flex-1 p-5">
+  const favoriteProducts = useMemo(
+    () => products.filter((product) => favorites.includes(product.id)),
+    [favorites, products]
+  )
 
-            <div className="flex gap-2 items-center">
-               <FaHeart className="text-red-500 text-2xl" />
-               <h1 className="text-3xl font-barlow-condensed">Meus Favoritos</h1>
+  return (
+    <div className="w-full bg-[#F4F4F6] font-chakra-petch text-zinc-900">
+      <main className="mx-auto w-[92%] max-w-7xl py-10">
+        
+        {/* Cabeçalho da Página */}
+        <div className="mb-8 flex items-center gap-3 border-b border-zinc-200 pb-5">
+          <div className="bg-red-50 p-2.5 rounded-xl border border-red-100 flex items-center justify-center">
+            <FaHeart className="text-red-500 text-xl" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-zinc-900">Meus Favoritos</h1>
+            <p className="text-xs text-zinc-400 mt-0.5">Gerencie os itens que você salvou de toda a loja</p>
+          </div>
+        </div>
+
+        {/* Estado de Carregamento / Vazio */}
+        {isLoading || !hydrated ? (
+          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-zinc-200 shadow-sm">
+            <p className="text-zinc-500 text-sm animate-pulse">Carregando seus favoritos...</p>
+          </div>
+        ) : favoriteProducts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-zinc-200 shadow-sm px-4 text-center">
+            <div className="bg-zinc-50 p-4 rounded-full mb-3 text-zinc-300">
+              <FaHeart className="text-3xl" />
             </div>
-
-
-            <div className="flex flex-col gap-5 bg-gray-200 p-5 rounded-lg">
-
-               {favoriteProducts.map(product => (
-
-                  <div key={product.id} className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
-
-                     <div className=" flex items-center gap-4 ">
-                        <Image src={product.photo[0]} alt={product.name} width={100} height={150} className="rounded-lg" />
-                        <h1 className="text-xl">{product.name}</h1>
-                     </div>
-
-                     <div className="flex flex-col items-end gap-8">
-
-                        <FavoriteButton productId={product.id} />
-
-                        <p className="text-amber-500 flex text-lg gap-1 ">Preço: R$ <p className=" text-red-500 ">{product.price.toFixed(2)}</p></p>
-
-                        <div className="flex items-center justify-center gap-1 md:gap-2 text-center">
-                           <Link href={`/checkout/${product.id}`} className="bg-third rounded-md px-2 py-1 cursor-pointer w-full text-xs md:text-[14px]">
-                              <p>Compra Agora</p>
-                           </Link>
-                           <button className="bg-third p-1 rounded-md md:rounded-lg cursor-pointer">
-                              <PiBag className="text-[15px] md:text-lg" />
-                           </button>
-                        </div>
-
-                     </div>
-
-                  </div>
-
-               ))}
-
-            </div>
-
-         </main>
-         <Footer />
-      </div>
-   )
+            <p className="text-zinc-700 font-medium">Sua lista de favoritos está vazia</p>
+            <p className="text-xs text-zinc-400 mt-1 max-w-xs">Navegue pela loja e clique no coração para salvar produtos por aqui.</p>
+          </div>
+        ) : (
+          /* Grid de Cards de Favoritos */
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {favoriteProducts.map((product) => (
+              <ProductCard product={product} users={users} key={product.id} />
+            ))}
+          </div>
+        )}
+      </main>
+    </div>
+  )
 }

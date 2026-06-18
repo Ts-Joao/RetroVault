@@ -8,20 +8,26 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(uuid())
-  email        String        @unique
+  id           String   @id @default(uuid())
+  email        String   @unique
   name         String
   password     String
-  role         Role          @default(USER)
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
-  refreshToken String?       @map("refresh_token")
-  slug         String        @unique
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  refreshToken String?  @map("refresh_token")
+  slug         String   @unique
+  defaultCep   String?  @map("default_cep")
+
   cart         Cart?
+  favorites    Favorite[]
   order        Order[]
   products     Product[]
   profilePic   ProfilePhoto?
   wallet       Wallet?
+  favorites    Favorite[]
+  reviews      Review[]
+  couponUsages CouponUsage[]
 
   @@map("users")
 }
@@ -69,6 +75,9 @@ model Product {
   amount               Int
   rating               Decimal?       @default(0.0) @db.Decimal(2, 1)
   mediaTypeId          Int            @map("media_type_id")
+  city                 String?
+  state                String?
+  cep                  String         @default("11665-310")
   discountEnd          DateTime?      @map("discount_end")
   discountPrice        Decimal?       @map("discount_price") @db.Decimal(5, 2)
   discountStart        DateTime?      @map("discount_start")
@@ -82,12 +91,15 @@ model Product {
   isActive             Boolean        @default(true) @map("is_active")
   slug                 String         @unique
   cartItems            CartItem[]
+  favorites            Favorite[]
   orderItems           OrderItem[]
   photos               ProductPhoto[]
   view                 ProductView[]
   mediaType            MediaType      @relation(fields: [mediaTypeId], references: [id])
   seller               User           @relation(fields: [sellerId], references: [id])
   genre                Genre[]        @relation("GenreToProduct")
+  favoritedBy          Favorite[]
+  reviews              Review[]
 
   @@index([name])
   @@index([mediaTypeId])
@@ -96,6 +108,21 @@ model Product {
   @@index([rating])
   @@index([viewCount])
   @@map("products")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userId    String  @map("user_id")
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("reviews")
 }
 
 model ProductView {
@@ -139,8 +166,28 @@ model Wallet {
   userId             String              @unique @map("user_id")
   walletTransactions WalletTransaction[]
   user               User                @relation(fields: [userId], references: [id])
+  walletTopUps     WalletTopUp[]
 
   @@map("wallets")
+}
+
+model WalletTopUp {
+  id     String                @id @default(cuid())
+  amount Decimal               @db.Decimal(10, 2)
+  type   TypeWalletTransaction
+
+  walletId    String @map("wallet_id")
+  paymentId   Int?   @unique @map("payment_id")
+
+  wallet      Wallet   @relation(fields: [walletId], references: [id])
+  payment     Payment? @relation(fields: [paymentId], references: [id])
+
+  createdAt        DateTime  @default(now()) @map("created_at")
+  confirmedAt      DateTime? @map("confirmed_at")
+  confimationToken String?   @unique @map("confirmation_token")
+  tokenExpiredAt   DateTime? @map("token_expired_at")
+
+  @@map("wallet_payments")
 }
 
 model WalletTransaction {
@@ -150,23 +197,24 @@ model WalletTransaction {
   description String                @default("")
   createdAt   DateTime              @default(now()) @map("created_at")
   walletId    String                @map("wallet_id")
-  paymentId   Int?                  @map("payment_id")
-  payment     Payment?              @relation(fields: [paymentId], references: [id])
+  paymentId   Int?                  @unique @map("payment_id")
   wallet      Wallet                @relation(fields: [walletId], references: [id])
+  payment     Payment?              @relation(fields: [paymentId], references: [id])
 
   @@map("wallet_transactions")
 }
 
 model Order {
-  id          String      @id @default(cuid())
-  status      OrderStatus @default(PENDING)
-  totalAmount Decimal     @map("total_amount") @db.Decimal(5, 2)
-  orderDate   DateTime    @default(now()) @map("order_date")
-  address     String
-  userId      String      @map("user_id")
-  orderItems  OrderItem[]
-  user        User        @relation(fields: [userId], references: [id])
-  payment     Payment?
+  id           String       @id @default(cuid())
+  status       OrderStatus  @default(PENDING)
+  totalAmount  Decimal      @map("total_amount") @db.Decimal(5, 2)
+  orderDate    DateTime     @default(now()) @map("order_date")
+  address      String
+  userId       String       @map("user_id")
+  orderItems   OrderItem[]
+  couponUsages CouponUsage?
+  user         User         @relation(fields: [userId], references: [id])
+  payment      Payment?
 
   @@map("orders")
 }
@@ -189,13 +237,69 @@ model Payment {
   status             PaymentStatus       @default(PENDING)
   paymentMethod      PaymentMethod?      @map("payment_method")
   installments       Int?
-  orderId            String              @unique @map("order_id")
   confirmationCode   String?             @unique @map("confirmation_code")
   tokenExpiresAt     DateTime?           @map("token_expires_at")
-  order              Order               @relation(fields: [orderId], references: [id])
-  walletTransactions WalletTransaction[]
+
+  orderId            String?             @unique @map("order_id")
+  order              Order?               @relation(fields: [orderId], references: [id])
+
+  walletTopUpId      String?             @unique @map("wallet_top_up_id")
+  walletTopUp        WalletTopUp?
+
+  walletTransactionId      String?             @unique @map("wallet_transaction_id")
+  walletTransaction        WalletTransaction?
 
   @@map("payments")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId    String  @map("user_id")
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("favorites")
+}
+
+model Coupon {
+  id    String     @id @default(uuid())
+  code  String     @unique
+  type  CouponType
+  value Decimal    @db.Decimal(5, 2)
+
+  maxUses   Int       @default(0) @map("max_uses")
+  isActive  Boolean   @default(true) @map("is_active")
+  expiresAt DateTime? @map("expires_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  usages CouponUsage[]
+}
+
+model CouponUsage {
+  id     String   @id @default(cuid())
+  usedAt DateTime @default(now()) @map("used_at")
+
+  userId   String @map("user_id")
+  couponId String @map("coupon_id")
+  orderId  String @unique @map("order_id")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  order  Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, couponId, orderId])
+  @@map("coupon_usages")
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED
 }
 
 enum Role {

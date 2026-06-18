@@ -10,6 +10,7 @@ import { BcryptService } from './hash/bcrypt.service';
 import { HashingServiceProtocol } from './hash/hashing.service';
 import jwtConfig from './config/jwt.config';
 import { AuthTokenGuard } from './guard/auth-token.guard';
+import { RefreshGuard } from './guard/refresh.guard';
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { AuthTokenGuard } from './guard/auth-token.guard';
       provide: HashingServiceProtocol,
       useClass: BcryptService
     },
-    AuthTokenGuard
+    AuthTokenGuard,
+    RefreshGuard
   ],
   controllers: [AuthController],
   exports: [
@@ -41,7 +43,8 @@ import { AuthTokenGuard } from './guard/auth-token.guard';
     SelfGuard,
     HashingServiceProtocol,
     AuthService,
-    AuthTokenGuard
+    AuthTokenGuard,
+    RefreshGuard
   ],
 })
 export class AuthModule {}

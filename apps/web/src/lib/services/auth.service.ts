@@ -13,11 +13,16 @@ export async function getMe() {
 
 export async function login(body: LoginDto) {
   try {
-    const { data } = await api.post<{ message: string }>('/auth/login', body);
+    const { data } = await api.post<{ message: string; accessToken: string }>('/auth/login', body);
     return data;
   } catch (err: any) {
     throw err;
   }
+}
+
+export async function refreshSession() {
+  const { data } = await api.post<{ accessToken: string }>('/auth/refresh')
+  return data
 }
 
 export async function logout() {

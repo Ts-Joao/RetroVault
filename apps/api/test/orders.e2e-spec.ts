@@ -71,11 +71,15 @@ describe('Orders', () => {
             .post('/products')
             .set('Authorization', `Bearer ${sellerAccessToken}`)
             .send({
-                name: 'Order Test Product',
+                name: 'Cart Test Product',
                 price: 29.99,
-                description: 'Product for order tests',
-                amount: 50,
-                mediaTypeId: mediaType!.id
+                description: 'Product for cart tests',
+                amount: 20,
+                mediaTypeId: mediaType!.id,
+                state: 'SP',
+                city: 'São Paulo',
+                slug: 'cart-test-product',
+                cep: '11665-310'
             })
             .expect(201)
         productId = productRes.body.id

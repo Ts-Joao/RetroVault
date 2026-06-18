@@ -13,11 +13,22 @@ import { CurrentUser } from './decorator/current-user.decorator';
 import type { Response, Request } from 'express';
 import { PayloadDto } from './dto/payload.dto';
 import { AuthTokenGuard } from './guard/auth-token.guard';
+import { RefreshGuard } from './guard/refresh.guard';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @ApiOperation({ summary: 'Login user' })
+  @ApiBody({ type: LoginDto })
+  @ApiResponse({ status: 201, description: 'User logged in successfully' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @Post('login')
   async login(
     @Body() loginDto: LoginDto,
@@ -35,29 +46,29 @@ export class AuthController {
     return { message: 'Logged in successfully!', accessToken };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user' })
+  @ApiResponse({ status: 200, description: 'User found successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Get('me')
   @UseGuards(AuthTokenGuard)
   me(@CurrentUser() user: PayloadDto) {
     return user.sub;
   }
 
+  @ApiOperation({ summary: 'Refresh token' })
+  @ApiResponse({ status: 200, description: 'Token refreshed successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Post('refresh')
-  async refresh(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const { accessToken, refreshToken: newRefreshToken } = await this.authService.refresh(req.cookies?.refresh_token);
-
-    res.cookie('refresh_token', newRefreshToken, {
-      httpOnly: true,
-      sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production',
-      path: '/api/auth/refresh'
-    });
-
-    return { message: 'Token refreshed successfully!', accessToken };
+  @UseGuards(RefreshGuard)
+  async refresh(@CurrentUser() user: PayloadDto) {
+    return this.authService.generateToken(user.sub, user.email, user.role, user.name, user.slug)
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Logout user' })
+  @ApiResponse({ status: 200, description: 'User logged out successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Post('logout')
   @UseGuards(AuthTokenGuard)
   async logout(
