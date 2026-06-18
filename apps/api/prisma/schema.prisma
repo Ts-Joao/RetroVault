@@ -25,7 +25,6 @@ model User {
   products     Product[]
   profilePic   ProfilePhoto?
   wallet       Wallet?
-  favorites    Favorite[]
   reviews      Review[]
   couponUsages CouponUsage[]
 
@@ -91,7 +90,6 @@ model Product {
   isActive             Boolean        @default(true) @map("is_active")
   slug                 String         @unique
   cartItems            CartItem[]
-  favorites            Favorite[]
   orderItems           OrderItem[]
   photos               ProductPhoto[]
   view                 ProductView[]
