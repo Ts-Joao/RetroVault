@@ -18,24 +18,21 @@ export class CartService {
 
   async getCart(userId: string) {
     try {
+      const include = {
+        cartItem: {
+          include: { product: { include: { photos: true } } },
+        },
+      };
+
       let findCart = await this.databaseService.cart.findUnique({
         where: { userId },
-        include: {
-          cartItem: {
-            include: { product: { include: { photos: true } } },
-          },
-        },
+        include,
       });
 
       if (!findCart) {
-        // create an empty cart for the user so items can be added and persisted
         findCart = await this.databaseService.cart.create({
           data: { userId },
-          include: {
-            cartItem: {
-              include: { product: true },
-            },
-          },
+          include,
         });
       }
 
@@ -52,7 +49,7 @@ export class CartService {
   async addItem(userId: string, dto: AddItemDto) {
     try {
       const cart = await this.getCart(userId);
-      await this.productService.getActiveProductById(dto.productId)
+      await this.productService.getActiveProductById(dto.productId);
 
       const product = await this.productService.getById(dto.productId);
 
@@ -121,7 +118,7 @@ export class CartService {
       await this.getCart(tokenPayload.sub);
 
       await this.databaseService.cartItem.deleteMany({
-        where: { cartId: cartId }
+        where: { cartId: cartId },
       });
 
       return { message: 'cart successfully emptied' };
@@ -159,7 +156,6 @@ export class CartService {
     }
   }
 
-
   async getCartTotal(tokenPayload: PayloadDto) {
     try {
       const cart = await this.getCart(tokenPayload.sub);
@@ -171,7 +167,7 @@ export class CartService {
       return {
         cart,
         total: total.toFixed(2),
-        itemCount: cart.cartItem.reduce((sum, item) => sum + item.amount, 0)
+        itemCount: cart.cartItem.reduce((sum, item) => sum + item.amount, 0),
       };
     } catch (error) {
       if (error instanceof HttpException) {
