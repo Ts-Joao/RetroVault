@@ -24,7 +24,6 @@ model User {
   products     Product[]
   profilePic   ProfilePhoto?
   wallet       Wallet?
-  favorites    Favorite[]
   reviews      Review[]
   couponUsages CouponUsage[]
 

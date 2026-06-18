@@ -18,7 +18,7 @@ export class CartService {
 
   async getCart(userId: string) {
     try {
-      const findCart = await this.databaseService.cart.findUnique({
+      let findCart = await this.databaseService.cart.findUnique({
         where: { userId },
         include: {
           cartItem: {
@@ -28,12 +28,20 @@ export class CartService {
       });
 
       if (!findCart) {
-        throw new NotFoundException('Cart not found');
+        // create an empty cart for the user so items can be added and persisted
+        findCart = await this.databaseService.cart.create({
+          data: { userId },
+          include: {
+            cartItem: {
+              include: { product: true },
+            },
+          },
+        });
       }
 
       return findCart;
     } catch (error) {
-      if (error instanceof NotFoundException) {
+      if (error instanceof HttpException) {
         throw error;
       }
 
