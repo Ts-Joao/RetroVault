@@ -1,11 +1,21 @@
-import { useEffect, useRef } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, Modal, Animated, Dimensions } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useCartStore } from '@retrovault/store';
-import { CartItem, formatPrice } from '@retrovault/core';
+import { useEffect, useRef } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  Modal,
+  Animated,
+  Dimensions,
+} from "react-native";
+import { Feather } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useCartStore } from "@retrovault/store";
+import { CartItem, formatPrice } from "@retrovault/core";
+import { getProductImage } from "@/lib/productImages";
 
-const DRAWER_WIDTH = Dimensions.get('window').width * 0.75;
+const DRAWER_WIDTH = Dimensions.get("window").width * 0.75;
 
 interface Props {
   visible: boolean;
@@ -14,7 +24,7 @@ interface Props {
 
 export default function CartDrawer({ visible, onClose }: Props) {
   const translateX = useRef(new Animated.Value(DRAWER_WIDTH)).current;
-  const { items, increment, decrement, total } = useCartStore();
+  const { items, increment, decrement, computeTotal } = useCartStore();
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
@@ -27,15 +37,18 @@ export default function CartDrawer({ visible, onClose }: Props) {
 
   const renderItem = ({ item }: { item: CartItem }) => (
     <View className="flex-row items-center gap-3 py-3 border-b border-gray-100">
-      <View className='flex justify-center items-center h-20 w-20 bg-white'>
+      <View className="flex justify-center items-center h-20 w-20 bg-white">
         <Image
-          source={item.product.photo as any}
-          style={{ width: '100%', height: '100%' }}
+          source={getProductImage(item.product)}
+          style={{ width: "100%", height: "100%" }}
           resizeMode="contain"
         />
       </View>
       <View className="flex-1">
-        <Text className="text-sm font-semibold text-gray-800 font-chakra" numberOfLines={2}>
+        <Text
+          className="text-sm font-semibold text-gray-800 font-chakra"
+          numberOfLines={2}
+        >
           {item.product.name}
         </Text>
         <Text className="text-sm text-primary font-bold mt-1 font-chakra">
@@ -63,21 +76,26 @@ export default function CartDrawer({ visible, onClose }: Props) {
   );
 
   return (
-    <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="none"
+      onRequestClose={onClose}
+    >
       <TouchableOpacity
-        style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}
+        style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
         activeOpacity={1}
         onPress={onClose}
       />
 
       <Animated.View
         style={{
-          position: 'absolute',
+          position: "absolute",
           right: 0,
           top: 0,
           bottom: 0,
           width: DRAWER_WIDTH,
-          backgroundColor: '#fff',
+          backgroundColor: "#fff",
           transform: [{ translateX }],
           paddingTop: insets.top,
           paddingBottom: insets.bottom,
@@ -89,7 +107,9 @@ export default function CartDrawer({ visible, onClose }: Props) {
           {items.length === 0 ? (
             <View className="flex-1 items-center justify-center gap-2">
               <Feather name="shopping-cart" size={40} color="#9ca3af" />
-              <Text className="text-gray-400 text-sm">Seu carrinho está vazio</Text>
+              <Text className="text-gray-400 text-sm">
+                Seu carrinho está vazio
+              </Text>
             </View>
           ) : (
             <>
@@ -101,13 +121,17 @@ export default function CartDrawer({ visible, onClose }: Props) {
               />
               <View className="border-t border-gray-200 pt-4 gap-3 pb-4">
                 <View className="flex-row justify-between items-center">
-                  <Text className="text-gray-500 text-sm font-chakra">Total</Text>
+                  <Text className="text-gray-500 text-sm font-chakra">
+                    Total
+                  </Text>
                   <Text className="text-primary font-bold text-lg font-chakra">
-                    R$ {formatPrice(total())}
+                    R$ {formatPrice(computeTotal())}
                   </Text>
                 </View>
                 <TouchableOpacity className="bg-primary py-3 rounded-xl items-center">
-                  <Text className="text-white font-semibold text-lg font-chakra">Finalizar compra</Text>
+                  <Text className="text-white font-semibold text-lg font-chakra">
+                    Finalizar compra
+                  </Text>
                 </TouchableOpacity>
               </View>
             </>

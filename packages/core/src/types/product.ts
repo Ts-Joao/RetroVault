@@ -1,4 +1,4 @@
-import type { ProductPhoto } from "./productPhoto"
+import type { ProductPhoto } from "./productPhoto";
 
 export interface Product {
     id: string
@@ -20,7 +20,7 @@ export interface Product {
 }
 
 export interface ProductDetails extends Product {
-    description: string
-    amount: number
-    comments: string
+  description: string;
+  amount: number;
+  comments: string;
 }

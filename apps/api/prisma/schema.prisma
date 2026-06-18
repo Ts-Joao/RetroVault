@@ -20,6 +20,7 @@ model User {
   defaultCep   String?  @map("default_cep")
 
   cart         Cart?
+  favorites    Favorite[]
   order        Order[]
   products     Product[]
   profilePic   ProfilePhoto?
@@ -90,6 +91,7 @@ model Product {
   isActive             Boolean        @default(true) @map("is_active")
   slug                 String         @unique
   cartItems            CartItem[]
+  favorites            Favorite[]
   orderItems           OrderItem[]
   photos               ProductPhoto[]
   view                 ProductView[]
