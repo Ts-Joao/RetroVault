@@ -1,4 +1,54 @@
 services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: retrovault-api
+    restart: unless-stopped
+    env_file:
+      - apps/api/.env
+    depends_on:
+      - postgres
+    ports:
+      - "4000:4000"
+
+  admin:
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+    container_name: retrovault-admin
+    restart: unless-stopped
+    env_file:
+      - apps/admin/.env
+    depends_on:
+      - api
+    ports:
+      - "5000:3000"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: retrovault-web
+    restart: unless-stopped
+    env_file:
+      - apps/web/.env
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+
+  mobile:
+    build: 
+      context: .
+      dockerfile: apps/mobile/Dockerfile
+    container_name: retrovault-mobile
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "8081:8081"
+
   postgres:
     image: postgres:18
     container_name: retrovault-db
