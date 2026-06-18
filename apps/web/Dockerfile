@@ -20,4 +20,4 @@ WORKDIR /app
 RUN pnpm --filter web build
 
 EXPOSE 3000
-CMD ["pnpm", "--filter", "web", "run", "dev"]
+CMD ["pnpm", "--filter", "web", "run", "start"]

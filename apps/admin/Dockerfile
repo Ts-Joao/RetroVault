@@ -19,4 +19,4 @@ WORKDIR /app
 RUN pnpm --filter admin build
 
 EXPOSE 3000
-CMD ["pnpm", "--filter", "admin", "run", "dev"]
+CMD ["pnpm", "--filter", "admin", "run", "start"]
