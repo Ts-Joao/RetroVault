@@ -8,17 +8,15 @@ import {
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { randomUUID } from 'crypto';
-import { OrderStatus, Payment, PaymentStatus } from '@prisma/client';
+import { OrderStatus, Payment, PaymentStatus, TypeWalletTransaction } from '@prisma/client';
 
 @Injectable()
 export class PaymentService {
-  constructor(
-    private readonly databaseService: DatabaseService,
-  ) {}
+  constructor(private readonly databaseService: DatabaseService) {}
 
   async simulation(orderId: string, userId: string) {
     try {
-      const order = await this.findOrderPending(orderId, userId);
+      await this.findOrderPending(orderId, userId);
 
       const token = randomUUID();
       const datePayment = new Date(Date.now() + 5 * 60 * 1000);
@@ -60,17 +58,50 @@ export class PaymentService {
           },
           data: {
             status: PaymentStatus.CAPTURED,
+            paidAt: new Date(),
           },
         });
 
-        await tx.order.update({
-          where: {
-            id: payment.orderId,
-          },
-          data: {
-            status: OrderStatus.PAID,
-          },
-        });
+        if (payment.orderId) {
+          await tx.order.update({
+            where: {
+              id: payment.orderId,
+            },
+            data: {
+              status: OrderStatus.PAID,
+            },
+          });
+        }
+
+        if (payment.walletTopUpId) {
+          const walletTopUp = await tx.walletTopUp.findUnique({
+            where: {
+              id: payment.walletTopUpId,
+            },
+          });
+
+          if (!walletTopUp) {
+            throw new NotFoundException('Wallet top up not found');
+          }
+
+          await tx.wallet.update({
+            where: {
+              id: walletTopUp.walletId,
+            },
+            data: {
+              balance: { increment: walletTopUp.amount },
+            },
+          });
+
+          await tx.walletTransaction.create({
+            data: {
+              walletId: walletTopUp.walletId,
+              type: TypeWalletTransaction.DEPOSIT,
+              amount: walletTopUp.amount,
+              paymentId: payment.id,
+            },
+          });
+        }
       });
 
       return 'Payment confirmed successfully';
@@ -104,12 +135,13 @@ export class PaymentService {
 
   private async getPaymentWithOrder(confirmationCode: string) {
     const payment = await this.databaseService.payment.findFirst({
-        where: {
-          confirmationCode: confirmationCode,
-        },
-        include: {
-          order: true,
-        }
+      where: {
+        confirmationCode: confirmationCode,
+      },
+      include: {
+        order: true,
+        walletTopUp: true,
+      },
     });
 
     if (!payment) {
@@ -124,7 +156,7 @@ export class PaymentService {
       await this.databaseService.$transaction(async (tx) => {
         await tx.order.update({
           where: {
-            id: payment.orderId,
+            id: payment.orderId!,
           },
           data: {
             status: OrderStatus.CANCELED,
