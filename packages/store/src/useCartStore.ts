@@ -1,55 +1,41 @@
-import { create } from 'zustand'
-import { CartItem, Product } from '@retrovault/core'
+import { create } from "zustand";
+import { CartItem } from "@retrovault/core";
 
-type CartStore = {
-    items: CartItem[]
-    setItems: (items: CartItem[]) => void
-    increment: (productId: string) => void
-    decrement: (productId: string) => void
-    addItem: (product: Product) => void
-    total: () => number
-}
+type CartState = {
+  items: CartItem[];
+  total: number;
+  itemCount: number;
 
-export const useCartStore = create<CartStore>((set, get) => ({
-    items: [],
+  setCart: (items: CartItem[], total: number, itemCount: number) => void;
 
-    setItems: (items) => set({ items }),
+  clearCart: () => void;
 
-    addItem: (product: Product) => set((state) => {
-        const existingItem = state.items.find(item => item.product.id === product.id);
+  clearLocally: () => void;
+};
 
-        if (existingItem) {
-            return {
-                items: state.items.map(item =>
-                    item.product.id === product.id 
-                        ? { ...item, quantity: item.quantity + 1 } 
-                        : item
-                )
-            };
-        }
+export const useCartStore = create<CartState>((set) => ({
+  items: [],
+  total: 0,
+  itemCount: 0,
 
-        return { items: [...state.items, { product, quantity: 1 }] };
+  setCart: (items, total, itemCount) =>
+    set({
+      items: items.filter((item) => item?.product),
+      total,
+      itemCount,
     }),
 
-    increment: (productId) => set((state) => ({
-        items: state.items.map((item) =>
-            item.product.id === productId
-                ? { ...item, quantity: item.quantity + 1 }
-                : item
-        ),
-    })),
+  clearCart: () =>
+    set({
+      items: [],
+      total: 0,
+      itemCount: 0,
+    }),
 
-    decrement: (productId) => set((state) => ({
-        items: state.items.map((item) =>
-            item.product.id === productId
-                ? { ...item, quantity: item.quantity - 1 }
-                : item
-        ).filter((item) => item.quantity > 0),
+  clearLocally: () =>
+    set((state) => ({
+      items: state.items.filter((item) => item.product !== null),
+      total: state.total,
+      itemCount: state.itemCount,
     })),
-
-    total: () =>
-        get().items.reduce(
-            (acc, item) => acc + item.product.price * item.quantity,
-            0
-        ),
 }));

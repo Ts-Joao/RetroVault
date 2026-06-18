@@ -9,6 +9,8 @@ describe('Cart', () => {
     let prisma: DatabaseService
     let userId: string
     let sellerId: string
+    let accessToken: string
+    let sellerAccessToken: string
     let productId: string
     let cartItemId: string
     let cartId: string
@@ -63,18 +65,36 @@ describe('Cart', () => {
             data: { role: 'SELLER' }
         })
 
+        // Log in buyer
+        const loginResponse = await request(app.getHttpServer())
+            .post('/auth/login')
+            .send({ email: 'buyer@example.com', password: 'Strong123@' })
+            .expect(201)
+        accessToken = loginResponse.body.accessToken
+
+        // Log in seller
+        const sellerLoginResponse = await request(app.getHttpServer())
+            .post('/auth/login')
+            .send({ email: 'cart-seller@example.com', password: 'Strong123@' })
+            .expect(201)
+        sellerAccessToken = sellerLoginResponse.body.accessToken
+
         // Create a product for the cart
         const mediaType = await prisma.mediaType.findFirst({ where: { name: 'GAME' } });
 
         const productResponse = await request(app.getHttpServer())
             .post('/products')
-            .set('user-id', sellerId)
+            .set('Authorization', `Bearer ${sellerAccessToken}`)
             .send({
                 name: 'Cart Test Product',
                 price: 29.99,
                 description: 'Product for cart tests',
                 amount: 20,
-                mediaTypeId: mediaType!.id
+                mediaTypeId: mediaType!.id,
+                state: 'SP',
+                city: 'São Paulo',
+                slug: 'cart-test-product',
+                cep: '11665-310'
             })
             .expect(201)
 
@@ -91,7 +111,7 @@ describe('Cart', () => {
     it('/POST cart - should add item to cart', async () => {
         const response = await request(app.getHttpServer())
             .post('/cart')
-            .set('user-id', userId)
+            .set('Authorization', `Bearer ${accessToken}`)
             .send({
                 productId: productId,
                 amount: 2
@@ -109,7 +129,7 @@ describe('Cart', () => {
     it('/POST cart - should increase amount when adding same product', async () => {
         const response = await request(app.getHttpServer())
             .post('/cart')
-            .set('user-id', userId)
+            .set('Authorization', `Bearer ${accessToken}`)
             .send({
                 productId: productId,
                 amount: 3
@@ -123,7 +143,7 @@ describe('Cart', () => {
     it('/GET cart - should get cart with items and total', async () => {
         const response = await request(app.getHttpServer())
             .get('/cart')
-            .set('user-id', userId)
+            .set('Authorization', `Bearer ${accessToken}`)
             .expect(200)
 
         cartId = response.body.cart.id
@@ -139,7 +159,7 @@ describe('Cart', () => {
     it('/PATCH cart/:id - should update item amount', async () => {
         const response = await request(app.getHttpServer())
             .patch(`/cart/${cartItemId}`)
-            .set('user-id', userId)
+            .set('Authorization', `Bearer ${accessToken}`)
             .send({ amount: 1 })
             .expect(200)
 
@@ -150,7 +170,7 @@ describe('Cart', () => {
     it('/DELETE cart/:id - should remove item from cart', async () => {
         const response = await request(app.getHttpServer())
             .delete(`/cart/${cartId}`)
-            .set('user-id', userId)
+            .set('Authorization', `Bearer ${accessToken}`)
             .send({ id: cartItemId })
             .expect(200)
 
@@ -162,7 +182,7 @@ describe('Cart', () => {
         // Add an item first
         await request(app.getHttpServer())
             .post('/cart')
-            .set('user-id', userId)
+            .set('Authorization', `Bearer ${accessToken}`)
             .send({
                 productId: productId,
                 amount: 1
@@ -170,8 +190,8 @@ describe('Cart', () => {
             .expect(201)
 
         const response = await request(app.getHttpServer())
-            .delete('/cart')
-            .set('user-id', userId)
+            .delete(`/cart/clear/${cartId}`)
+            .set('Authorization', `Bearer ${accessToken}`)
             .expect(200)
 
         console.log(response.body)

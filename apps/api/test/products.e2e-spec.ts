@@ -8,6 +8,7 @@ describe('Products', () => {
     let app: INestApplication
     let prisma: DatabaseService
     let sellerId: string
+    let accessToken: string
     let productId: string
     let mediaTypeId: number
 
@@ -51,6 +52,17 @@ describe('Products', () => {
             where: { id: sellerId },
             data: { role: 'SELLER' }
         })
+
+        // Log in to get token
+        const loginResponse = await request(app.getHttpServer())
+            .post('/auth/login')
+            .send({
+                email: 'seller@example.com',
+                password: 'Strong123@'
+            })
+            .expect(201)
+
+        accessToken = loginResponse.body.accessToken
     })
 
     afterAll(async () => {
@@ -66,12 +78,15 @@ describe('Products', () => {
             price: 59.99,
             description: 'Classic SNES game',
             amount: 10,
-            mediaTypeId: mediaTypeId
+            mediaTypeId: mediaTypeId,
+            state: 'SP',
+            city: 'São Paulo',
+            cep: '11665-310'
         }
 
         const response = await request(app.getHttpServer())
             .post('/products')
-            .set('user-id', sellerId)
+            .set('Authorization', `Bearer ${accessToken}`)
             .send(productData)
             .expect(201)
 
@@ -125,7 +140,7 @@ describe('Products', () => {
 
         const response = await request(app.getHttpServer())
             .patch(`/products/${productId}`)
-            .set('user-id', sellerId)
+            .set('Authorization', `Bearer ${accessToken}`)
             .send(updateData)
             .expect(200)
 
@@ -136,7 +151,7 @@ describe('Products', () => {
     it('/PATCH products/soft-delete/:id - should soft delete a product', async () => {
         const response = await request(app.getHttpServer())
             .patch(`/products/soft-delete/${productId}`)
-            .set('user-id', sellerId)
+            .set('Authorization', `Bearer ${accessToken}`)
             .expect(200)
 
         console.log(response.body)
@@ -156,13 +171,16 @@ describe('Products', () => {
         // First, re-create a product to delete
         const createResponse = await request(app.getHttpServer())
             .post('/products')
-            .set('user-id', sellerId)
+            .set('Authorization', `Bearer ${accessToken}`)
             .send({
                 name: 'Product to Delete',
                 price: 9.99,
                 description: 'Will be deleted',
                 amount: 1,
-                mediaTypeId: mediaTypeId
+                mediaTypeId: mediaTypeId,
+                state: 'SP',
+                city: 'São Paulo',
+                cep: '11665-310'
             })
             .expect(201)
 
@@ -170,7 +188,7 @@ describe('Products', () => {
 
         const response = await request(app.getHttpServer())
             .delete(`/products/${deleteId}`)
-            .set('user-id', sellerId)
+            .set('Authorization', `Bearer ${accessToken}`)
             .expect(200)
 
         console.log(response.body)

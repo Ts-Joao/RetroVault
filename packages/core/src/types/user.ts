@@ -3,6 +3,8 @@ export interface User {
     name: string
     slug: string
     email: string
-    photo: string
-    products: string[]
+    photo?: string | null
+    products?: string[]
+    role: string
+    defaultCep?: string | null
 }

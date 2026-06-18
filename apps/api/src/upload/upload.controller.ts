@@ -5,56 +5,109 @@ import {
   Get,
   Param,
   UploadedFile,
+  UploadedFiles,
   UseInterceptors,
-  Headers,
+  UseGuards,
 } from '@nestjs/common';
 import { UploadService } from './upload.service';
 import { ProfilePhotoInterceptor } from './interceptors/profile-photo.interceptor';
 import { ProductPhotoInterceptor } from './interceptors/product-photo.interceptor';
+import { AuthTokenGuard } from 'src/auth/guard/auth-token.guard';
+import { TokenPayloadParam } from 'src/auth/param/token-payload.param';
+import { PayloadDto } from 'src/auth/dto/payload.dto';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @Controller('uploads')
 export class UploadController {
-    constructor(private readonly uploadService: UploadService) {}
+  constructor(private readonly uploadService: UploadService) {}
 
-    @Post('profile')
-    @UseInterceptors(ProfilePhotoInterceptor)
-    uploadProfile(
-        @Headers('user-id') userId: string,
-        @UploadedFile() file: Express.Multer.File,
-    ) {
-        return this.uploadService.uploadProfilePhoto(userId, file);
-    }
+  @ApiBearerAuth()
+  @UseGuards(AuthTokenGuard)
+  @ApiOperation({ summary: 'Upload profile photo' })
+  @ApiBody({ type: 'file' })
+  @ApiResponse({
+    status: 200,
+    description: 'Profile photo uploaded successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Profile photo not found' })
+  @Post('profile')
+  @UseInterceptors(ProfilePhotoInterceptor)
+  uploadProfile(
+    @TokenPayloadParam() payload: PayloadDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.uploadService.uploadProfilePhoto(payload.sub, file);
+  }
 
-    @Get('profile')
-    getProfilesPhoto(@Headers('user-id') userId: string) {
-        return this.uploadService.getProfilePhoto(userId);
-    }
+  @ApiOperation({ summary: 'Get profile photo' })
+  @ApiResponse({ status: 200, description: 'Profile photo found successfully' })
+  @ApiResponse({ status: 404, description: 'Profile photo not found' })
+  @Get('profile')
+  getProfilesPhoto(@TokenPayloadParam() payload: PayloadDto) {
+    return this.uploadService.getProfilePhoto(payload.sub);
+  }
 
-    @Delete('profile')
-    deleteProfilePhoto(@Headers('user-id') userId: string) {
-        return this.uploadService.deleteProfilePhoto(userId);
-    }
+  @ApiBearerAuth()
+  @UseGuards(AuthTokenGuard)
+  @ApiOperation({ summary: 'Delete profile photo' })
+  @ApiResponse({
+    status: 200,
+    description: 'Profile photo deleted successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Profile photo not found' })
+  @Delete('profile')
+  deleteProfilePhoto(@TokenPayloadParam() payload: PayloadDto) {
+    return this.uploadService.deleteProfilePhoto(payload.sub);
+  }
 
-    @Post('products/:productId')
-    @UseInterceptors(ProductPhotoInterceptor)
-    uploadProductphoto(
-        @Headers('user-id') userId: string,
-        @Param('productId') productId: string,
-        @UploadedFile() file: Express.Multer.File
-    ) {
-        return this.uploadService.uploadProductPhoto(userId, productId, file)
-    }
+  @ApiBearerAuth()
+  @UseGuards(AuthTokenGuard)
+  @ApiOperation({ summary: 'Upload product photo' })
+  @ApiBody({ type: 'file' })
+  @ApiResponse({
+    status: 200,
+    description: 'Product photo uploaded successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Product photo not found' })
+  @Post('products/:productId')
+  @UseInterceptors(ProductPhotoInterceptor)
+  uploadProductPhoto(
+    @TokenPayloadParam() payload: PayloadDto,
+    @Param('productId') productId: string,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    return this.uploadService.uploadProductPhoto(payload.sub, productId, files);
+  }
 
-    @Get('products/:productId')
-    getProductPhotos(@Param('productId') productId: string) {
-        return this.uploadService.getProductPhoto(productId);
-    }
+  @ApiOperation({ summary: 'Get product photos' })
+  @ApiResponse({
+    status: 200,
+    description: 'Product photos found successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Product photos not found' })
+  @Get('products/:productId')
+  getProductPhotos(@Param('productId') productId: string) {
+    return this.uploadService.getProductPhoto(productId);
+  }
 
-    @Delete('photo/:photoId')
-    deleteProductPhoto(
-        @Headers('user-id') userId: string,
-        @Param('photoId') photoId: string,
-    ) {
-        return this.uploadService.deleteProductPhoto(userId, photoId);
-    }
-} 
+  @ApiBearerAuth()
+  @UseGuards(AuthTokenGuard)
+  @ApiOperation({ summary: 'Delete product photo' })
+  @ApiResponse({
+    status: 200,
+    description: 'Product photo deleted successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Product photo not found' })
+  @Delete('photo/:photoId')
+  deleteProductPhoto(
+    @TokenPayloadParam() payload: PayloadDto,
+    @Param('photoId') photoId: string,
+  ) {
+    return this.uploadService.deleteProductPhoto(payload.sub, photoId);
+  }
+}
