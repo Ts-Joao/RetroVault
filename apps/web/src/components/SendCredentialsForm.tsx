@@ -1,5 +1,12 @@
 import { createUser } from "@/lib/services/user.client";
 
-export async function SendCredentialsForm(name: string, email: string, password: string) {
-  const userData = await createUser(name, email, password)
+export type AddUser = {
+    name: string
+    email: string
+    password: string
+    cep?: string
+}
+
+export async function SendCredentialsForm(data: AddUser) {
+  await createUser(data)
 }

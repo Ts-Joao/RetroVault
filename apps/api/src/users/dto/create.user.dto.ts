@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsNotEmpty, IsString, IsStrongPassword } from "class-validator";
+import { IsEmail, IsNotEmpty, IsOptional, IsString, IsStrongPassword, MaxLength, MinLength } from "class-validator";
 
 export class CreateUserDto {
     @ApiProperty({
@@ -26,4 +26,14 @@ export class CreateUserDto {
     @IsNotEmpty({ message: 'Password is required' })
     @IsStrongPassword()
     readonly password: string
+
+    @ApiProperty({
+        example: '12345678',
+        description: 'CEP of the user',
+    })
+    @IsString({ message: 'CEP must be a string' })
+    @IsOptional({ message: 'CEP is optional' })
+    @MinLength(8, { message: 'CEP must be at least 8 characters long' })
+    @MaxLength(8, { message: 'CEP must be at most 8 characters long' })
+    readonly cep?: string
 }
