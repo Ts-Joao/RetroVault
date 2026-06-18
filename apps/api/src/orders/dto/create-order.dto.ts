@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PaymentMethod } from '@prisma/client';
+import { CartItem, PaymentMethod } from '@prisma/client';
 import {
+  IsArray,
     IsEnum,
     IsInt,
     IsOptional,
@@ -40,4 +41,13 @@ export class CreateOrderDto {
   @IsString()
   @IsOptional()
   readonly couponCode?: string;
+
+  @ApiProperty({
+    example: [],
+    description: 'Order items',
+    required: false,
+  })
+  @IsArray()
+  @IsOptional()
+  readonly orderItens?: CartItem[];
 }

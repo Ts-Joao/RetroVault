@@ -1,7 +1,10 @@
 'use client'
 
 import { useEffect } from 'react'
-import { PiTruck, PiMoney, PiPlusSquare, PiMinusSquare, PiShieldCheckBold } from 'react-icons/pi'
+import { PiTruck, PiMoney, PiShieldCheckBold } from 'react-icons/pi'
+import { IoIosRemoveCircleOutline } from 'react-icons/io'
+import { IoAddCircleOutline } from 'react-icons/io5'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import StarRating from '@/components/StarRating'
@@ -25,38 +28,44 @@ type Props = {
 export default function CheckoutClient({ product, seller }: Props) {
   const { user } = useAuth()
   const { quantity, increment, decrement } = useQuantity()
-  const { wallet, history, setWallet, setHistory, setLoading, isLoading } = useWalletStore()
+  const { setWallet, setHistory, setLoading } = useWalletStore()
   const total = product.price * quantity
 
   useEffect(() => {
     useCartStore.setState({ total: total })
   }, [total])
 
-  const { units, cents } = splitPrice(total)
-
-  const firstPhoto = product.photos?.[0]?.url || ''
-  const imageUrl = firstPhoto.startsWith('/uploads') ? `${process.env.NEXT_PUBLIC_API_URL}${firstPhoto}` : firstPhoto
-
   useEffect(() => {
     if (!user?.sub) return
     let alive = true
+
     async function loadWallet() {
       setLoading(true)
       try {
         const [walletData, historyData] = await Promise.all([
-          getWallet(user.sub),
-          getWalletHistory(user.sub),
+          getWallet(user!.sub),
+          getWalletHistory(user!.sub),
         ])
         if (!alive) return
         setWallet(walletData)
         setHistory(historyData)
+      } catch (error) {
+        console.error("Erro ao carregar dados da carteira no checkout:", error)
       } finally {
         if (alive) setLoading(false)
       }
     }
+
     loadWallet()
-    return () => { alive = false }
+    return () => {
+      alive = false
+    }
   }, [user?.sub, setWallet, setHistory, setLoading])
+
+  const { units, cents } = splitPrice(total)
+
+  const firstPhoto = product.photos?.[0]?.url || ''
+  const imageUrl = firstPhoto.startsWith('/uploads') ? `${process.env.NEXT_PUBLIC_API_URL}${firstPhoto}` : firstPhoto
 
   const singleProductItem = [
     {
@@ -105,11 +114,11 @@ export default function CheckoutClient({ product, seller }: Props) {
               </div>
             </div>
 
-            {/* Grid informativo de frete nativo */}
+            {/* Grid informativo de frete */}
             <div className="grid gap-2 border-t border-b border-zinc-100 py-3 font-sans text-xs text-zinc-600">
               <div className="flex items-center gap-2.5">
                 <PiTruck className="text-zinc-400 text-lg shrink-0" />
-                <span>Origem do estoque: <strong className="text-zinc-800 font-chakra-petch font-semibold">Caraguatatuba - São Paulo</strong></span>
+                <span>Origem do estoque: <strong className="text-zinc-800 font-chakra-petch font-semibold">{product.city} - {product.state}</strong></span>
               </div>
               <div className="flex items-center gap-2.5">
                 <PiMoney className="text-zinc-400 text-lg shrink-0" />
@@ -128,13 +137,13 @@ export default function CheckoutClient({ product, seller }: Props) {
             <div className="flex items-center justify-between bg-zinc-50/60 border border-zinc-200/60 rounded-xl px-4 py-2.5 w-full max-w-[220px]">
               <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">Quantidade:</span>
               <div className="flex items-center gap-3.5 text-xl text-zinc-700">
-                <button onClick={decrement} className="cursor-pointer hover:text-zinc-900 transition active:scale-95"><PiMinusSquare /></button>
+                <button onClick={decrement} className="cursor-pointer hover:text-zinc-900 transition active:scale-95"><IoIosRemoveCircleOutline /></button>
                 <span className="w-5 text-center font-bold text-sm text-zinc-800">{quantity}</span>
-                <button onClick={increment} className="cursor-pointer hover:text-zinc-900 transition active:scale-95"><PiPlusSquare /></button>
+                <button onClick={increment} className="cursor-pointer hover:text-zinc-900 transition active:scale-95"><IoAddCircleOutline /></button>
               </div>
             </div>
 
-            {/* Preço de Referência do Lado Esquerdo */}
+            {/* Preço de Referência */}
             <div className="pt-2">
               <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-0.5">Subtotal do item</span>
               <h1 className="flex items-baseline text-2xl font-black text-zinc-900">
@@ -147,6 +156,7 @@ export default function CheckoutClient({ product, seller }: Props) {
           </div>
         </div>
 
+        {/* Lado Direito: Resumo */}
         <aside className="sticky top-6 flex flex-col gap-5 bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm">
           <h3 className="text-lg font-bold text-zinc-900 pb-3 border-b border-zinc-100">Resumo do Pedido</h3>
           <ShippingCalculator />

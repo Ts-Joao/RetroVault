@@ -11,8 +11,18 @@ export async function getProducts() {
   return data ?? []
 }
 
+export async function getActiveProducts() {
+  const { data } = await api.get<Product[] | undefined>('/products/active')
+  return data ?? []
+}
+
 export async function getProductById(id: string) {
   const { data } = await api.get<ProductDetails>(`/products/${id}`)
+  return data
+}
+
+export async function getActiveProductById(id: string) {
+  const { data } = await api.get<ProductDetails>(`/products/active/${id}`)
   return data
 }
 

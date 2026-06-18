@@ -14,6 +14,9 @@ export interface Product {
     shipping_cost: number
     type: string[]
     genre: string[]
+    cep: string
+    city: string
+    state: string
 }
 
 export interface ProductDetails extends Product {

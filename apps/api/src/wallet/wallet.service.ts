@@ -1,7 +1,15 @@
-import { BadRequestException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { DepositWalletDto } from './dto/deposit-wallet.dto';
 import { Order, Prisma } from '@prisma/client';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class WalletService {
@@ -37,23 +45,36 @@ export class WalletService {
   async deposit(userId: string, dto: DepositWalletDto) {
     const wallet = await this.get(userId);
 
-    return this.databaseService.$transaction(async (tx) => {
-      const updated = await tx.wallet.update({
-        where: { id: wallet.id },
-        data: { balance: { increment: dto.amount } },
-      });
+    if (dto.amount <= 0) {
+      throw new BadRequestException('Invalid amount');
+    }
 
-      await tx.walletTransaction.create({
+    const result = await this.databaseService.$transaction(async (tx) => {
+      const walletTopUp = await tx.walletTopUp.create({
         data: {
-          type: 'DEPOSIT',
-          description: `Depósito de R$ ${dto.amount.toFixed(2)} realizado!`,
-          amount: dto.amount,
           walletId: wallet.id,
+          amount: dto.amount,
+          type: dto.type,
         },
       });
 
-      return updated;
+      const payment = await tx.payment.create({
+        data: {
+          installments: 1,
+          paymentMethod: dto.paymentMethod,
+          walletTopUpId: walletTopUp.id,
+          confirmationCode: randomUUID(),
+          tokenExpiresAt: new Date(Date.now() + 5 * 60 * 1000),
+        },
+      });
+
+      return {
+        walletTopUp,
+        payment,
+      };
     });
+
+    return result;
   }
 
   async refundWallet(tx: Prisma.TransactionClient, order: Order) {
@@ -99,7 +120,11 @@ export class WalletService {
 
     await tx.wallet.update({
       where: { userId },
-      data: { balance: { decrement: totalAmount } },
+      data: {
+        balance: {
+          decrement: totalAmount,
+        },
+      },
     });
 
     await tx.walletTransaction.create({

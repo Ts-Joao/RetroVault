@@ -5,80 +5,90 @@ import { DatabaseService } from 'src/database/database.service';
 import { AppModule } from 'src/app/app.module';
 
 describe('Wallet', () => {
-    let app: INestApplication
-    let prisma: DatabaseService
-    let userId: string
+  let app: INestApplication;
+  let prisma: DatabaseService;
+  let userId: string;
 
-    beforeAll(async () => {
-        const moduleRef = await Test.createTestingModule({
-            imports: [AppModule],
-        }).compile();
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
 
-        app = moduleRef.createNestApplication();
-        prisma = moduleRef.get<DatabaseService>(DatabaseService);
-        await app.init();
+    app = moduleRef.createNestApplication();
+    prisma = moduleRef.get<DatabaseService>(DatabaseService);
 
-        await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
+    await app.init();
 
-        const userRes = await request(app.getHttpServer())
-            .post('/users')
-            .send({ name: 'wallet-user', email: 'wallet@example.com', password: 'Strong123@' })
-            .expect(201)
+    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
 
-        userId = userRes.body.newUser.id
-    })
+    const userRes = await request(app.getHttpServer())
+      .post('/users')
+      .send({
+        name: 'wallet-user',
+        email: 'wallet@example.com',
+        password: 'Strong123@',
+      })
+      .expect(201);
 
-    afterAll(async () => {
-        await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
-        await prisma.$disconnect();
-        await app.close();
-    });
+    userId = userRes.body.newUser.id;
+  });
 
-    it('/GET wallet - should get user wallet', async () => {
-        const response = await request(app.getHttpServer())
-            .get('/wallet')
-            .send({ userId })
-            .expect(200)
+  afterAll(async () => {
+    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
+    await prisma.$disconnect();
+    await app.close();
+  });
 
-        console.log(response.body)
-        expect(response.body).toHaveProperty('id')
-        expect(response.body.userId).toBe(userId)
-    })
+  it('/GET wallet - should get user wallet', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/wallet')
+      .set('user-id', userId)
+      .expect(200);
 
-    it('/PATCH wallet/deposit - should deposit into wallet', async () => {
-        const response = await request(app.getHttpServer())
-            .patch('/wallet/deposit')
-            .send({ userId, amount: 100.50 })
-            .expect(200)
+    expect(response.body).toHaveProperty('id');
+    expect(response.body.userId).toBe(userId);
+    expect(Number(response.body.balance)).toBe(0);
+  });
 
-        console.log(response.body)
-        expect(Number(response.body.balance)).toBe(100.50)
-    })
+  it('/POST wallet/deposit - should create deposit request', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/wallet/deposit')
+      .set('user-id', userId)
+      .send({
+        amount: 100.5,
+        type: 'DEPOSIT',
+        paymentMethod: 'PIX',
+      });
 
-    it('/PATCH wallet/deposit - should accumulate balance', async () => {
-        const response = await request(app.getHttpServer())
-            .patch('/wallet/deposit')
-            .send({ userId, amount: 50.00 })
-            .expect(200)
+    expect([200, 201]).toContain(response.status);
+  });
 
-        expect(Number(response.body.balance)).toBe(150.50)
-    })
+  it('/POST wallet/deposit - should create second deposit request', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/wallet/deposit')
+      .set('user-id', userId)
+      .send({
+        amount: 50,
+        type: 'DEPOSIT',
+        paymentMethod: 'PIX',
+      });
 
-    it('/GET wallet/statement - should get transaction history', async () => {
-        const response = await request(app.getHttpServer())
-            .get('/wallet/statement')
-            .send({ userId })
-            .expect(200)
+    expect([200, 201]).toContain(response.status);
+  });
 
-        console.log(response.body)
-        expect(response.body).toBeInstanceOf(Array)
-        expect(response.body.length).toBe(2)
-    })
+  it('/GET wallet/statement - should get transaction history', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/wallet/statement')
+      .set('user-id', userId)
+      .expect(200);
 
-    it('/GET wallet - should fail with non-existent user', async () => {
-        await request(app.getHttpServer())
-            .get('/wallet')
-            .send({ userId: '00000000-0000-0000-0000-000000000000' })
-            .expect(404)
-    })
-})
+    expect(response.body).toBeInstanceOf(Array);
+  });
+
+  it('/GET wallet - should fail with non-existent user', async () => {
+    await request(app.getHttpServer())
+      .get('/wallet')
+      .set('user-id', '00000000-0000-0000-0000-000000000000')
+      .expect(404);
+  });
+});
