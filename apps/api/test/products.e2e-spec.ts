@@ -78,7 +78,10 @@ describe('Products', () => {
             price: 59.99,
             description: 'Classic SNES game',
             amount: 10,
-            mediaTypeId: mediaTypeId
+            mediaTypeId: mediaTypeId,
+            state: 'SP',
+            city: 'São Paulo',
+            cep: '11665-310'
         }
 
         const response = await request(app.getHttpServer())
@@ -174,7 +177,10 @@ describe('Products', () => {
                 price: 9.99,
                 description: 'Will be deleted',
                 amount: 1,
-                mediaTypeId: mediaTypeId
+                mediaTypeId: mediaTypeId,
+                state: 'SP',
+                city: 'São Paulo',
+                cep: '11665-310'
             })
             .expect(201)
 

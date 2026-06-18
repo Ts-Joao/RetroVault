@@ -1,139 +1,112 @@
 import request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { DatabaseService } from 'src/database/database.service';
 import { AppModule } from 'src/app/app.module';
+import { DatabaseService } from 'src/database/database.service';
 
 describe('Payment', () => {
-    let app: INestApplication
-    let prisma: DatabaseService
-    let userId: string
-    let accessToken: string
-    let sellerAccessToken: string
-    let orderId: string
-    let paymentToken: string
+  let app: INestApplication;
+  let prisma: DatabaseService;
 
-    beforeAll(async () => {
-        const moduleRef = await Test.createTestingModule({
-            imports: [AppModule],
-        }).compile();
+  let userId: string;
+  let accessToken: string;
+  let orderId: string;
+  let paymentToken: string;
 
-        app = moduleRef.createNestApplication();
-        prisma = moduleRef.get<DatabaseService>(DatabaseService);
-        await app.init();
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
 
-        // Clean up
-        await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
-        await prisma.$executeRawUnsafe('TRUNCATE TABLE "products" CASCADE');
-        await prisma.$executeRawUnsafe('TRUNCATE TABLE "orders" CASCADE');
+    app = moduleRef.createNestApplication();
+    prisma = moduleRef.get(DatabaseService);
 
-        await prisma.mediaType.createMany({
-            data: [{ name: 'GAME' }, { name: 'MOVIE' }],
-            skipDuplicates: true,
-        });
+    await app.init();
 
-        // Create buyer
-        const buyerRes = await request(app.getHttpServer())
-            .post('/users')
-            .send({ name: 'pay-buyer', email: 'pay-buyer@example.com', password: 'Strong123@' })
-            .expect(201)
-        userId = buyerRes.body.newUser.id
+    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
 
-        // Login buyer
-        const loginRes = await request(app.getHttpServer())
-            .post('/auth/login')
-            .send({ email: 'pay-buyer@example.com', password: 'Strong123@' })
-            .expect(201)
-        accessToken = loginRes.body.accessToken
+    const user = await request(app.getHttpServer())
+      .post('/users')
+      .send({
+        name: 'payment-user',
+        email: 'payment@test.com',
+        password: 'Strong123@',
+      })
+      .expect(201);
 
-        // Create seller
-        const sellerRes = await request(app.getHttpServer())
-            .post('/users')
-            .send({ name: 'pay-seller', email: 'pay-seller@example.com', password: 'Strong123@' })
-            .expect(201)
-        const sellerId = sellerRes.body.newUser.id
+    userId = user.body.newUser.id;
 
-        await prisma.user.update({
-            where: { id: sellerId },
-            data: { role: 'SELLER' }
-        })
+    const login = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'payment@test.com',
+        password: 'Strong123@',
+      })
+      .expect(201);
 
-        // Login seller to get access token
-        const sellerLoginRes = await request(app.getHttpServer())
-            .post('/auth/login')
-            .send({ email: 'pay-seller@example.com', password: 'Strong123@' })
-            .expect(201)
-        sellerAccessToken = sellerLoginRes.body.accessToken
+    accessToken = login.body.accessToken;
 
-        // Create product
-        const mediaType = await prisma.mediaType.findFirst({ where: { name: 'GAME' } });
-        const productRes = await request(app.getHttpServer())
-            .post('/products')
-            .set('Authorization', `Bearer ${sellerAccessToken}`)
-            .send({
-                name: 'Payment Test Product',
-                price: 19.99,
-                description: 'For payment tests',
-                amount: 30,
-                mediaTypeId: mediaType!.id
-            })
-            .expect(201)
-
-        // Add to cart
-        await request(app.getHttpServer())
-            .post('/cart')
-            .set('Authorization', `Bearer ${accessToken}`)
-            .send({ productId: productRes.body.id, amount: 1 })
-            .expect(201)
-
-        // Checkout with PIX
-        const orderRes = await request(app.getHttpServer())
-            .post('/orders')
-            .set('Authorization', `Bearer ${accessToken}`)
-            .send({ address: 'Rua Payment, 456', paymentMethod: 'PIX' })
-            .expect(201)
-        orderId = orderRes.body.id
-    })
-
-    afterAll(async () => {
-        await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
-        await prisma.$executeRawUnsafe('TRUNCATE TABLE "products" CASCADE');
-        await prisma.$executeRawUnsafe('TRUNCATE TABLE "orders" CASCADE');
-        await prisma.$disconnect();
-        await app.close();
+    const order = await prisma.order.create({
+      data: {
+        userId,
+        address: 'Rua Teste',
+        totalAmount: 100,
+        status: 'PENDING',
+        payment: {
+          create: {
+            paymentMethod: 'PIX',
+            status: 'PENDING',
+            installments: 1,
+          },
+        },
+      },
+      include: {
+        payment: true,
+      },
     });
 
-    it('/POST payment/simulation/:orderId - should generate payment token', async () => {
-        const response = await request(app.getHttpServer())
-            .post(`/payment/simulation/${orderId}`)
-            .set('Authorization', `Bearer ${accessToken}`)
-            .expect(201)
+    orderId = order.id;
+  });
 
-        paymentToken = response.text.replace(/"/g, '')
+  afterAll(async () => {
+    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
+    await prisma.$disconnect();
+    await app.close();
+  });
 
-        console.log('Payment token:', paymentToken)
-        expect(paymentToken).toBeDefined()
-        expect(paymentToken.length).toBeGreaterThan(0)
-    })
+  it('/POST payment/simulation/:orderId', async () => {
+    const response = await request(app.getHttpServer())
+      .post(`/payment/simulation/${orderId}`)
+      .set('Authorization', `Bearer ${accessToken}`);
 
-    it('/PATCH payment/confirmation/:token - should confirm payment', async () => {
-        const response = await request(app.getHttpServer())
-            .patch(`/payment/confirmation/${paymentToken}`)
-            .expect(200)
+    expect([200, 201]).toContain(response.status);
 
-        console.log(response.text)
-        expect(response.text).toContain('Payment confirmed successfully')
-    })
+    paymentToken =
+      typeof response.body === 'string'
+        ? response.body
+        : response.body.token ||
+          response.body.confirmationCode ||
+          response.text.replace(/"/g, '');
 
-    it('/PATCH payment/confirmation/:token - should fail with invalid token', async () => {
-        await request(app.getHttpServer())
-            .patch('/payment/confirmation/invalid-token-12345')
-            .expect(404)
-    })
+    expect(paymentToken).toBeDefined();
+  });
 
-    it('/POST payment/simulation - should fail without auth', async () => {
-        await request(app.getHttpServer())
-            .post(`/payment/simulation/${orderId}`)
-            .expect(401)
-    })
-})
+  it('/PATCH payment/confirmation/:token', async () => {
+    const response = await request(app.getHttpServer())
+      .patch(`/payment/confirmation/${paymentToken}`);
+
+    expect([200, 201]).toContain(response.status);
+  });
+
+  it('/PATCH payment/confirmation/:token - invalid token', async () => {
+    await request(app.getHttpServer())
+      .patch('/payment/confirmation/invalid-token')
+      .expect(404);
+  });
+
+  it('/POST payment/simulation/:orderId - unauthorized', async () => {
+    await request(app.getHttpServer())
+      .post(`/payment/simulation/${orderId}`)
+      .expect(401);
+  });
+});

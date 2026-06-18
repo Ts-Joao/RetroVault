@@ -8,7 +8,12 @@ import {
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { randomUUID } from 'crypto';
-import { OrderStatus, Payment, PaymentStatus, TypeWalletTransaction } from '@prisma/client';
+import {
+  OrderStatus,
+  Payment,
+  PaymentStatus,
+  TypeWalletTransaction,
+} from '@prisma/client';
 
 @Injectable()
 export class PaymentService {
@@ -115,22 +120,30 @@ export class PaymentService {
   }
 
   private async findOrderPending(orderId: string, userId: string) {
-    const order = await this.databaseService.order.findFirst({
-      where: {
-        id: orderId,
-        userId,
-      },
-    });
+    try {
+      const order = await this.databaseService.order.findFirst({
+        where: {
+          id: orderId,
+          userId,
+        },
+      });
 
-    if (!order) {
-      throw new NotFoundException('Order not found');
+      if (!order) {
+        throw new NotFoundException('Order not found');
+      }
+
+      if (order.status !== OrderStatus.PENDING) {
+        throw new BadRequestException('Order is not in pending state');
+      }
+
+      return order;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error to find order');
     }
-
-    if (order.status !== OrderStatus.PENDING) {
-      throw new BadRequestException('Order is not in pending state');
-    }
-
-    return order;
   }
 
   private async getPaymentWithOrder(confirmationCode: string) {
@@ -152,29 +165,37 @@ export class PaymentService {
   }
 
   private async isPaymentTokenExpired(payment: Payment) {
-    if (payment.tokenExpiresAt && payment.tokenExpiresAt < new Date()) {
-      await this.databaseService.$transaction(async (tx) => {
-        await tx.order.update({
-          where: {
-            id: payment.orderId!,
-          },
-          data: {
-            status: OrderStatus.CANCELED,
-          },
+    try {
+      if (payment.tokenExpiresAt && payment.tokenExpiresAt < new Date()) {
+        await this.databaseService.$transaction(async (tx) => {
+          await tx.order.update({
+            where: {
+              id: payment.orderId!,
+            },
+            data: {
+              status: OrderStatus.CANCELED,
+            },
+          });
+          await tx.payment.update({
+            where: {
+              id: payment.id,
+            },
+            data: {
+              status: PaymentStatus.FAILED,
+            },
+          });
         });
-        await tx.payment.update({
-          where: {
-            id: payment.id,
-          },
-          data: {
-            status: PaymentStatus.FAILED,
-          },
-        });
-      });
 
-      throw new UnprocessableEntityException('The payment token has expired');
+        throw new UnprocessableEntityException('The payment token has expired');
+      }
+
+      return true;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error to check payment token');
     }
-
-    return true;
   }
 }
