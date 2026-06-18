@@ -4,6 +4,12 @@ type Wallet = {
   id: string
   balance: number
   userId: string
+  payment: {
+    confirmationCode: string
+  }
+  walletTopUp: {
+    id: string
+  }
 }
 
 type WalletTransaction = {
@@ -24,7 +30,7 @@ export async function getWalletHistory(userId: string): Promise<WalletTransactio
   return data ?? []
 }
 
-export async function depositWallet(userId: string, amount: number): Promise<Wallet> {
-  const { data } = await api.patch<Wallet>('/wallet/deposit', { userId, amount })
+export async function depositWallet(userId: string, dto: { amount: number; type: string; paymentMethod: string }): Promise<Wallet> {
+  const { data } = await api.post<Wallet>('/wallet/deposit', { userId, ...dto })
   return data
 }

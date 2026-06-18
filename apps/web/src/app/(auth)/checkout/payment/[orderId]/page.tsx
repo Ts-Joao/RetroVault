@@ -20,7 +20,6 @@ export default function PaymentDisplayPage() {
   const storeToken = useCheckoutStore((state) => state.paymentToken);
   const [copied, setCopied] = useState(false);
   
-  // Estado para controlar o efeito Flip do QR Code
   const [isFlipped, setIsFlipped] = useState(false);
 
   const tokenOriginal = storeToken || orderId;

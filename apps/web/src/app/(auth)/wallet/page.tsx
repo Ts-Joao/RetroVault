@@ -37,6 +37,7 @@ export default function WalletPage() {
   const [loading, setLoading] = useState(true)
   const [depositAmount, setDepositAmount] = useState<string>('')
   const [isDepositing, setIsDepositing] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<'PIX' | 'CREDIT_CARD' | 'DEBIT_CARD'>('PIX')
 
   async function loadWalletData() {
     if (!user?.sub) return
@@ -55,9 +56,7 @@ export default function WalletPage() {
   }
 
   useEffect(() => {
-    if (!user) {
-      return
-    }
+    if (!user) return
     loadWalletData()
   }, [user])
 
@@ -73,10 +72,24 @@ export default function WalletPage() {
 
     setIsDepositing(true)
     try {
-      await depositWallet(user.sub, value)
-      toast.success(`Depósito de R$ ${formatPrice(value)} realizado com sucesso!`)
+      const response = await depositWallet(user.sub, {
+        amount: value,
+        type: "DEPOSIT",
+        paymentMethod: paymentMethod
+      })
+
+      toast.success('Solicitação de depósito criada!')
       setDepositAmount('')
-      await loadWalletData()
+      
+      const confirmationCode = response?.payment?.confirmationCode
+
+      if (!confirmationCode) {
+        toast.error('Erro ao gerar dados do pagamento.')
+        return
+      }
+
+      router.push(`/wallet/deposit/${confirmationCode}?method=${paymentMethod.toLowerCase()}`)
+      
     } catch (error: any) {
       toast.error(error?.response?.data?.message || 'Erro ao processar depósito.')
     } finally {
@@ -119,12 +132,10 @@ export default function WalletPage() {
 
       <div className="grid gap-6 lg:grid-cols-[380px_1fr] items-start">
         
-        {/* COLUNA DA ESQUERDA: Saldo e Adicionar Dinheiro */}
+        {/* COLUNA DA ESQUERDA */}
         <div className="space-y-6">
-          
-          {/* Card de Saldo Atual */}
           <div className="relative overflow-hidden bg-zinc-900 text-white p-6 rounded-2xl border border-zinc-800 shadow-lg">
-            <div className="absolute right-[-20px] bottom-[-20px] text-zinc-800/40 text-9xl pointer-events-none font-black select-none">
+            <div className="absolute right-[-20px] bottom-[-20px] text-zinc-700/30 text-9xl pointer-events-none font-black select-none">
               <PiCoinsBold />
             </div>
             <p className="text-xs font-bold uppercase tracking-widest text-zinc-400">Saldo Disponível</p>
@@ -137,14 +148,14 @@ export default function WalletPage() {
             </div>
           </div>
 
-          {/* Form de Depósito */}
+          {/* Formulário de Depósito */}
           <div className="bg-white p-5 rounded-2xl border border-zinc-200 shadow-sm space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b border-zinc-100">
               <PiPlusCircleBold className="text-xl text-[#D9A128]" />
               <h3 className="font-bold text-zinc-900 text-sm uppercase tracking-wider">Depositar Saldo</h3>
             </div>
 
-            <form onSubmit={handleDeposit} className="space-y-3">
+            <form onSubmit={handleDeposit} className="space-y-4">
               <div className="space-y-1">
                 <label className="text-xs font-bold text-zinc-400 uppercase tracking-wide">Valor do depósito (R$)</label>
                 <div className="relative">
@@ -159,6 +170,27 @@ export default function WalletPage() {
                 </div>
               </div>
 
+              {/* Forma de Pagamento */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wide">Forma de Pagamento</label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {(['PIX', 'CREDIT_CARD', 'DEBIT_CARD'] as const).map((method) => (
+                    <button
+                      key={method}
+                      type="button"
+                      onClick={() => setPaymentMethod(method)}
+                      className={`py-2 text-[11px] font-bold rounded-xl border transition cursor-pointer ${
+                        paymentMethod === method 
+                          ? 'bg-zinc-900 text-white border-zinc-900' 
+                          : 'bg-zinc-50 text-zinc-600 border-zinc-200 hover:bg-zinc-100'
+                      }`}
+                    >
+                      {method === 'PIX' ? 'Pix' : method === 'CREDIT_CARD' ? 'Crédito' : 'Débito'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Botões Rápidos */}
               <div className="grid grid-cols-4 gap-2">
                 {quickValues.map((val) => (
@@ -166,7 +198,7 @@ export default function WalletPage() {
                     key={val}
                     type="button"
                     onClick={() => setDepositAmount(val.toString())}
-                    className="py-1.5 text-xs font-bold text-zinc-600 bg-zinc-100 rounded-lg hover:bg-zinc-200/80 transition active:scale-95 border border-zinc-200/30 cursor-pointer"
+                    className="py-1.5 text-xs font-bold text-zinc-600 bg-zinc-100 rounded-lg hover:bg-zinc-200/80 transition border border-zinc-200/30 cursor-pointer"
                   >
                     +{val}
                   </button>
@@ -176,16 +208,15 @@ export default function WalletPage() {
               <button
                 type="submit"
                 disabled={isDepositing || !depositAmount}
-                className="w-full rounded-xl bg-[#D9A128] py-3 text-xs font-bold text-white uppercase tracking-wider hover:brightness-95 transition disabled:opacity-50 font-chakra-petch shadow-sm mt-2 cursor-pointer"
+                className="w-full rounded-xl bg-[#D9A128] py-3 text-xs font-bold text-white uppercase tracking-wider hover:brightness-95 transition disabled:opacity-50 mt-2 cursor-pointer"
               >
                 {isDepositing ? 'Processando...' : 'Adicionar fundos'}
               </button>
             </form>
           </div>
-
         </div>
 
-        {/* COLUNA DA DIREITA: Extrato / Histórico */}
+        {/* COLUNA DA DIREITA */}
         <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm space-y-4 min-h-[400px]">
           <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
             <div className="flex items-center gap-2">
@@ -206,46 +237,20 @@ export default function WalletPage() {
             ) : (
               history.map((item) => {
                 const isInput = item.type === 'DEPOSIT';
-                
                 return (
-                  <article 
-                    key={item.id} 
-                    className="flex items-center justify-between rounded-xl border border-zinc-100 bg-zinc-50/40 p-4 transition hover:bg-zinc-50"
-                  >
+                  <article key={item.id} className="flex items-center justify-between rounded-xl border border-zinc-100 bg-zinc-50/40 p-4 transition hover:bg-zinc-50">
                     <div className="flex items-center gap-3">
-                      {/* Ícone dinâmico baseado no tipo */}
-                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base border shrink-0 ${
-                        isInput 
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
-                          : 'bg-red-50 text-red-600 border-red-100'
-                      }`}>
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base border shrink-0 ${isInput ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
                         {isInput ? <PiArrowDownLeftBold /> : <PiArrowUpRightBold />}
                       </div>
                       <div>
-                        <p className="font-bold text-sm text-zinc-800 leading-tight">
-                          {item.description || (isInput ? 'Depósito via Pix' : 'Pagamento de Pedido')}
-                        </p>
-                        <p className="text-[11px] text-zinc-400 font-sans mt-0.5">
-                          {new Date(item.createdAt).toLocaleString('pt-BR', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </p>
+                        <p className="font-bold text-sm text-zinc-800 leading-tight">{item.description || (isInput ? 'Depósito via Pix' : 'Pagamento de Pedido')}</p>
+                        <p className="text-[11px] text-zinc-400 font-sans mt-0.5">{new Date(item.createdAt).toLocaleString('pt-BR')}</p>
                       </div>
                     </div>
-
                     <div className="text-right">
-                      <p className={`font-black text-sm ${isInput ? 'text-emerald-600' : 'text-red-600'}`}>
-                        {isInput ? '+' : '-'} R$ {formatPrice(Number(item.amount))}
-                      </p>  
-                      <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                        isInput ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
-                      }`}>
-                        {item.type === 'DEPOSIT' ? 'Entrada' : 'Saída'}
-                      </span>
+                      <p className={`font-black text-sm ${isInput ? 'text-emerald-600' : 'text-red-600'}`}>{isInput ? '+' : '-'} R$ {formatPrice(Number(item.amount))}</p>  
+                      <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${isInput ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>{item.type === 'DEPOSIT' ? 'Entrada' : 'Saída'}</span>
                     </div>
                   </article>
                 )
