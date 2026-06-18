@@ -1,28 +1,83 @@
 import {
-    IsString,
-    IsNotEmpty,
-    IsNumber,
-    IsDate,
+  IsOptional,
+  IsArray,
+  IsString,
+  IsNumber,
+  IsNotEmpty
 } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateProductDto {
-    @IsString({ message: 'the name to be a have string'})
-    @IsNotEmpty({ message: 'name is required'})
-    readonly name: string;
+  @ApiProperty({
+    example: 'Produto 1',
+    description: 'Nome do produto',
+  })
+  @IsString()
+  @IsNotEmpty()
+  readonly name: string;
 
-    @IsNumber()
-    @IsNotEmpty({ message: 'price is required'})
-    readonly price: number;
+  @ApiProperty({
+    example: 100.00,
+    description: 'Preço do produto',
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  readonly price: number;
 
-    @IsString({ message: 'the description to be a have string'})
-    @IsNotEmpty({ message: 'description is required'})
-    readonly description: string;
+  @ApiProperty({
+    example: 'Descrição do produto',
+    description: 'Descrição do produto',
+  })
+  @IsString()
+  @IsNotEmpty()
+  readonly description: string;
 
-    @IsNumber()
-    @IsNotEmpty({ message: 'amount is required'})
-    readonly amount: number;
+  @ApiProperty({
+    example: 10,
+    description: 'Quantidade do produto',
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  readonly amount: number;
 
-    @IsNumber()
-    @IsNotEmpty({ message: 'media type is required'})
-    readonly mediaTypeId: number;
+  @ApiProperty({
+    example: 1,
+    description: 'Tipo de mídia do produto',
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  readonly mediaTypeId: number;
+
+  @ApiProperty({
+    example: 12,
+    description: 'Quantidade máxima de parcelas do produto',
+  })
+  @IsNumber()
+  @IsOptional()
+  readonly maxInstallments?: number;
+
+  @ApiProperty({
+    example: 0,
+    description: 'Quantidade de parcelas grátis do produto',
+  })
+  @IsNumber()
+  @IsOptional()
+  readonly freeInstallments?: number;
+
+  @ApiProperty({
+    example: ['Ação', 'Aventura'],
+    description: 'Gêneros do produto',
+  })
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  readonly genres?: string[];
+
+  @ApiProperty({
+    example: '11665-310',
+    description: 'CEP do produto',
+  })
+  @IsString()
+  @IsNotEmpty()
+  readonly cep: string;
 }

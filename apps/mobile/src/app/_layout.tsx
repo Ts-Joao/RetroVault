@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { View, useColorScheme, ActivityIndicator } from 'react-native';
 import { SplashScreen, Stack, useRouter, usePathname } from 'expo-router';
 import { useEffect } from 'react';
+
 import * as SystemUI from 'expo-system-ui';
 import * as NavigationBar from 'expo-navigation-bar'
 import './globals.css';

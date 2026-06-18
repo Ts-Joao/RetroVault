@@ -7,6 +7,7 @@ import { PaymentModule } from 'src/payment/payment.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { ProductsModule } from 'src/products/products.module';
 import { CartModule } from 'src/cart/cart.module';
+import { CouponModule } from 'src/coupon/coupon.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { CartModule } from 'src/cart/cart.module';
     PaymentModule,
     AuthModule,
     ProductsModule,
-    CartModule
+    CartModule,
+    CouponModule
   ],
   providers: [OrdersService],
   controllers: [OrdersController],

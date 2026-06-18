@@ -1,68 +1,54 @@
 'use client'
 
-import {
-   createContext,
-   useContext,
-   useState,
-   ReactNode
-} from 'react'
-
-type FavoriteContextType = {
-   favorites: string[]
-   toggleFavorite: (productId: string) => void
-   isFavorite: (productId: string) => boolean
-}
-
-const FavoritesContext =
-   createContext({} as FavoriteContextType)
-
-type Props = {
-   children: ReactNode
-}
+import { useEffect } from 'react'
+import { useAuth } from '@/lib/context/auth.context'
+import { getFavorites } from '@/lib/services/favorites.service'
+import { useFavoritesStore } from '@retrovault/store'
 
 export function FavoritesProvider({
-   children
-}: Props) {
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const { user } = useAuth()
 
-   const [favorites, setFavorites] =
-      useState<string[]>([])
+  const {
+    setFavorites,
+    setLoading,
+    setHydrated,
+  } = useFavoritesStore()
 
-   function toggleFavorite(productId: string) {
+  useEffect(() => {
+    async function loadFavorites() {
+      if (!user?.sub) {
+        setFavorites([])
+        setHydrated(true)
+        return
+      }
 
-      setFavorites(prev => {
+      try {
+        setLoading(true)
 
-         const exists =
-            prev.includes(productId)
+        const favorites = await getFavorites()
 
-         if (exists) {
-            return prev.filter(
-               id => id !== productId
-            )
-         }
+        setFavorites(
+          favorites.map(
+            (favorite) => favorite.productId,
+          ),
+        )
+      } catch (error) {
+        console.error(
+          'Erro ao carregar favoritos:',
+          error,
+        )
+      } finally {
+        setLoading(false)
+        setHydrated(true)
+      }
+    }
 
-         return [...prev, productId]
-      })
-   }
+    loadFavorites()
+  }, [user])
 
-   function isFavorite(productId: string) {
-      return favorites.includes(productId)
-   }
-
-   return (
-
-      <FavoritesContext.Provider
-         value={{
-            favorites,
-            toggleFavorite,
-            isFavorite
-         }}
-      >
-         {children}
-      </FavoritesContext.Provider>
-
-   )
-}
-
-export function useFavorites() {
-   return useContext(FavoritesContext)
+  return <>{children}</>
 }

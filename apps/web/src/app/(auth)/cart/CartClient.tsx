@@ -1,110 +1,93 @@
 'use client'
 
-import { useEffect, useCallback } from "react"
-import Ordersummary from "@/components/layout/order-summary/OrderSummary"
-import ProductCart from "@/components/product-cart/ProductCart"
-import { useCartStore } from "@retrovault/store"
-import { useAuth } from "@/lib/context/auth.context"
-import { getCart, updateCartItem, removeCartItem } from "@/lib/services/cart.service"
-import { PiBag } from "react-icons/pi";
+import { useEffect } from 'react'
+import { PiBag } from 'react-icons/pi'
+
+import ProductCart from '@/components/product-cart/ProductCart'
+
+import PaymentAndActionSelector from '@/components/layout/order-summary/PaymentAndActionSelector'
+import CouponValidator from '@/components/layout/order-summary/CouponValidator'
+import ShippingCalculator from '@/components/layout/order-summary/ShippingCalculator'
+import OrderTotalSummary from '@/components/layout/order-summary/OrderTotalSummary'
+
+import { useAuth } from '@/lib/context/auth.context'
+import { useCartActionsStore } from '@/store/cart.store'
+import { useCartStore } from '@retrovault/store'
 
 export default function CartClient() {
     const { user } = useAuth()
-    const { items, setCart, updateItemLocally, removeItemLocally, computeTotal, isLoading, setLoading } = useCartStore()
-
-    const loadCart = useCallback(async () => {
-        if (!user?.sub) return
-        setLoading(true)
-        try {
-            const data = await getCart(user.sub)
-            setCart(data.cart.cartItem, Number(data.total), data.itemCount)
-        } catch (error) {
-            console.error('Erro ao carregar carrinho:', error)
-        } finally {
-            setLoading(false)
-        }
-    }, [user?.sub, setCart, setLoading])
+    const { loadCart, incrementItem, decrementItem, loading } = useCartActionsStore()
+    const { items } = useCartStore()
 
     useEffect(() => {
-        loadCart()
-    }, [loadCart])
-
-    const handleIncrement = async (itemId: string, currentAmount: number) => {
         if (!user?.sub) return
-        const newAmount = currentAmount + 1
-        updateItemLocally(itemId, newAmount)
-        try {
-            await updateCartItem(user.sub, itemId, newAmount)
-        } catch (error) {
-            console.error('Erro ao incrementar item:', error)
-            loadCart()
-        }
-    }
+        loadCart(user.sub)
+    }, [user?.sub, loadCart])
 
-    const handleDecrement = async (itemId: string, currentAmount: number) => {
-        if (!user?.sub) return
-        const newAmount = currentAmount - 1
-
-        if (newAmount <= 0) {
-            const item = items.find(i => i.id === itemId)
-            if (!item) return
-            removeItemLocally(itemId)
-            try {
-                await removeCartItem(user.sub, item.cartId, itemId)
-            } catch (error) {
-                console.error('Erro ao remover item:', error)
-                loadCart()
-            }
-            return
-        }
-
-        updateItemLocally(itemId, newAmount)
-        try {
-            await updateCartItem(user.sub, itemId, newAmount)
-        } catch (error) {
-            console.error('Erro ao decrementar item:', error)
-            loadCart()
-        }
-    }
-
-    if (isLoading) {
+    if (loading) {
         return (
-            <div className="flex items-center justify-center py-20">
-                <p className="text-lg text-gray-500">Carregando carrinho...</p>
+            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-zinc-200 shadow-sm">
+                <p className="text-sm text-zinc-500 animate-pulse">Carregando carrinho...</p>
             </div>
         )
     }
 
+    const validItems = items.filter(item => item && item.product)
+
     return (
-        <>
-        <div className="grid gap-2">
-                <p className="flex items-center gap-1 text-xl font-semibold "><PiBag className="text-2xl"/> Minha Sacola</p>
-            <div className="flex gap-20">
-                <div className="flex flex-col gap-3">
-                    {items.length === 0 ? (
-                        <p className="text-gray-500 text-lg py-10">Seu carrinho está vazio.</p>
-                    ) : (
-                        items.map(item => (
+        <div className="space-y-6">
+            {/* Cabeçalho */}
+            <div className="flex items-center gap-3 border-b border-zinc-200 pb-5">
+              <div className="bg-amber-50 p-2.5 rounded-xl border border-amber-100 flex items-center justify-center text-[#D9A128]">
+                <PiBag className="text-2xl" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight text-zinc-900">Minha Sacola</h1>
+                <p className="text-xs text-zinc-400 mt-0.5">Revise seus itens antes de prosseguir para o pagamento</p>
+              </div>
+            </div>
+
+            {validItems.length === 0 ? (
+                <div className="w-full flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-zinc-200 shadow-sm text-center px-4">
+                    <div className="bg-zinc-50 p-5 rounded-full mb-4 text-zinc-300">
+                      <PiBag className="text-4xl" />
+                    </div>
+                    <p className="text-zinc-700 font-bold text-lg">Seu carrinho está vazio</p>
+                    <p className="text-sm text-zinc-400 mt-1 max-w-sm">Você ainda não adicionou nenhum produto.</p>
+                </div>
+            ) : (
+                <div className="grid gap-8 lg:grid-cols-[1fr_380px] items-start">
+                    {/* Lista de Produtos (Esquerda) */}
+                    <div className="flex flex-col gap-4">
+                        {validItems.map(item => (
                             <ProductCart
                                 key={item.id}
                                 product={item.product}
                                 quantity={item.amount}
-                                onIncrement={() => handleIncrement(item.id, item.amount)}
-                                onDecrement={() => handleDecrement(item.id, item.amount)}
+                                onIncrement={() => user?.sub && incrementItem(user.sub, item.id)}
+                                onDecrement={() => user?.sub && decrementItem(user.sub, item.id)}
                             />
-                        ))
-                    )}
-                </div>
-                <div>
-                    <Ordersummary
-                        total={computeTotal()}
-                        shippingCost={items.reduce((acc, item) => acc + (item.product.shipping_cost ?? 0), 0)}
-                        itens={items}
-                    />
-                </div>
-            </div>
+                        ))}
+                    </div>
 
+                    {/* Caixa de Checkout Reestruturada (Direita) */}
+                    <aside className="sticky top-6 flex flex-col gap-5 bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm font-chakra-petch">
+                        <h3 className="text-lg font-bold text-zinc-900 pb-3 border-b border-zinc-100">Resumo do Pedido</h3>
+                        
+                        {/* 1. Bloco de Frete */}
+                        <ShippingCalculator />
+
+                        {/* 2. Bloco de Cupom */}
+                        <CouponValidator />
+
+                        {/* 3. Bloco de Totais de Preço */}
+                        <OrderTotalSummary />
+
+                        {/* 4. Bloco de Pagamento e Gatilho Final */}
+                        <PaymentAndActionSelector itens={validItems} />
+                    </aside>
+                </div>
+            )}
         </div>
-        </>
     )
 }

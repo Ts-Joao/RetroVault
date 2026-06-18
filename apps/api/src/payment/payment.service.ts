@@ -8,17 +8,20 @@ import {
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { randomUUID } from 'crypto';
-import { OrderStatus, Payment, PaymentStatus } from '@prisma/client';
+import {
+  OrderStatus,
+  Payment,
+  PaymentStatus,
+  TypeWalletTransaction,
+} from '@prisma/client';
 
 @Injectable()
 export class PaymentService {
-  constructor(
-    private readonly databaseService: DatabaseService,
-  ) {}
+  constructor(private readonly databaseService: DatabaseService) {}
 
   async simulation(orderId: string, userId: string) {
     try {
-      const order = await this.findOrderPending(orderId, userId);
+      await this.findOrderPending(orderId, userId);
 
       const token = randomUUID();
       const datePayment = new Date(Date.now() + 5 * 60 * 1000);
@@ -60,17 +63,50 @@ export class PaymentService {
           },
           data: {
             status: PaymentStatus.CAPTURED,
+            paidAt: new Date(),
           },
         });
 
-        await tx.order.update({
-          where: {
-            id: payment.orderId,
-          },
-          data: {
-            status: OrderStatus.PAID,
-          },
-        });
+        if (payment.orderId) {
+          await tx.order.update({
+            where: {
+              id: payment.orderId,
+            },
+            data: {
+              status: OrderStatus.PAID,
+            },
+          });
+        }
+
+        if (payment.walletTopUpId) {
+          const walletTopUp = await tx.walletTopUp.findUnique({
+            where: {
+              id: payment.walletTopUpId,
+            },
+          });
+
+          if (!walletTopUp) {
+            throw new NotFoundException('Wallet top up not found');
+          }
+
+          await tx.wallet.update({
+            where: {
+              id: walletTopUp.walletId,
+            },
+            data: {
+              balance: { increment: walletTopUp.amount },
+            },
+          });
+
+          await tx.walletTransaction.create({
+            data: {
+              walletId: walletTopUp.walletId,
+              type: TypeWalletTransaction.DEPOSIT,
+              amount: walletTopUp.amount,
+              paymentId: payment.id,
+            },
+          });
+        }
       });
 
       return 'Payment confirmed successfully';
@@ -84,32 +120,41 @@ export class PaymentService {
   }
 
   private async findOrderPending(orderId: string, userId: string) {
-    const order = await this.databaseService.order.findFirst({
-      where: {
-        id: orderId,
-        userId,
-      },
-    });
+    try {
+      const order = await this.databaseService.order.findFirst({
+        where: {
+          id: orderId,
+          userId,
+        },
+      });
 
-    if (!order) {
-      throw new NotFoundException('Order not found');
+      if (!order) {
+        throw new NotFoundException('Order not found');
+      }
+
+      if (order.status !== OrderStatus.PENDING) {
+        throw new BadRequestException('Order is not in pending state');
+      }
+
+      return order;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error to find order');
     }
-
-    if (order.status !== OrderStatus.PENDING) {
-      throw new BadRequestException('Order is not in pending state');
-    }
-
-    return order;
   }
 
   private async getPaymentWithOrder(confirmationCode: string) {
     const payment = await this.databaseService.payment.findFirst({
-        where: {
-          confirmationCode: confirmationCode,
-        },
-        include: {
-          order: true,
-        }
+      where: {
+        confirmationCode: confirmationCode,
+      },
+      include: {
+        order: true,
+        walletTopUp: true,
+      },
     });
 
     if (!payment) {
@@ -120,29 +165,37 @@ export class PaymentService {
   }
 
   private async isPaymentTokenExpired(payment: Payment) {
-    if (payment.tokenExpiresAt && payment.tokenExpiresAt < new Date()) {
-      await this.databaseService.$transaction(async (tx) => {
-        await tx.order.update({
-          where: {
-            id: payment.orderId,
-          },
-          data: {
-            status: OrderStatus.CANCELED,
-          },
+    try {
+      if (payment.tokenExpiresAt && payment.tokenExpiresAt < new Date()) {
+        await this.databaseService.$transaction(async (tx) => {
+          await tx.order.update({
+            where: {
+              id: payment.orderId!,
+            },
+            data: {
+              status: OrderStatus.CANCELED,
+            },
+          });
+          await tx.payment.update({
+            where: {
+              id: payment.id,
+            },
+            data: {
+              status: PaymentStatus.FAILED,
+            },
+          });
         });
-        await tx.payment.update({
-          where: {
-            id: payment.id,
-          },
-          data: {
-            status: PaymentStatus.FAILED,
-          },
-        });
-      });
 
-      throw new UnprocessableEntityException('The payment token has expired');
+        throw new UnprocessableEntityException('The payment token has expired');
+      }
+
+      return true;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Error to check payment token');
     }
-
-    return true;
   }
 }
