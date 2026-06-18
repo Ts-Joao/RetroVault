@@ -17,7 +17,7 @@
 
 ## 📖 Sobre o Web
 
-Este é o frontend web do RetroVault, desenvolvido com Next.js e App Router. Nossa aplicação oferece uma interface moderna, responsiva e otimizada para performance, permitindo aos usuários acessar todo o ecossistema RetroVault através do navegador.
+Este é o frontend web do RetroVault, desenvolvido com **Next.js 16**, **React 19** e **Tailwind CSS v4**. Nossa aplicação oferece uma interface moderna, responsiva e otimizada para performance, permitindo aos usuários acessar todo o ecossistema RetroVault através do navegador.
 
 ## 🏗️ Estrutura do Projeto
 
@@ -27,16 +27,12 @@ web/
 │   ├── app/              # App Router
 │   │   └── page.tsx      # Página inicial
 │   ├── components/       # Componentes reutilizáveis
-│   ├── lib/             # Utilitários e configurações
+│   ├── lib/             # Utilitários, contextos e serviços (separados em .client e .server)
 │   ├── hooks/           # Custom hooks
 │   ├── types/           # Tipos TypeScript
 │   └── styles/          # Estilos globais
 ├── public/              # Arquivos estáticos
-│   ├── images/         # Imagens
-│   └── icons/          # Ícones
-├── .env.local           # Variáveis de ambiente (ignorado pelo git)
-├── next.config.js       # Configuração do Next.js
-├── tailwind.config.ts   # Configuração do Tailwind
+├── next.config.ts       # Configuração do Next.js
 └── package.json         # Dependências do Web
 ```
 
@@ -44,11 +40,11 @@ web/
 
 | Tecnologia | Função |
 |-----|------------|
-| <img src="https://img.shields.io/badge/Next.js-0D1117?style=for-the-badge&logo=nextdotjs&logoColor=white"/> | Framework React com SSR e App Router |
-| <img src="https://img.shields.io/badge/React-0D1117?style=for-the-badge&logo=react&logoColor=61DAFB"/> | Biblioteca para construção de interfaces |
+| <img src="https://img.shields.io/badge/Next.js_16-0D1117?style=for-the-badge&logo=nextdotjs&logoColor=white"/> | Framework React com SSR, App Router e Turbopack |
+| <img src="https://img.shields.io/badge/React_19-0D1117?style=for-the-badge&logo=react&logoColor=61DAFB"/> | Biblioteca para construção de interfaces |
 | <img src="https://img.shields.io/badge/TypeScript-0D1117?style=for-the-badge&logo=typescript&logoColor=3178C6"/> | Linguagem com tipagem estática |
-| <img src="https://img.shields.io/badge/Tailwind_CSS-0D1117?style=for-the-badge&logo=tailwindcss&logoColor=06B6D4"/> | Framework CSS utilitário |
-| ![Monorepo](https://img.shields.io/badge/Monorepo-0D1117?style=for-the-badge&logo=turborepo&logoColor=white) | Orquestração do Monorepo e Cache de Build
+| <img src="https://img.shields.io/badge/Tailwind_CSS_v4-0D1117?style=for-the-badge&logo=tailwindcss&logoColor=06B6D4"/> | Framework CSS de nova geração ultra-rápido |
+| ![Monorepo](https://img.shields.io/badge/Monorepo-0D1117?style=for-the-badge&logo=turborepo&logoColor=white) | Orquestração do Monorepo e Cache de Build |
 
 ## ⚙️ Pré-requisitos
 
@@ -88,25 +84,26 @@ pnpm --filter=web start
 
 ## 🎨 Features
 
-- ✅ **App Router** - Roteamento moderno do Next.js 14
-- ✅ **Server Components** - Renderização otimizada no servidor
-- ✅ **Dark Mode** - Tema claro e escuro
-- ✅ **Responsive** - Design adaptável para todos os dispositivos
-- ✅ **SEO Optimized** - Meta tags e estrutura otimizada
-- ✅ **Type Safe** - TypeScript em todo o código
-- ✅ **Performance** - Otimizações automáticas do Next.js
+- ✅ **Next.js 16 & React 19** - Estrutura moderna e alto desempenho
+- ✅ **App Router** - Roteamento moderno baseado em arquivos
+- ✅ **Server Components** - Renderização otimizada no servidor para SEO e performance
+- ✅ **Separação de Serviços** - Serviços divididos logicamente entre escopos `.client` e `.server`
+- ✅ **Tailwind CSS v4** - Estilização moderna e otimizada por padrão
+- ✅ **Responsive** - Design totalmente adaptável para todos os dispositivos
+- ✅ **Zustand** - Gerenciamento de estado global otimizado
 
 ## 📦 Dependências Principais
 
 ```json
 {
   "dependencies": {
-    "next": "^15.1.6",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "typescript": "^5.7.3",
-    "tailwindcss": "^3.4.1",
-    "tailwind-merge": "^2.6.0"
+    "next": "16.1.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "axios": "^1.16.0",
+    "zustand": "^4.5.0"
   }
 }
 ```
