@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import CategoryBar from "@/components/layout/category/CategoryBar";
 import ProductGrid from "@/components/layout/product-grid/ProductGrid";
 import { getActiveProducts } from "@/lib/services/product.service";
