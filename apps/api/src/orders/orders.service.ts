@@ -22,6 +22,8 @@ import { ProductService } from 'src/products/products.service';
 import { AuthService } from 'src/auth/auth.service';
 import { PayloadDto } from 'src/auth/dto/payload.dto';
 import { WalletService } from 'src/wallet/wallet.service';
+import { CouponService } from 'src/coupon/coupon.service';
+import { Decimal } from '@prisma/client/runtime/client';
 
 @Injectable()
 export class OrdersService {
@@ -30,26 +32,50 @@ export class OrdersService {
     private readonly cartService: CartService,
     private readonly productService: ProductService,
     private readonly authService: AuthService,
-    private readonly walletService: WalletService
+    private readonly walletService: WalletService,
+    private readonly couponService: CouponService,
   ) {}
 
   async checkout(userId: string, dto: CreateOrderDto) {
     try {
-      const cart = await this.validateCart(userId);
+      let orderItens: CartItem[] = [];
+      let finalAmount: Decimal;
+
+      const cart = await this.cartService.getCart(userId)
+      finalAmount = this.calculateCartTotal(cart.cartItem);
+
+      if (dto.orderItens && dto.orderItens.length > 0) {
+        orderItens = dto.orderItens;
+        finalAmount = this.calculateCartTotal(orderItens);
+      } else {
+        await this.validateCart(userId);
+      }
+
       await this.validateStock(cart.cartItem);
 
-      const totalAmount = this.calculateCartTotal(cart.cartItem);
+      const cartTotal = this.calculateCartTotal(cart.cartItem);
+      let couponId: string | null = null;
+
+      if (dto.couponCode) {
+        const couponResult = await this.couponService.validateCoupon(
+          dto.couponCode,
+          Number(cartTotal),
+          userId,
+        );
+        finalAmount = new Prisma.Decimal(couponResult.total);
+        couponId = couponResult.coupon.id;
+      }
 
       const order = await this.databaseService.$transaction(async (tx) => {
         if (dto.paymentMethod === PaymentMethod.WALLET) {
-          await this.walletService.processWalletPayment(tx, userId, totalAmount);
+          await this.walletService.processWalletPayment(tx, userId, finalAmount);
         }
 
         const newOrder = await tx.order.create({
           data: {
             userId,
             address: dto.address,
-            totalAmount,
+            totalAmount: finalAmount,
             status:
               dto.paymentMethod === PaymentMethod.WALLET
                 ? OrderStatus.PAID
@@ -77,6 +103,16 @@ export class OrdersService {
             payment: true,
           },
         });
+
+        if (couponId) {
+          await tx.couponUsage.create({
+            data: {
+              couponId,
+              userId,
+              orderId: newOrder.id,
+            },
+          });
+        }
 
         await tx.cartItem.deleteMany({
           where: { cartId: cart.id },
@@ -228,7 +264,7 @@ export class OrdersService {
         const isCaptured = order.payment?.status === PaymentStatus.CAPTURED;
 
         if (isCanceled) {
-          this.restoreProductStock(tx, order.orderItems);
+          await this.restoreProductStock(tx, order.orderItems);
         }
 
         if (isCanceled && isCaptured) {
@@ -278,11 +314,11 @@ export class OrdersService {
     }
   }
 
-  private restoreProductStock(
+  private async restoreProductStock(
     tx: Prisma.TransactionClient,
     orderItems: OrderItem[],
   ) {
-    Promise.all(
+    await Promise.all(
       orderItems.map(async (item) => {
         await tx.product.update({
           where: { id: item.productId },

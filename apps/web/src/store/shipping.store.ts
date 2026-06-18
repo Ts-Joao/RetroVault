@@ -11,6 +11,8 @@ interface ShippingData {
   cep: string;
   city: string;
   state: string;
+  neighborhood: string;
+  logradouro: string;
   pac: ShippingOption;
   sedex: ShippingOption;
 }

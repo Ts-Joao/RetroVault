@@ -9,6 +9,8 @@ type CartState = {
   setCart: (items: CartItem[], total: number, itemCount: number) => void;
 
   clearCart: () => void;
+
+  clearLocally: () => void;
 };
 
 export const useCartStore = create<CartState>((set) => ({
@@ -29,4 +31,11 @@ export const useCartStore = create<CartState>((set) => ({
       total: 0,
       itemCount: 0,
     }),
+
+  clearLocally: () =>
+    set((state) => ({
+      items: state.items.filter((item) => item.product !== null),
+      total: state.total,
+      itemCount: state.itemCount,
+    })),
 }));

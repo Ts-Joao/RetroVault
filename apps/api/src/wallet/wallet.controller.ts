@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Patch, Post } from '@nestjs/common';
 import { WalletService } from './wallet.service';
 import { DepositWalletDto } from './dto/deposit-wallet.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -32,7 +32,7 @@ export class WalletController {
     @ApiOperation({ summary: 'Deposit to wallet' })
     @ApiResponse({ status: 200, description: 'Wallet deposited successfully' })
     @ApiResponse({ status: 404, description: 'Wallet not found' })
-    @Patch('deposit')
+    @Post('deposit')
     async deposit(
         @Headers('user-id') headerUserId: string,
         @Body('userId') bodyUserId: string,

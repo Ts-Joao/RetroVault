@@ -2,7 +2,8 @@ import {
   BadRequestException,
   HttpException,
   Injectable,
-  InternalServerErrorException
+  InternalServerErrorException,
+  NotFoundException
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { UsersService } from 'src/users/users.service';
@@ -35,15 +36,17 @@ export class ShippingService {
         cep: cleanCep,
         city: address.localidade,
         state: address.uf,
+        neighborhood: address.bairro,
+        logradouro: address.logradouro,
 
         pac: {
-          name: 'PAC',
+          name: 'PAC - Econômico',
           price: Number((12 * multiplier).toFixed(2)),
           deadline: Math.ceil(5 * multiplier),
         },
 
         sedex: {
-          name: 'SEDEX',
+          name: 'SEDEX - Expresso',
           price: Number((20 * multiplier).toFixed(2)),
           deadline: Math.max(
             1,
@@ -60,7 +63,7 @@ export class ShippingService {
     }
   }
 
-  async verifyCep(cep: string) {
+  private async verifyCep(cep: string) {
     try {
       const cleanCep = cep.replace(/\D/g, '');
 
@@ -83,7 +86,7 @@ export class ShippingService {
       const address = await this.viaCep(cep);
 
       if (address.erro) {
-        throw new BadRequestException('Cep not found');
+        throw new NotFoundException('CEP not found');
       }
 
       return address;
@@ -94,14 +97,14 @@ export class ShippingService {
 
       throw new InternalServerErrorException('Error finding address');
     }
-  }
+  }    
 
-  async viaCep(cep: string) {
+  private async viaCep(cep: string) {
     try {
       const response = await fetch(`http://www.viacep.com.br/ws/${cep}/json/`);
 
       if (!response.ok) {
-        throw new BadRequestException('Error finding cep');
+        throw new NotFoundException('CEP not found');
       }
 
       return response.json();

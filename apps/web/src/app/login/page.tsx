@@ -34,7 +34,7 @@ function getBackendMessage(err: unknown) {
 
 export default function LoginPage() {
   const router = useRouter()
-  const { toast } = useToast()
+  const toast = useToast()
   const { setUser, setAccessToken } = useSessionStore()
   const [ email, setEmail ] = useState<string>('')
   const [ password, setPassword ] = useState<string>('')
@@ -51,9 +51,10 @@ export default function LoginPage() {
         const payload = decodeJwtPayload(result.accessToken)
         if (payload) setUser(payload)
       }
+      toast.success('Login realizado com sucesso')
       router.push('/')
     } catch (err) {
-      toast(getBackendMessage(err), 'error')
+      toast.error(getBackendMessage(err))
     } finally {
       setLoading(false)
     }

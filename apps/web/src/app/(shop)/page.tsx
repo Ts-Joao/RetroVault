@@ -1,10 +1,12 @@
+export const dynamic = 'force-dynamic'
+
 import CategoryBar from "@/components/layout/category/CategoryBar";
 import ProductGrid from "@/components/layout/product-grid/ProductGrid";
-import { getProducts } from "@/lib/services/product.service";
+import { getActiveProducts } from "@/lib/services/product.service";
 import { getUsers } from "@/lib/services/user.server";
 
 export default async function Home() {
-  const products = await getProducts()
+  const products = await getActiveProducts()
   const user = await getUsers()
 
   return (

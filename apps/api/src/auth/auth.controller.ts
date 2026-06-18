@@ -27,7 +27,7 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Login user' })
   @ApiBody({ type: LoginDto })
-  @ApiResponse({ status: 200, description: 'User logged in successfully' })
+  @ApiResponse({ status: 201, description: 'User logged in successfully' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @Post('login')
   async login(

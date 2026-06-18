@@ -71,5 +71,13 @@ export class CreateProductDto {
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
-  readonly genres?: string[]; // array de nomes de gênero
+  readonly genres?: string[];
+
+  @ApiProperty({
+    example: '11665-310',
+    description: 'CEP do produto',
+  })
+  @IsString()
+  @IsNotEmpty()
+  readonly cep: string;
 }

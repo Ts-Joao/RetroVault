@@ -47,6 +47,13 @@ export class ProductsController {
     return this.productsService.get();
   }
 
+  @ApiOperation({ summary: 'Get active products' })
+  @ApiResponse({ status: 200, description: 'List of active products' })
+  @Get('active')
+  getActiveProducts() {
+    return this.productsService.getActiveProducts();
+  }
+
   @ApiOperation({ summary: 'Get all media types' })
   @ApiResponse({ status: 200, description: 'List of media types' })
   @Get('media-types')
@@ -60,6 +67,14 @@ export class ProductsController {
   @Get(':productId')
   getProductById(@Param('productId') productId: string) {
     return this.productsService.getById(productId);
+  }
+
+  @ApiOperation({ summary: 'Get active product by ID' })
+  @ApiResponse({ status: 200, description: 'Product found successfully' })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  @Get('active/:productId')
+  getProductActiveById(@Param('productId') productId: string) {
+    return this.productsService.getActiveProductById(productId);
   }
 
   @ApiOperation({ summary: 'Get products by seller ID' })

@@ -5,13 +5,14 @@ import Image from 'next/image'
 import FavoriteButton from '@/components/Favoritos/ButtonFavorites'
 import StarRating from '@/components/StarRating'
 import { useAuth } from '@/lib/context/auth.context'
-import { getProductById } from '@/lib/services/product.service'
+import { getActiveProductById } from '@/lib/services/product.client'
 import { getUserByIdClient } from '@/lib/services/user.client'
 import { getProductReviews } from '@/lib/services/review.service'
 import { addCartItem } from '@/lib/services/cart.service'
 import { useShippingStore } from '@/store/shipping.store'
 import { formatPrice } from '@retrovault/core'
 import Link from 'next/link'
+import { useToast } from '@/components/ui/toast-provider'
 
 interface ProductPageProps {
   params: Promise<{
@@ -33,6 +34,7 @@ export default function ProductPage({ params }: ProductPageProps) {
   const [loading, setLoading] = useState(true)
 
   const { user } = useAuth()
+  const toast = useToast()
 
   useEffect(() => {
     async function load() {
@@ -42,7 +44,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         setUnwrappedParams(resolvedParams)
 
         const productData =
-          await getProductById(
+          await getActiveProductById(
             resolvedParams.id
           )
 
@@ -307,7 +309,10 @@ export default function ProductPage({ params }: ProductPageProps) {
                 <div>
                   <Link href="/cart">
                     <button
-                      onClick={handleAddToCart}
+                      onClick={() => {
+                        handleAddToCart()
+                        toast.success('Produto adicionado ao carrinho!')
+                      }}
                       className="w-full rounded-xl border border-zinc-300 bg-white py-3.5 text-sm font-bold text-zinc-700 transition hover:bg-zinc-50 tracking-wide uppercase cursor-pointer"
                       >
                       Adicionar ao Carrinho

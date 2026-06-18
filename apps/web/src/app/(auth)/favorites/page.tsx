@@ -6,11 +6,10 @@ import { FaHeart } from 'react-icons/fa'
 
 import { useAuth } from '@/lib/context/auth.context'
 import { getFavorites } from '@/lib/services/favorites.service'
-import { getProducts } from '@/lib/services/product.service'
+import { getProducts } from '@/lib/services/product.client'
 import { useFavoritesStore } from '@retrovault/store'
 import type { Product, User } from '@retrovault/core'
 import ProductCard from '@/components/layout/product-grid/ProductCard'
-import { getUsers } from '@/lib/services/user.server'
 
 export default function FavoritesPage() {
   const { user } = useAuth()
@@ -26,7 +25,7 @@ export default function FavoritesPage() {
       try {
         const [allProducts, userFavorites] = await Promise.all([
           getProducts(),
-          user?.sub ? getFavorites(user.sub) : Promise.resolve([]),
+          user?.sub ? getFavorites() : Promise.resolve([]),
         ])
 
         const getUsers = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users`, {

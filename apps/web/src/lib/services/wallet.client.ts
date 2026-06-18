@@ -2,14 +2,20 @@ import api from '../axios'
 
 type Wallet = {
   id: string
-  balance: string | number
+  balance: number
   userId: string
+  payment: {
+    confirmationCode: string
+  }
+  walletTopUp: {
+    id: string
+  }
 }
 
 type WalletTransaction = {
   id: string
-  amount: string | number
-  type: string
+  amount: number
+  type: 'DEPOSIT' | 'WITHDRAW' | 'PURCHASE'
   description: string
   createdAt: string
 }
@@ -24,7 +30,7 @@ export async function getWalletHistory(userId: string): Promise<WalletTransactio
   return data ?? []
 }
 
-export async function depositWallet(userId: string, amount: number): Promise<Wallet> {
-  const { data } = await api.patch<Wallet>('/wallet/deposit', { userId, amount })
+export async function depositWallet(userId: string, dto: { amount: number; type: string; paymentMethod: string }): Promise<Wallet> {
+  const { data } = await api.post<Wallet>('/wallet/deposit', { userId, ...dto })
   return data
 }
