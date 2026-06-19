@@ -51,5 +51,5 @@ export class CreateUserDto {
   @IsOptional({ message: 'CEP is optional' })
   @MinLength(8, { message: 'CEP must be at least 8 characters long' })
   @MaxLength(8, { message: 'CEP must be at most 8 characters long' })
-  readonly cep?: string;
+  readonly defaultCep?: string;
 }
