@@ -5,6 +5,7 @@ type AddUser = {
     name: string
     email: string
     password: string
+    phone: string
     cep?: string
 }
 

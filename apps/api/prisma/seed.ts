@@ -22,6 +22,7 @@ async function bootstrap() {
       password: hashedPassword,
       slug: 'admin',
       role: 'ADMIN',
+      phone: '123456789',
     },
   });
 
@@ -34,6 +35,7 @@ async function bootstrap() {
       password: hashedPassword,
       slug: 'seller-one',
       role: 'SELLER',
+      phone: '123456789',
     },
   });
 
@@ -46,6 +48,7 @@ async function bootstrap() {
       password: hashedPassword,
       slug: 'seller-two',
       role: 'SELLER',
+      phone: '123456789',
     },
   });
 
@@ -58,6 +61,7 @@ async function bootstrap() {
       password: hashedPassword,
       slug: 'buyer-one',
       role: 'USER',
+      phone: '123456789',
     },
   });
 
