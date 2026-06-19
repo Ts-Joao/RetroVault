@@ -72,7 +72,8 @@ export class UsersService {
       if (error instanceof HttpException) {
         throw error;
       }
-
+      
+      console.error(error)
       throw new InternalServerErrorException('Error creating user!');
     }
   }
