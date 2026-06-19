@@ -15,6 +15,7 @@ describe('Auth', () => {
     name: 'auth-test-user',
     email: 'auth@example.com',
     password: 'Strong123@',
+    phone: '35191894822'
   };
 
   beforeAll(async () => {

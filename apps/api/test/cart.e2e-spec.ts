@@ -53,7 +53,8 @@ describe('Cart', () => {
             .send({
                 name: 'cart-seller',
                 email: 'cart-seller@example.com',
-                password: 'Strong123@'
+                password: 'Strong123@',
+                phone: '35191894822'
             })
             .expect(201)
 

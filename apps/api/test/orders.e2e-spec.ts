@@ -35,7 +35,12 @@ describe('Orders', () => {
         // Create buyer user
         const buyerRes = await request(app.getHttpServer())
             .post('/users')
-            .send({ name: 'order-buyer', email: 'order-buyer@example.com', password: 'Strong123@' })
+            .send({
+                name: 'order-buyer',
+                email: 'order-buyer@example.com',
+                password: 'Strong123@',
+                phone: '35191894822'
+            })
             .expect(201)
         userId = buyerRes.body.newUser.id
 

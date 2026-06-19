@@ -41,7 +41,8 @@ describe('Products', () => {
             .send({
                 name: 'seller-user',
                 email: 'seller@example.com',
-                password: 'Strong123@'
+                password: 'Strong123@',
+                phone: '35191894822'
             })
             .expect(201)
 

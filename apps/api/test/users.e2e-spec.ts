@@ -32,7 +32,8 @@ describe('Users', () => {
         const userData = {
             name: 'joao-ts',
             email: 'teixeira@example.com',
-            password: 'Strong123@'
+            password: 'Strong123@',
+            phone: '35191894822'
         }
         const response = await request(app.getHttpServer())
             .post('/users')
