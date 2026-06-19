@@ -31,6 +31,7 @@ describe('Payment', () => {
         name: 'payment-user',
         email: 'payment@test.com',
         password: 'Strong123@',
+        phone: '35191894822'
       })
       .expect(201);
 

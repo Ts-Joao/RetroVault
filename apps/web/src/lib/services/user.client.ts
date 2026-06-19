@@ -1,8 +1,16 @@
-import { User } from "@retrovault/core";
 import api from "../axios";
+import { User } from "@retrovault/core";
 
-export async function createUser(name: string, email: string, password: string): Promise<User> {
-    const { data } = await api.post('/users', { name, email, password })
+type AddUser = {
+    name: string
+    email: string
+    password: string
+    phone: string
+    cep?: string
+}
+
+export async function createUser(userData: AddUser): Promise<AddUser> {
+    const { data } = await api.post('/users', {userData})
     return data
 }
 

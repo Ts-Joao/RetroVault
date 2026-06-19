@@ -27,6 +27,7 @@ describe('Wallet', () => {
         name: 'wallet-user',
         email: 'wallet@example.com',
         password: 'Strong123@',
+        phone: '35191894822'
       })
       .expect(201);
 
