@@ -7,4 +7,5 @@ export interface User {
     products?: string[]
     role: string
     defaultCep?: string | null
+    createdAt?: number | string | undefined
 }
