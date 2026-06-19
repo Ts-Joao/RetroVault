@@ -39,7 +39,7 @@ export default function MiddleBtn() {
                     const Icon = link.icon;
                     return (
                         <li key={link.href}>
-                            <Link 
+                            <Link
                                 href={link.href}
                                 className="w-10 h-10 flex items-center justify-center rounded-xl text-second hover:bg-second/10 hover:text-[#D9A128] transition-all duration-200 cursor-pointer"
                             >
@@ -55,29 +55,29 @@ export default function MiddleBtn() {
                     {user ? (
                         <Link 
                             href={`/profile/${user?.sub}/${user?.slug}`} 
-                            className="flex items-center gap-3 p-1 pr-3 rounded-2xl border border-transparent hover:border-third/20 hover:bg-second/5 transition-all duration-200 group text-second"
+                            className="flex items-center gap-3 p-1.5 pr-4 rounded-xl bg-[#CD463A] hover:bg-[#DC5246] border border-[#CD463A]/20 shadow-md transition-all duration-200 group text-white"
                         >
-                            <div className="w-9 h-9 rounded-xl overflow-hidden border-2 border-third/40 shadow-sm bg-prim group-hover:scale-105 transition-transform duration-200">
+                            <div className="w-10 h-10 rounded-xl overflow-hidden border-2 border-white/40 shadow-sm bg-zinc-800 group-hover:scale-105 transition-transform duration-200">
                                 {profile?.photo ? (
                                     <img src={profile.photo} alt="Avatar" className="w-full h-full object-cover" />
                                 ) : (
-                                    <PiUserCircleFill className="w-full h-full text-second/60" />
+                                    <PiUserCircleFill className="w-full h-full text-white/60" />
                                 )}
                             </div>
-                            <div className="hidden lg:flex flex-col leading-none">
-                                <span className="text-[11px] font-black uppercase tracking-tight text-second truncate max-w-[100px]">
-                                    {profile?.name?.split(' ')[0] ?? user.name?.split(' ')[0] ?? "Usuário"}
+                            <div className="hidden lg:flex flex-col leading-tight">
+                                <span className="text-xs font-black uppercase tracking-tight text-white truncate max-w-[140px]">
+                                    {profile?.name ?? user.name ?? "Usuário"}
                                 </span>
-                                <span className="text-[9px] text-emerald-600 font-bold uppercase mt-0.5">Online</span>
+                                <span className="text-[10px] text-emerald-300 font-bold uppercase mt-0.5 tracking-wider">Online</span>
                             </div>
                         </Link>
                     ) : (
                         <Link 
                             href='/login'
-                            className="flex items-center gap-2 px-4 py-2 bg-second text-prim rounded-xl hover:opacity-90 transition-all active:scale-95 shadow-sm"
+                            className="flex items-center gap-2 px-5 py-2.5 bg-[#CD463A] hover:bg-[#DC5246] text-white rounded-xl font-black uppercase tracking-wider text-sm transition-all active:scale-95 shadow-sm"
                         >
-                            <PiUserPlusBold className="text-lg" />
-                            <span className="text-xs font-bold uppercase">Entrar</span>
+                            <PiUserPlusBold className="text-xl text-white" />
+                            <span className="text-white">Entrar</span>
                         </Link>
                     )}
                 </li>
@@ -89,8 +89,8 @@ export default function MiddleBtn() {
                     <PiBagBold className="text-2xl" />
                 </Link>
 
-                <button 
-                    onClick={() => setIsOpen(!isOpen)} 
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
                     className="w-10 h-10 flex items-center justify-center rounded-xl bg-second/10 text-second"
                 >
                     {isOpen ? <PiXBold className="text-xl" /> : <PiListBold className="text-xl" />}
@@ -104,8 +104,8 @@ export default function MiddleBtn() {
                     <ul className="absolute right-4 top-14 w-64 bg-prim border-2 border-third shadow-2xl rounded-2xl p-3 space-y-1 animate-in fade-in slide-in-from-top-5 duration-200 z-50">
                         {navLinks.map((link) => (
                             <li key={link.href}>
-                                <Link 
-                                    href={link.href} 
+                                <Link
+                                    href={link.href}
                                     onClick={() => setIsOpen(false)}
                                     className="flex items-center gap-4 p-3 rounded-2xl hover:bg-second/10 text-second font-bold text-sm"
                                 >
