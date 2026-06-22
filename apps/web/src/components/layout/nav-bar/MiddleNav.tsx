@@ -58,8 +58,8 @@ export default function MiddleBtn() {
                             className="flex items-center gap-3 p-1.5 pr-4 rounded-xl bg-[#CD463A] hover:bg-[#DC5246] border border-[#CD463A]/20 shadow-md transition-all duration-200 group text-white"
                         >
                             <div className="w-10 h-10 rounded-xl overflow-hidden border-2 border-white/40 shadow-sm bg-zinc-800 group-hover:scale-105 transition-transform duration-200">
-                                {profile?.photo ? (
-                                    <img src={profile.photo} alt="Avatar" className="w-full h-full object-cover" />
+                                {profile?.profilePic?.url ? (
+                                    <img src={profile.profilePic.url} alt="Avatar" className="w-full h-full object-cover" />
                                 ) : (
                                     <PiUserCircleFill className="w-full h-full text-white/60" />
                                 )}
@@ -121,7 +121,7 @@ export default function MiddleBtn() {
                             {user ? (
                                 <Link href={`/profile/${user.sub}/${user.slug}`} className="flex items-center gap-3 p-3 bg-second/5 border border-third/10 rounded-2xl text-second">
                                     <div className="w-8 h-8 rounded-full overflow-hidden border border-third/30">
-                                        {profile?.photo ? <img src={profile.photo} className="w-full h-full object-cover" /> : <PiUserCircleFill className="w-full h-full text-second/40" />}
+                                        {profile?.profilePic?.url ? <img src={profile.profilePic.url} className="w-full h-full object-cover" /> : <PiUserCircleFill className="w-full h-full text-second/40" />}
                                     </div>
                                     <p className="text-xs font-black uppercase truncate">{profile?.name?.split(' ')[0] ?? user.name?.split(' ')[0] ?? "Usuário"}</p>
                                 </Link>

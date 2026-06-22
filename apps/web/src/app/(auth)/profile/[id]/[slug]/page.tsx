@@ -5,10 +5,11 @@ import BuyerPage from "./BuyerPage";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { PiSignOutBold, PiCalendarBlankBold, PiMapPinBold } from "react-icons/pi";
+import { PiCalendarBlankBold, PiMapPinBold } from "react-icons/pi";
 import EditProfileModal from "@/components/profile/EditProfileModal";
 import { getMe } from "@/lib/services/auth.server";
 import { Order, User } from "@retrovault/core";
+import { LogoutButton } from "@/components/logoutButton";
 
 interface ProfileProps {
   params: Promise<{ id: string; slug: string }>;
@@ -19,7 +20,7 @@ export default async function Profile({ params }: ProfileProps) {
     const user = await getUserById(id);
 
     if (!user)
-        return <div className="text-center py-20 font-chakra-petch text-zinc-800 font-bold">OPERADOR NÃO ENCONTRADO NO BANCO DE DADOS.</div>;
+        return <div className="text-center py-20 font-chakra-petch text-zinc-800 font-bold">USUÁRIO NÃO ENCONTRADO NO BANCO DE DADOS.</div>;
 
     const currentUserId = await getMe();
 
@@ -35,14 +36,7 @@ export default async function Profile({ params }: ProfileProps) {
         redirect('/login');
       }
     }
-
-    const handleLogout = async () => {
-      'use server'
-      // deleteCookie("access_token")
-      // deleteCookie("refresh_token")
-      redirect('/login');
-    };
-
+  
   return (
     <main className="min-h-[87dvh] pt-5 bg-[#F8F9FA] font-chakra-petch pb-12">
       <div className="max-w-4xl mx-auto">
@@ -56,7 +50,7 @@ export default async function Profile({ params }: ProfileProps) {
 
           {/* Banner */}
           <div className="relative w-full h-44 md:h-48 rounded-t-2xl overflow-hidden bg-zinc-900">
-            <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#white_1px,transparent_1px)] [background-size:16px_16px]"></div>
+            <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#white_1px,transparent_1px)] bg-size:16px_16px"></div>
             <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent" />
           </div>
 
@@ -64,7 +58,7 @@ export default async function Profile({ params }: ProfileProps) {
           <div className="absolute left-6 md:left-10 top-24 md:top-28 z-10">
             <div className="relative h-28 w-28 md:h-32 md:w-32 rounded-xl border-4 border-white overflow-hidden shadow-md bg-zinc-100">
               <Image
-                src={user.photo ?? "/image/placeholder-pfp.webp"}
+                src={user.profilePic?.url ? `${user.profilePic.url}` : "/image/placeholder-pfp.webp"}
                 alt="Foto de perfil"
                 fill
                 className="object-cover"
@@ -75,12 +69,7 @@ export default async function Profile({ params }: ProfileProps) {
           {/* Botão de Logout Técnico no Topo - Exibido apenas se for o próprio perfil */}
           {isOwnProfile && (
             <div className="absolute right-4 top-4 z-10">
-              <form action={handleLogout}>
-                <button type="submit" className="flex items-center gap-2 px-4 py-2 bg-black/60 hover:bg-[#CD463A] text-white text-xs font-black uppercase tracking-wider rounded-lg border border-white/20 transition-all cursor-pointer">
-                  <PiSignOutBold className="text-sm" />
-                  Desconectar
-                </button>
-              </form>
+              <LogoutButton />
             </div>
           )}
 

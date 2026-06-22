@@ -57,7 +57,7 @@ export default function BuyerPage({ orders, user }: Props) {
         {activeTab === "orders" && (
           <div className="space-y-4">
             {orders && orders.length > 0 ? (
-              <div className="columns-1 md:columns-2 gap-4 space-y-4 [column-fill:_balance]">
+              <div className="columns-1 md:columns-2 gap-4 space-y-4 [column-fill:balance]">
                 {orders.map((order) => (
                   <div 
                     key={order.id} 
@@ -130,7 +130,7 @@ export default function BuyerPage({ orders, user }: Props) {
         {activeTab === "wishlist" && (
           <div className="space-y-4">
             {favorites && favorites.length > 0 ? (
-              <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4 [column-fill:_balance]">
+              <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4 [column-fill:balance]">
                 {favorites.map((fav: any) => (
                   <Link 
                     key={fav.id} 
@@ -143,7 +143,7 @@ export default function BuyerPage({ orders, user }: Props) {
                         <div className="w-16 h-16 bg-white border border-zinc-200/60 rounded-lg shrink-0 overflow-hidden relative flex items-center justify-center p-1">
                           {fav.product?.photos?.[0]?.url ? (
                             <img 
-                              src={`${process.env.NEXT_PUBLIC_API_URL}${fav.product.photos[0].url}`} 
+                              src={`${process.env.NEXT_PUBLIC_API_URL}/${fav.product.photos[0].url}`} 
                               alt={fav.product?.name}
                               className="object-contain w-full h-full group-hover:scale-105 transition-transform duration-200"
                             />
