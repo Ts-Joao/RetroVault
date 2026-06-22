@@ -6,6 +6,11 @@ export async function getProductReviews(productId: string): Promise<Review[]> {
     return data ?? []
 }
 
+export async function getUserReviews(userId: string): Promise<Review[]> {
+    const { data } = await api.get<Review[]>(`/reviews/${userId}`)
+    return data ?? []
+}
+
 export async function userBoughtProduct(userId: string, productId: string): Promise<boolean> {
     const { data } = await api.get<boolean>(`/reviews/products/${productId}/bought`, {
         headers: { 'user-id': userId }

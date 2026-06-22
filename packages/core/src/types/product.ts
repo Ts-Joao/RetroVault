@@ -3,6 +3,7 @@ import type { ProductPhoto } from "./productPhoto";
 export interface Product {
     id: string
     name: string
+    slug: string
     price: number
     photos: ProductPhoto[]
     sellerId: string
