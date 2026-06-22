@@ -8,6 +8,8 @@ services:
         condition: service_healthy
     restart: "no"
     command: sh -c "pnpm prisma migrate deploy && pnpm prisma db seed"
+    env_file:
+      - apps/api/.env
   
   api:
     build:
