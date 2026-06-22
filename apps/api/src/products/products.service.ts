@@ -177,6 +177,7 @@ export class ProductService {
 
       return updateProduct;
     } catch (err) {
+      console.error('UPDATE ERROR:', err);
       if (err instanceof HttpException) throw err;
       throw new InternalServerErrorException('Error updating product!');
     }

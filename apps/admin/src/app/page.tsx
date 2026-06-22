@@ -162,7 +162,9 @@ async function handleLogin(e: React.FormEvent) {
       <strong>Entre para o time hoje mesmo.</strong>
     </p>
 
-    <button className="rounded bg-[#261F1A] px-8 py-3 text-sm font-bold tracking-[0.04em] text-[#F2EFDC]">
+    <button 
+     onClick={() => router.push("/Register")}
+    className="rounded bg-[#261F1A] px-8 py-3 text-sm font-bold tracking-[0.04em] text-[#F2EFDC]">
       Entre em contato
     </button>
   </div>
