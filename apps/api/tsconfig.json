@@ -13,7 +13,7 @@
     "target": "ES2022",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
+    "baseUrl": ".",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -21,7 +21,9 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
-    "types": ["jest", "node"]
-    
+    "types": ["jest", "node"],
+    "paths": {
+      "src/*": ["src/*"]
+    }
   }
 }

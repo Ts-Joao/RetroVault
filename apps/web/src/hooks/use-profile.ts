@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/context/auth.context";
-import axios from "axios";
+import api from "@/lib/axios"; 
 import { User } from "@retrovault/core";
 
 export function useProfile() {
@@ -12,24 +12,27 @@ export function useProfile() {
 
   useEffect(() => {
     if (!user?.sub) {
+      console.log("[useProfile] Aguardando inicialização do usuário (user.sub está ausente).");
       setProfile(null);
       return;
     }
 
     async function fetchProfile() {
       setLoading(true);
+      console.log(`[useProfile] Buscando perfil para o ID: ${user?.sub}`);
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/profile/${user?.sub}`);
+        const response = await api.get(`/users/${user?.sub}`);
+        console.log("[useProfile] Perfil retornado com sucesso:", response.data);
         setProfile(response.data);
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
+      } catch (error: any) {
+        setProfile(null);
       } finally {
         setLoading(false);
       }
     }
 
     fetchProfile();
-  }, [user?.sub]);
+  }, [user?.sub]); 
 
   return { profile, loading };
 }

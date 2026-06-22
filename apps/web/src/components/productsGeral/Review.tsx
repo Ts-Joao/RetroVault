@@ -10,7 +10,7 @@
 
         {reviews.map((review) => (
            <div key={review.id}>
-          <h3>{review.name}</h3>
+          <h3>{review.user.name}</h3>
           <p>{review.comments}</p>
           </div>
         ))}

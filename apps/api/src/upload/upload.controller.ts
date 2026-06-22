@@ -41,6 +41,9 @@ export class UploadController {
     @TokenPayloadParam() payload: PayloadDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    // 💡 Adicione este log para inspecionar o objeto do arquivo no terminal do Docker
+    console.log('DADOS DO ARQUIVO RECEBIDO:', file);
+    
     return this.uploadService.uploadProfilePhoto(payload.sub, file);
   }
 

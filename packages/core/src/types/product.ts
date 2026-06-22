@@ -2,6 +2,7 @@ import type { ProductPhoto } from "./productPhoto";
 
 export interface Product {
     id: string
+    slug: string
     name: string
     price: number
     photos: ProductPhoto[]
@@ -23,4 +24,5 @@ export interface ProductDetails extends Product {
   description: string;
   amount: number;
   comments: string;
+  salesCount: number;
 }

@@ -83,6 +83,7 @@ model Product {
   discountStart        DateTime?      @map("discount_start")
   shippingCost         Decimal?       @map("shipping_cost") @db.Decimal(5, 2)
   viewCount            Int            @default(0) @map("view_count")
+  salesCount           Int?           @default(0) @map("sales_count")
   freeInstallments     Int?           @default(1) @map("free_intalments")
   maxInstallments      Int?           @default(1) @map("max_intallments")
   minInstallmentAmount Decimal?       @map("min_intallment_amount") @db.Decimal(6, 2)

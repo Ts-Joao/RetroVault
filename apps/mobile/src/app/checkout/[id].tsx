@@ -8,14 +8,14 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { Product, formatPrice } from "@retrovault/core";
+import { ProductDetails, formatPrice, getProductUrl } from "@retrovault/core";
 import { getProductById } from "@/services/product.service";
 import { getProductImage } from "@/lib/productImages";
 
 export default function CheckoutPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<ProductDetails | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -63,9 +63,7 @@ export default function CheckoutPage() {
       </View>
       <TouchableOpacity
         style={styles.button}
-        onPress={() =>
-          router.push(`/products/${product.id}/${product.slug ?? product.name}`)
-        }
+        onPress={() => router.push(getProductUrl(product))}
       >
         <Text style={styles.buttonText}>Voltar ao produto</Text>
       </TouchableOpacity>

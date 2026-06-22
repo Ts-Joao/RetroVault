@@ -5,7 +5,12 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'http',
-        hostname: 'localhost',
+        hostname: 'localhost', 
+        port: '4000',
+      },
+      {
+        protocol: 'http',
+        hostname: 'api', 
         port: '4000',
       }
     ],
@@ -15,11 +20,11 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "http://localhost:4000/api/:path*",
+        destination: "http://api:4000/api/:path*", 
       },
       {
         source: "/uploads/:path*",
-        destination: "http://localhost:4000/uploads/:path*",
+        destination: "http://api:4000/uploads/:path*",
       },
     ];
   },

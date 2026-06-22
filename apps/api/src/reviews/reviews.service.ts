@@ -20,6 +20,21 @@ export class ReviewsService {
     });
   }
 
+  async getUserReviews(userId: string) {
+    return this.db.review.findMany({
+      where: { userId },
+      include: {
+        user: {
+          select: { id: true, name: true, slug: true },
+        },
+        product: {
+          select: { id: true, name: true, slug: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   private async updateProductRating(productId: string) {
     const result = await this.db.review.aggregate({
       where: { productId },
@@ -35,7 +50,7 @@ export class ReviewsService {
     });
   }
 
-  private async userBoughtProduct(userId: string, productId: string) {
+  async userBoughtProduct(userId: string, productId: string) {
     const orderItem = await this.db.orderItem.findFirst({
       where: {
         productId,

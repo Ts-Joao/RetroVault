@@ -1,50 +1,75 @@
-import Link from "next/link";
+"use client";
+
+import { useState, useRef } from "react";
 import { 
-    PiTruck,
-    PiChartBar,
-    PiSealPercent,
-    PiCassetteTape,
-    PiGameController,
+  PiGridFourBold, 
+  PiTShirtBold, 
+  PiDeviceMobileBold, 
+  PiSneakerBold, 
+  PiGameControllerBold, 
+  PiSparkleBold 
 } from "react-icons/pi";
 
-export default function CategoryBar() {
-    return (
-        <div className="bg-[#d9d9d9] border-2 border-black text-second md:w-[60%] lg:w-[50%] xl:w-[35%] rounded-lg self-center items-center-safe p-2 text-xs lg:text-[13px] text-center font-chakra-petch">
-            <div className="bg-[#d9d9d9] absolute mt-[-30] ml-2 p-1 h-6 border-2 rounded-b-none rounded-md border-black border-y-[#d9d9d9] border-t-black">
-                <p className="text-black text-[13px] lg:text-[15px]">Categorias</p>
-            </div>
-            <ul className="flex justify-between px-3 z-2 gap-2 md:gap-0">
-                <li>
-                    <Link href='/' className="flex justify-center">
-                        <PiGameController className="bg-third rounded-full w-12 h-12 lg:h-15 lg:w-15 p-2 text-3xl"/>
-                    </Link>
-                    <p className="text-black hidden md:flex justify-center-safe">Jogos</p>
-                </li>
-                <li>
-                    <Link href='/' className="flex justify-center">
-                        <PiCassetteTape className="bg-third rounded-full w-12 h-12 lg:h-15 lg:w-15 p-2 text-3xl"/>
-                    </Link>
-                    <p className="text-black hidden md:flex justify-center-safe">Filmes</p>
-                </li>
-                <li>
-                    <Link href='/' className="flex justify-center">
-                        <PiChartBar className="bg-third rounded-full w-12 h-12 lg:h-15 lg:w-15 p-2 text-3xl"/>
-                    </Link>
-                    <p className="text-black hidden md:flex justify-center-safe">Em Alta</p>
-                </li>
-                <li>
-                    <Link href='/' className="flex justify-center">
-                        <PiSealPercent className="bg-third rounded-full w-12 h-12 lg:h-15 lg:w-15 p-2 text-3xl"/>
-                    </Link>
-                    <p className="text-black hidden md:flex justify-center-safe">Ofertas</p>
-                </li>
-                <li>
-                    <Link href='/' className="flex justify-center">
-                        <PiTruck className="bg-third rounded-full w-12 h-12 lg:h-15 lg:w-15 p-2 text-3xl"/>
-                    </Link>
-                    <p className="text-black hidden md:flex">Frete Grátis</p>
-                </li>
-            </ul>
+const CATEGORIES = [
+  { id: "all", name: "Todos", icon: <PiGridFourBold /> },
+  { id: "vestuario", name: "Vestuário", icon: <PiTShirtBold /> },
+  { id: "eletronicos", name: "Eletrônicos", icon: <PiDeviceMobileBold /> },
+  { id: "calcados", name: "Calçados", icon: <PiSneakerBold /> },
+  { id: "games", name: "Games & Geek", icon: <PiGameControllerBold /> },
+  { id: "colecionaveis", name: "Colecionáveis", icon: <PiSparkleBold /> },
+];
+
+interface CategoriesBarProps {
+  onCategoryChange?: (categoryId: string) => void;
+}
+
+export default function CategoriesBar({ onCategoryChange }: CategoriesBarProps) {
+  const [activeCategory, setActiveCategory] = useState("all");
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const handleCategorySelect = (id: string) => {
+    setActiveCategory(id);
+    if (onCategoryChange) {
+      onCategoryChange(id); 
+    }
+  };
+
+  return (
+    <div className="w-full bg-white border-b border-zinc-200/80 sticky top-0 z-10 font-chakra-petch">
+      <div className="mx-auto w-[92%] max-w-7xl relative">
+        
+        {/* Container com scroll horizontal invisível e suave */}
+        <div 
+          ref={scrollRef}
+          className="flex items-center gap-2 overflow-x-auto py-3 no-scrollbar scroll-smooth snap-x select-none"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {CATEGORIES.map((category) => {
+            const isActive = activeCategory === category.id;
+            
+            return (
+              <button
+                key={category.id}
+                onClick={() => handleCategorySelect(category.id)}
+                className={`snap-start flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-black uppercase tracking-wider transition-all shrink-0 cursor-pointer duration-200
+                  ${isActive 
+                    ? "bg-[#CD463A] border-[#CD463A] text-white shadow-sm shadow-[#CD463A]/20" 
+                    : "bg-zinc-50 border-zinc-200 text-zinc-400 hover:text-zinc-700 hover:border-zinc-300 hover:bg-white"
+                  }`}
+              >
+                {/* Ícone */}
+                <span className={`text-base transition-transform duration-200 ${isActive ? "scale-110" : ""}`}>
+                  {category.icon}
+                </span>
+                
+                {/* Nome da Categoria */}
+                <span>{category.name}</span>
+              </button>
+            );
+          })}
         </div>
-    )
+
+      </div>
+    </div>
+  );
 }

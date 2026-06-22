@@ -1,15 +1,18 @@
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname, join } from 'path';
 
 export const ProfilePhotoInterceptor = FileInterceptor('file', {
-    storage: diskStorage({
-        destination: './uploads/profiles',
-        filename: (req, file, callback) => {
-            const extension = extname(file.originalname);
-            const uniqueSuffix = `${Date.now()}-${Math.random() * 1e9}`;
-
-            callback(null, `profile-${uniqueSuffix}${extension}`)
-        }
-    })
+  storage: diskStorage({
+    destination: (req, file, callback) => {
+      // Caminho seguro que garante a persistência na pasta uploads da raiz
+      const uploadPath = join(process.cwd(), 'uploads', 'profiles');
+      callback(null, uploadPath);
+    },
+    filename: (req, file, callback) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+      const ext = extname(file.originalname);
+      callback(null, `profile-${uniqueSuffix}${ext}`);
+    },
+  }),
 });

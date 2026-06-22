@@ -1,4 +1,14 @@
 services:
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    command: sh -c "pnpm prisma migrate deploy && pnpm prisma db seed"
+  
   api:
     build:
       context: .
@@ -8,9 +18,14 @@ services:
     env_file:
       - apps/api/.env
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     ports:
       - "4000:4000"
+    volumes:
+    - ./apps/api/uploads:/app/apps/api/uploads
 
   admin:
     build:
@@ -57,6 +72,11 @@ services:
       POSTGRES_USER: retrovault
       POSTGRES_PASSWORD: retrovault
       POSTGRES_DB: retrovault_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
       - "5432:5432"
     volumes:

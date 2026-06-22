@@ -3,5 +3,6 @@ export type JwtPayload = {
     sub: string,
     email: string,
     name?: string,
-    slug: string
+    slug: string,
+    exp: number
 }

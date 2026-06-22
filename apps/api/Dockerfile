@@ -14,7 +14,11 @@ COPY packages/core ./packages/core
 COPY apps/api ./apps/api
 
 WORKDIR /app/apps/api
+
 RUN pnpm prisma generate
+
+RUN mkdir -p uploads/profiles uploads/products
+RUN chmod -R 777 uploads
 
 EXPOSE 4000
 CMD ["pnpm", "--filter", "api", "run", "dev"]

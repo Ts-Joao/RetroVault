@@ -5,9 +5,15 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as fs from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  const profileDir = join(process.cwd(), 'uploads', 'profiles');
+  const productDir = join(process.cwd(), 'uploads', 'products');
+  if (!fs.existsSync(profileDir)) fs.mkdirSync(profileDir, { recursive: true });
+  if (!fs.existsSync(productDir)) fs.mkdirSync(productDir, { recursive: true });
 
   app.use(cookieParser());
 

@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCartStore } from "@retrovault/store";
 import { CartItem, formatPrice } from "@retrovault/core";
 import { getProductImage } from "@/lib/productImages";
+import { useCartActionsStore } from "../stores/useCartActionsStore";
 
 const DRAWER_WIDTH = Dimensions.get("window").width * 0.75;
 
@@ -24,7 +25,8 @@ interface Props {
 
 export default function CartDrawer({ visible, onClose }: Props) {
   const translateX = useRef(new Animated.Value(DRAWER_WIDTH)).current;
-  const { items, increment, decrement, computeTotal } = useCartStore();
+  const { items, computeTotal } = useCartStore();
+  const { loadCart, incrementItem, decrementItem } = useCartActionsStore();
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
@@ -34,6 +36,12 @@ export default function CartDrawer({ visible, onClose }: Props) {
       useNativeDriver: true,
     }).start();
   }, [visible]);
+
+  useEffect(() => {
+    if (visible) {
+      loadCart().catch(() => undefined);
+    }
+  }, [visible, loadCart]);
 
   const renderItem = ({ item }: { item: CartItem }) => (
     <View className="flex-row items-center gap-3 py-3 border-b border-gray-100">
@@ -52,20 +60,20 @@ export default function CartDrawer({ visible, onClose }: Props) {
           {item.product.name}
         </Text>
         <Text className="text-sm text-primary font-bold mt-1 font-chakra">
-          R$ {formatPrice(item.product.price * item.quantity)}
+          R$ {formatPrice(item.product.price * (item.quantity ?? item.amount))}
         </Text>
         <View className="flex-row items-center gap-2 mt-2">
           <TouchableOpacity
-            onPress={() => decrement(item.product.id)}
+            onPress={() => decrementItem(item.id)}
             className="w-6 h-6 rounded-full bg-gray-100 items-center justify-center"
           >
             <Feather name="minus" size={12} color="#374151" />
           </TouchableOpacity>
           <Text className="text-sm font-medium text-gray-700 w-4 text-center font-chakra">
-            {item.quantity}
+            {item.quantity ?? item.amount}
           </Text>
           <TouchableOpacity
-            onPress={() => increment(item.product.id)}
+            onPress={() => incrementItem(item.id)}
             className="w-6 h-6 rounded-full bg-gray-100 items-center justify-center"
           >
             <Feather name="plus" size={12} color="#374151" />
@@ -115,7 +123,7 @@ export default function CartDrawer({ visible, onClose }: Props) {
             <>
               <FlatList
                 data={items}
-                keyExtractor={(item) => item.product.id}
+                keyExtractor={(item) => item.id}
                 renderItem={renderItem}
                 showsVerticalScrollIndicator={false}
               />
