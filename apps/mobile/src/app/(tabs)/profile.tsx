@@ -1,51 +1,58 @@
 import { useState } from "react";
-import { Text, View, TouchableOpacity, ScrollView, Alert, Platform } from "react-native";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  Platform,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import Profileproduct from "../../components/Profileproduct";
 import Profilewish from "../../components/Profilewish";
 import Profilerating from "../../components/Profilerating";
-import useAuthStore from '../../stores/useAuthStore'
+import useAuthStore from "../../stores/useAuthStore";
 
 const TABS = ["Pedidos", "Wishlist", "Avaliações"] as const;
 type Tab = (typeof TABS)[number];
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("Pedidos");
-  const router = useRouter()
-  const logout = useAuthStore((s) => s.logout)
-  const profile = useAuthStore((s) => s.profile)
+  const router = useRouter();
+  const logout = useAuthStore((s) => s.logout);
+  const profile = useAuthStore((s) => s.profile);
 
   const handleLogout = () => {
     const performLogout = async () => {
       try {
-        await logout()
-        router.replace('/login')
+        await logout();
+        router.replace("/login");
       } catch (e: any) {
-        if (Platform.OS === 'web') {
-          alert(e.message || 'Falha ao sair')
+        if (Platform.OS === "web") {
+          alert(e.message || "Falha ao sair");
         } else {
-          Alert.alert('Erro', e.message || 'Falha ao sair')
+          Alert.alert("Erro", e.message || "Falha ao sair");
         }
       }
-    }
+    };
 
-    if (Platform.OS === 'web') {
-      const confirmed = window.confirm('Deseja sair da sua conta?')
+    if (Platform.OS === "web") {
+      const confirmed = window.confirm("Deseja sair da sua conta?");
       if (confirmed) {
-        performLogout()
+        performLogout();
       }
     } else {
-      Alert.alert('Confirmação', 'Deseja sair da sua conta?', [
-        { text: 'Cancelar', style: 'cancel' },
+      Alert.alert("Confirmação", "Deseja sair da sua conta?", [
+        { text: "Cancelar", style: "cancel" },
         {
-          text: 'Sair',
-          style: 'destructive',
+          text: "Sair",
+          style: "destructive",
           onPress: performLogout,
         },
-      ])
+      ]);
     }
-  }
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -74,13 +81,20 @@ export default function Home() {
         </View>
       </View>
       <View
-        style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginHorizontal: 12}}
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginHorizontal: 12,
+        }}
       >
         <View style={{ marginLeft: 12 }}>
           <Text style={{ fontWeight: "bold", fontSize: 14, color: "#000" }}>
-            {profile?.name ?? 'Usuário'}
+            {profile?.name ?? "Usuário"}
           </Text>
-          <Text style={{ fontSize: 12, color: "#333" }}>{profile?.email ?? ''}</Text>
+          <Text style={{ fontSize: 12, color: "#333" }}>
+            {profile?.email ?? ""}
+          </Text>
         </View>
         <TouchableOpacity onPress={handleLogout} style={{ padding: 8 }}>
           <Ionicons name="log-out-outline" size={22} color="#333" />

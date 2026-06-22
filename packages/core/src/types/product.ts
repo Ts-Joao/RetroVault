@@ -2,6 +2,7 @@ import type { ProductPhoto } from "./productPhoto";
 
 export interface Product {
     id: string
+    slug: string
     name: string
     slug: string
     price: number

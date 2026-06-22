@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState } from "react";
 import {
   View,
   Text,
@@ -6,49 +6,61 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-} from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { useRouter } from "expo-router"
-import { Link } from "expo-router"
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { Link } from "expo-router";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import {
-  Product,
+  ProductDetails,
   calculeCartInstallments,
   formatPrice,
   splitPrice,
-} from "@retrovault/core"
-import { getProductImage } from "@/lib/productImages"
-import { mockUsers } from "@/services/user.service"
-import StarRating from "../StarRating"
+} from "@retrovault/core";
+import { getProductImage } from "@/lib/productImages";
+import StarRating from "../StarRating";
 
 type Props = {
-  product: Product
-}
+  product: ProductDetails;
+};
+
+type SellerInfo = {
+  id: string;
+  name: string;
+  slug?: string;
+};
 
 export default function ProductDetail({ product }: Props) {
-  const insets = useSafeAreaInsets()
-  const router = useRouter()
-  const [activeSlide, setActiveSlide] = useState(0)
-  const image = getProductImage(product)
-  const seller = mockUsers.find((user) => user.id === product.sellerId)
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const [activeSlide, setActiveSlide] = useState(0);
+  const image = getProductImage(product);
+  const seller = (product as any).seller as SellerInfo | undefined;
 
-  const installments = calculeCartInstallments([{
-    price: product.price,
-    quantity: 1,
-    max_installments: product.max_installments,
-    free_installments: product.free_installments,
-    min_installment_amount: product.min_installment_amount,
-    monthly_interest_rate: product.monthly_interest_rate,
-  }])
+  const installments = calculeCartInstallments([
+    {
+      price: product.price,
+      quantity: 1,
+      max_installments: product.max_installments,
+      free_installments: product.free_installments,
+      min_installment_amount: product.min_installment_amount,
+      monthly_interest_rate: product.monthly_interest_rate,
+    },
+  ]);
 
   const best = installments.at(-1) ?? {
     installment_amount: product.price,
     installments: 1,
-  }
+  };
 
-  const { units, cents } = splitPrice(best.installment_amount)
-  const genres = product.genre?.join(", ") || "—"
-  const mediaType = product.type?.[0] || "—"
+  const { units, cents } = splitPrice(best.installment_amount);
+  const genres = product.genre?.join(", ") || "—";
+  const mediaType = product.type?.[0] || "—";
+  const sellerName = seller?.name ?? product.sellerId;
+  const sellerProfileUrl =
+    seller?.id && seller?.slug
+      ? `/profile/${seller.id}/${seller.slug}`
+      : undefined;
 
   return (
     <View className="flex-1 bg-stone-100">
@@ -59,7 +71,10 @@ export default function ProductDetail({ product }: Props) {
         <TouchableOpacity onPress={() => router.back()} className="mr-3">
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text className="text-white font-chakra text-lg flex-1" numberOfLines={1}>
+        <Text
+          className="text-white font-chakra text-lg flex-1"
+          numberOfLines={1}
+        >
           {product.name}
         </Text>
       </View>
@@ -97,7 +112,11 @@ export default function ProductDetail({ product }: Props) {
                   i === activeSlide ? "border-red-700" : "border-transparent"
                 }`}
               >
-                <Image source={image} style={{ width: "100%", height: "100%" }} resizeMode="cover" />
+                <Image
+                  source={image}
+                  style={{ width: "100%", height: "100%" }}
+                  resizeMode="cover"
+                />
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -115,14 +134,24 @@ export default function ProductDetail({ product }: Props) {
 
           <View className="flex-row items-center gap-2 my-2">
             <StarRating rating={product.rating} />
-            <Text className="text-sm text-stone-500">({product.rating.toFixed(1)})</Text>
+            <Text className="text-sm text-stone-500">
+              ({product.rating.toFixed(1)})
+            </Text>
           </View>
 
           <Text className="text-sm text-stone-600 mb-1">
             Por{" "}
-            <Link href={`/profile/${seller?.id}/${seller?.slug}`} className="text-primary font-semibold">
-              {seller?.name}
-            </Link>
+            {sellerProfileUrl ? (
+              <Link
+                href={sellerProfileUrl}
+                className="text-primary font-semibold"
+                asChild
+              >
+                <Text>{sellerName}</Text>
+              </Link>
+            ) : (
+              <Text className="text-primary font-semibold">{sellerName}</Text>
+            )}
           </Text>
 
           <View className="flex-row flex-wrap gap-x-4 gap-y-1 mb-3">
@@ -134,7 +163,8 @@ export default function ProductDetail({ product }: Props) {
             </Text>
             {product.amount != null && (
               <Text className="text-sm text-stone-600">
-                <Text className="font-semibold">Estoque:</Text> {product.amount} un.
+                <Text className="font-semibold">Estoque:</Text> {product.amount}{" "}
+                un.
               </Text>
             )}
           </View>
@@ -154,10 +184,7 @@ export default function ProductDetail({ product }: Props) {
         </View>
 
         <View className="flex-row items-center gap-x-3 px-4 py-4">
-          <Link
-            href={`/checkout/${product.id}`}
-            asChild
-          >
+          <Link href={`/checkout/${product.id}`} asChild>
             <TouchableOpacity
               activeOpacity={0.85}
               className="flex-1 bg-third rounded-lg py-3.5 items-center justify-center"
@@ -186,7 +213,7 @@ export default function ProductDetail({ product }: Props) {
         </View>
       </ScrollView>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -200,4 +227,4 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#1c1917",
   },
-})
+});

@@ -1,125 +1,95 @@
-import { Product } from "@retrovault/core"
+import api from "@/lib/api";
+import { Product, ProductDetails } from "@retrovault/core";
+
+function parseProduct(product: any): Product {
+  return {
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    price: Number(product.price ?? 0),
+    photos: Array.isArray(product.photos)
+      ? product.photos.map((photo: any) => ({
+          id: photo.id,
+          url: photo.url,
+          productId: photo.productId ?? product.id,
+        }))
+      : [],
+    sellerId: product.sellerId,
+    rating: Number(product.rating ?? 0),
+    max_installments: product.maxInstallments ?? product.max_installments ?? 1,
+    free_installments:
+      product.freeInstallments ?? product.free_installments ?? 1,
+    min_installment_amount: Number(
+      product.minInstallmentAmount ?? product.min_installment_amount ?? 0,
+    ),
+    monthly_interest_rate: Number(
+      product.monthlyInterestRate ?? product.monthly_interest_rate ?? 0,
+    ),
+    shipping_cost: Number(product.shippingCost ?? product.shipping_cost ?? 0),
+    type: product.mediaType ? [product.mediaType.name] : (product.type ?? []),
+    genre: Array.isArray(product.genre)
+      ? product.genre.map((item: any) => item?.name ?? item).filter(Boolean)
+      : (product.genre ?? []),
+    cep: product.cep ?? "",
+    city: product.city ?? "",
+    state: product.state ?? "",
+    ...(product.seller
+      ? {
+          seller: {
+            id: product.seller.id,
+            name: product.seller.name,
+            slug: product.seller.slug,
+          },
+        }
+      : {}),
+  };
+}
+
+function parseProductDetails(product: any): ProductDetails {
+  return {
+    ...parseProduct(product),
+    description: product.description ?? "",
+    amount: product.amount ?? 0,
+    comments: product.comments ?? "",
+    salesCount: Number(product.salesCount ?? 0),
+  };
+}
 
 export async function getProducts(): Promise<Product[]> {
-    return mockProducts
+  const res = await api.request("/products/active", { method: "GET" });
+  if (!res.ok) {
+    throw new Error("Falha ao buscar produtos");
+  }
+
+  const products = await res.json();
+  return Array.isArray(products)
+    ? products.map((product: any) => parseProduct(product))
+    : [];
 }
 
-export async function getProductById(id: string): Promise<Product | undefined> {
-    const products = await getProducts()
-    return products.find(product => product.id === id)
+export async function getProductById(
+  id: string,
+): Promise<ProductDetails | undefined> {
+  const res = await api.request(`/products/active/${id}`, { method: "GET" });
+  if (!res.ok) {
+    if (res.status === 404) return undefined;
+    throw new Error("Falha ao buscar produto");
+  }
+
+  const product = await res.json();
+  return parseProductDetails(product);
 }
 
-export function getProductsByUserId(userId: string): Product[] {
-    return mockProducts.filter((p) => p.sellerId === userId)
-}
+export async function getProductsByUserId(userId: string): Promise<Product[]> {
+  const res = await api.request(`/products/seller/${userId}`, {
+    method: "GET",
+  });
+  if (!res.ok) {
+    throw new Error("Falha ao buscar produtos do vendedor");
+  }
 
-export const mockProducts: Product[] = [
-  {
-    id: '1',
-    slug: 'ea-sport-f1-25-play-station-5',
-    name: 'EA Sport F1 25 - Play Station 5',
-    description: 'A experiência definitiva de Fórmula 1 no PS5, com gráficos de nova geração, modos carreira aprimorados e todos os pilotos e circuitos oficiais da temporada.',
-    price: 353.30,
-    amount: 12,
-    photos: [{ id: '1-photo', url: '1', productId: '1' }],
-    sellerId: '2',
-    rating: 4.5,
-    max_installments: 12,
-    free_installments: 10,
-    min_installment_amount: 20,
-    monthly_interest_rate: 0.02,
-    shipping_cost: 0,
-    type: ['Game'],
-    genre: ['Racing', 'Sports'],
-  },
-  {
-    id: '2',
-    slug: 'shadow-of-the-colossus-ps4-remake',
-    name: 'Shadow of the Colossus PS4 Remake',
-    description: 'Remasterização do clássico da Team Ico. Explore um mundo vasto a cavalo e derrote colossos imponentes para salvar a vida de Mono.',
-    price: 154,
-    amount: 8,
-    photos: [{ id: '2-photo', url: '2', productId: '2' }],
-    sellerId: '2',
-    rating: 4,
-    max_installments: 6,
-    free_installments: 3,
-    min_installment_amount: 10,
-    monthly_interest_rate: 0.03,
-    shipping_cost: 20,
-    type: ['Game'],
-    genre: ['Action', 'Adventure'],
-  },
-  {
-    id: '3',
-    slug: 'pokemon-legends-z-a-nintendo-switch-2',
-    name: 'Pokemon Legends Z-A Nintendo Switch 2',
-    description: 'Nova aventura Pokémon ambientada em Lumiose City, com combates dinâmicos e exploração urbana em tempo real.',
-    price: 380.37,
-    amount: 5,
-    photos: [{ id: '3-photo', url: '3', productId: '3' }],
-    sellerId: '3',
-    rating: 5,
-    max_installments: 12,
-    free_installments: 8,
-    min_installment_amount: 20,
-    monthly_interest_rate: 0.05,
-    shipping_cost: 10,
-    type: ['Game'],
-    genre: ['RPG', 'Adventure'],
-  },
-  {
-    id: '4',
-    slug: 'zelda-breath-of-the-wild-nintendo-switch',
-    name: 'Zelda Breath of the Wild Nintendo Switch',
-    description: 'Link desperta após 100 anos para derrotar Calamity Ganon. Explore Hyrule livremente neste marco dos jogos de mundo aberto.',
-    price: 409.11,
-    amount: 10,
-    photos: [{ id: '4-photo', url: '4', productId: '4' }],
-    sellerId: '3',
-    rating: 5,
-    free_installments: 2,
-    max_installments: 6,
-    min_installment_amount: 20,
-    monthly_interest_rate: 0.02,
-    shipping_cost: 10,
-    type: ['Game'],
-    genre: ['Action', 'Adventure'],
-  },
-  {
-    id: '5',
-    slug: 'metal-gear-solid-v-the-phantom-pain-ps4',
-    name: 'Metal gear solid V: The Phantom Pain PS4',
-    description: 'Big Boss constrói a Outer Heaven enquanto busca vingança. Stealth, base building e missões táticas em escala massiva.',
-    price: 224.00,
-    amount: 7,
-    photos: [{ id: '5-photo', url: '5', productId: '5' }],
-    sellerId: '2',
-    rating: 4.5,
-    free_installments: 3,
-    max_installments: 6,
-    min_installment_amount: 20,
-    monthly_interest_rate: 0.04,
-    shipping_cost: 10,
-    type: ['Game'],
-    genre: ['Action', 'Stealth'],
-  },
-  {
-    id: '6',
-    slug: 'sonic-x-shadow-generations-nintendo-switch',
-    name: 'Sonic x shadow generations Nintendo Switch',
-    description: 'Sonic e Shadow em aventuras que atravessam gerações. Velocidade, plataforma 3D e fases clássicas remasterizadas.',
-    price: 251.00,
-    amount: 15,
-    photos: [{ id: '6-photo', url: '6', productId: '6' }],
-    sellerId: '3',
-    rating: 5,
-    free_installments: 2,
-    max_installments: 8,
-    min_installment_amount: 10,
-    monthly_interest_rate: 0.05,
-    shipping_cost: 10,
-    type: ['Game'],
-    genre: ['Platform', 'Action'],
-  },
-]
+  const products = await res.json();
+  return Array.isArray(products)
+    ? products.map((product: any) => parseProduct(product))
+    : [];
+}
