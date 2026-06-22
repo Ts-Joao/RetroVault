@@ -282,6 +282,19 @@ export class OrdersService {
     }
   }
 
+  private async incrementProductSales(tx: Prisma.TransactionClient, orderItems: OrderItem[]) {
+    await Promise.all(
+      orderItems.map((item) =>
+        tx.product.update({
+          where: { id: item.productId },
+          data: {
+            salesCount: { increment: item.amount },
+          },
+        }),
+      ),
+    );
+  }
+
   private async validateCart(cartId: string) {
     const cart = await this.cartService.getCart(cartId);
 
