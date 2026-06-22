@@ -66,9 +66,6 @@ export class AuthController {
     @CurrentUser() user: PayloadDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-<<<<<<< HEAD:apps/api/src/auth/auth.controller.ts
-    const tokens = await this.authService.generateToken(user.sub, user.email, user.role, user.name, user.slug);
-=======
     const tokens = await this.authService.generateToken(
       user.sub,
       user.email,
@@ -76,18 +73,13 @@ export class AuthController {
       user.name,
       user.slug,
     );
->>>>>>> develop:apps/api/src/auth/controllers/auth.controller.ts
     await this.authService.saveRefreshToken(user.sub, tokens.refreshToken);
 
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
       sameSite: 'strict',
       secure: process.env.NODE_ENV === 'production',
-<<<<<<< HEAD:apps/api/src/auth/auth.controller.ts
-      path: '/api/auth/refresh'
-=======
       path: '/api/auth/refresh',
->>>>>>> develop:apps/api/src/auth/controllers/auth.controller.ts
     });
 
     return { accessToken: tokens.accessToken };

@@ -4,14 +4,18 @@ const nextConfig = {
     domains: ['placehold.co'],
   },
   async rewrites() {
+    // Verifica se está rodando dentro do Docker ou local
+    const isDocker = process.env.IS_DOCKER === "true";
+    const backendHost = isDocker ? "api:4000" : "localhost:4000";
+
     return [
       {
         source: "/api/:path*",
-        destination: "http://localhost:4000/api/:path*",
+        destination: `http://${backendHost}/api/:path*`,
       },
       {
         source: "/uploads/:path*",
-        destination: "http://localhost:4000/uploads/:path*",
+        destination: `http://${backendHost}/uploads/:path*`,
       },
     ];
   },

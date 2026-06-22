@@ -288,14 +288,10 @@ export class OrdersService {
     }
   }
 
-<<<<<<< HEAD
-  private async incrementProductSales(tx: Prisma.TransactionClient, orderItems: OrderItem[]) {
-=======
   private async incrementProductSales(
     tx: Prisma.TransactionClient,
     orderItems: OrderItem[],
   ) {
->>>>>>> develop
     await Promise.all(
       orderItems.map((item) =>
         tx.product.update({

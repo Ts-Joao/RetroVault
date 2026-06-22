@@ -170,9 +170,28 @@ export class ProductService {
         );
       }
 
+      const { mediaTypeId, genres, ...productData } = updateProductDto;
+
       const updateProduct = await this.databaseService.product.update({
         where: { id },
-        data: updateProductDto,
+        data: {
+          ...productData,
+          ...(mediaTypeId
+            ? {
+                mediaType: {
+                  connect: { id: mediaTypeId },
+                },
+              }
+            : {}),
+
+          ...(genres && genres.length > 0
+            ? {
+                genre: {
+                  set: genres.map((name) => ({ name })),
+                },
+              }
+            : {}),
+        },
       });
 
       return updateProduct;
