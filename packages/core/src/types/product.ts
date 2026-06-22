@@ -4,7 +4,6 @@ export interface Product {
     id: string
     slug: string
     name: string
-    slug: string
     price: number
     photos: ProductPhoto[]
     sellerId: string
