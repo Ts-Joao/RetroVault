@@ -1,5 +1,6 @@
 'use client'
 
+import { PiCurrencyDollarBold, PiTagBold, PiFilmStripBold } from "react-icons/pi"
 type Props = {
   minPrice: string
   maxPrice: string
@@ -23,46 +24,59 @@ export default function SearchFilters({
   setGenre
 }: Props) {
   return (
-    <div className="flex flex-col gap-5 p-4 rounded-2xl border border-gray-200 bg-gray-200 relative bottom-0 ">
-
-      <h1 className=" text-2xl font-barlow-condensed font-bold text-red-600 " >Filtros</h1>
-
-      <div className="flex gap-4 ">
-        <input
-          type="number"
-          placeholder="Preço mínimo"
-          value={minPrice}
-          onChange={(e) => setMinPrice(e.target.value)}
-          className="border p-2 rounded font-barlow-condensed text-xl border-red-700 text-red-600 font-semibold"
-        />
-
-        <input
-          type="number"
-          placeholder="Preço máximo"
-          value={maxPrice}
-          onChange={(e) => setMaxPrice(e.target.value)}
-          className="border p-2 rounded font-barlow-condensed border-red-700 text-red-600 text-xl font-semibold "
-        />
+    <div className="space-y-5 font-chakra-petch">
+      
+      {/* Grupo de Faixa de Preço */}
+      <div className="space-y-2">
+        <label className="text-zinc-500 text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+          <PiCurrencyDollarBold className="text-[#CD463A]" />
+          Faixa de Valor
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          <input
+            type="number"
+            placeholder="Mínimo"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+            className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl py-2 px-3 text-sm font-bold focus:outline-none focus:border-[#CD463A] transition-all text-zinc-800 placeholder:text-zinc-400"
+          />
+          <input
+            type="number"
+            placeholder="Máximo"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+            className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl py-2 px-3 text-sm font-bold focus:outline-none focus:border-[#CD463A] transition-all text-zinc-800 placeholder:text-zinc-400"
+          />
+        </div>
       </div>
 
-
-
-      <div className="flex flex-col gap-5">
-
+      {/* Categoria / Tipo */}
+      <div className="space-y-2">
+        <label className="text-zinc-500 text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+          <PiTagBold className="text-[#CD463A]" />
+          Tipo de Artefato
+        </label>
         <select
           value={type}
           onChange={(e) => setType(e.target.value)}
-          className="border border-red-700 text-red-600 p-2 rounded font-barlow-condensed text-xl font-semibold "
+          className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl py-2.5 px-3 text-sm font-bold focus:outline-none focus:border-[#CD463A] transition-all text-zinc-700 cursor-pointer"
         >
           <option value="">Todos os tipos</option>
           <option value="game">Jogo</option>
           <option value="movie">Filme</option>
         </select>
+      </div>
 
+      {/* Gênero */}
+      <div className="space-y-2">
+        <label className="text-zinc-500 text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+          <PiFilmStripBold className="text-[#CD463A]" />
+          Gênero / Classificação
+        </label>
         <select
           value={genre}
           onChange={(e) => setGenre(e.target.value)}
-          className="border border-red-700 text-red-600 p-2 rounded font-barlow-condensed text-xl font-semibold "
+          className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl py-2.5 px-3 text-sm font-bold focus:outline-none focus:border-[#CD463A] transition-all text-zinc-700 cursor-pointer"
         >
           <option value="">Todos os gêneros</option>
           <option value="action">Ação</option>
@@ -72,8 +86,8 @@ export default function SearchFilters({
           <option value="rpg">RPG</option>
           <option value="stealth">Stealth</option>
         </select>
-
       </div>
+
     </div>
   )
 }
