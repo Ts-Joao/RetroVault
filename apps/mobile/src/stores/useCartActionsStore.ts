@@ -1,5 +1,10 @@
 import { create } from "zustand";
-import { getCart, addCartItem, updateCartItem, removeCartItem } from "@/lib/cart.service";
+import {
+  getCart,
+  addCartItem,
+  updateCartItem,
+  removeCartItem,
+} from "@/lib/cart.service";
 import { useCartStore } from "@retrovault/store";
 
 export type CartActionsState = {
@@ -19,11 +24,13 @@ export const useCartActionsStore = create<CartActionsState>((set) => ({
     set({ loading: true });
     try {
       const data = await getCart();
-      useCartStore.getState().setCart(
-        data.cart?.cartItem ?? [],
-        Number(data.total ?? 0),
-        data.itemCount ?? 0,
-      );
+      useCartStore
+        .getState()
+        .setCart(
+          data.cart?.cartItem ?? [],
+          Number(data.total ?? 0),
+          data.itemCount ?? 0,
+        );
     } finally {
       set({ loading: false, updating: false });
     }

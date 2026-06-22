@@ -40,7 +40,10 @@ export default function ProductCard({ product }: Prop) {
   const { units, cents } = splitPrice(best.installment_amount);
 
   const sellerName = seller?.name ?? product.sellerId;
-  const sellerProfileUrl = seller?.id && seller?.slug ? `/profile/${seller.id}/${seller.slug}` : undefined;
+  const sellerProfileUrl =
+    seller?.id && seller?.slug
+      ? `/profile/${seller.id}/${seller.slug}`
+      : undefined;
 
   return (
     <View className="p-2 bg-[#d9d9d9] rounded-2xl flex-1">

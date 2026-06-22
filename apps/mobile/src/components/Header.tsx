@@ -8,7 +8,7 @@ import { useCartStore } from "@retrovault/store";
 
 export default function Header() {
   const [cartOpen, setCartOpen] = useState(false);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const padding = Platform.OS === "web" ? 10 : insets.top;
@@ -31,12 +31,16 @@ export default function Header() {
             className="py-2 px-3 min-w-48 max-w-48 placeholder:text-slate-500 text-slate-800 placeholder:font-chakra placeholder:text-md focus:outline-none"
             value={query}
             onChangeText={setQuery}
-            onSubmitEditing={() => { router.navigate(`/search?query=${query}`) }}
+            onSubmitEditing={() => {
+              router.navigate(`/search?query=${query}`);
+            }}
           />
           <Octicons
             name="search"
             size={18}
-            onPress={() => router.navigate(`/search?q=${encodeURIComponent(query)}`)}
+            onPress={() =>
+              router.navigate(`/search?q=${encodeURIComponent(query)}`)
+            }
           />
         </View>
         <View className="relative">

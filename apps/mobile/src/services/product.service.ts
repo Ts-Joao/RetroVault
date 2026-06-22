@@ -1,5 +1,5 @@
-import api from "@/lib/api"
-import { Product, ProductDetails } from "@retrovault/core"
+import api from "@/lib/api";
+import { Product, ProductDetails } from "@retrovault/core";
 
 function parseProduct(product: any): Product {
   return {
@@ -16,22 +16,20 @@ function parseProduct(product: any): Product {
       : [],
     sellerId: product.sellerId,
     rating: Number(product.rating ?? 0),
-    max_installments:
-      product.maxInstallments ?? product.max_installments ?? 1,
+    max_installments: product.maxInstallments ?? product.max_installments ?? 1,
     free_installments:
       product.freeInstallments ?? product.free_installments ?? 1,
-    min_installment_amount:
-      Number(product.minInstallmentAmount ?? product.min_installment_amount ?? 0),
-    monthly_interest_rate:
-      Number(product.monthlyInterestRate ?? product.monthly_interest_rate ?? 0),
-    shipping_cost:
-      Number(product.shippingCost ?? product.shipping_cost ?? 0),
-    type: product.mediaType
-      ? [product.mediaType.name]
-      : product.type ?? [],
+    min_installment_amount: Number(
+      product.minInstallmentAmount ?? product.min_installment_amount ?? 0,
+    ),
+    monthly_interest_rate: Number(
+      product.monthlyInterestRate ?? product.monthly_interest_rate ?? 0,
+    ),
+    shipping_cost: Number(product.shippingCost ?? product.shipping_cost ?? 0),
+    type: product.mediaType ? [product.mediaType.name] : (product.type ?? []),
     genre: Array.isArray(product.genre)
       ? product.genre.map((item: any) => item?.name ?? item).filter(Boolean)
-      : product.genre ?? [],
+      : (product.genre ?? []),
     cep: product.cep ?? "",
     city: product.city ?? "",
     state: product.state ?? "",
@@ -44,7 +42,7 @@ function parseProduct(product: any): Product {
           },
         }
       : {}),
-  }
+  };
 }
 
 function parseProductDetails(product: any): ProductDetails {
@@ -53,40 +51,44 @@ function parseProductDetails(product: any): ProductDetails {
     description: product.description ?? "",
     amount: product.amount ?? 0,
     comments: product.comments ?? "",
-  }
+  };
 }
 
 export async function getProducts(): Promise<Product[]> {
-  const res = await api.request("/products/active", { method: "GET" })
+  const res = await api.request("/products/active", { method: "GET" });
   if (!res.ok) {
-    throw new Error("Falha ao buscar produtos")
+    throw new Error("Falha ao buscar produtos");
   }
 
-  const products = await res.json()
+  const products = await res.json();
   return Array.isArray(products)
     ? products.map((product: any) => parseProduct(product))
-    : []
+    : [];
 }
 
-export async function getProductById(id: string): Promise<ProductDetails | undefined> {
-  const res = await api.request(`/products/active/${id}`, { method: "GET" })
+export async function getProductById(
+  id: string,
+): Promise<ProductDetails | undefined> {
+  const res = await api.request(`/products/active/${id}`, { method: "GET" });
   if (!res.ok) {
-    if (res.status === 404) return undefined
-    throw new Error("Falha ao buscar produto")
+    if (res.status === 404) return undefined;
+    throw new Error("Falha ao buscar produto");
   }
 
-  const product = await res.json()
-  return parseProductDetails(product)
+  const product = await res.json();
+  return parseProductDetails(product);
 }
 
 export async function getProductsByUserId(userId: string): Promise<Product[]> {
-  const res = await api.request(`/products/seller/${userId}`, { method: "GET" })
+  const res = await api.request(`/products/seller/${userId}`, {
+    method: "GET",
+  });
   if (!res.ok) {
-    throw new Error("Falha ao buscar produtos do vendedor")
+    throw new Error("Falha ao buscar produtos do vendedor");
   }
 
-  const products = await res.json()
+  const products = await res.json();
   return Array.isArray(products)
     ? products.map((product: any) => parseProduct(product))
-    : []
+    : [];
 }

@@ -63,9 +63,7 @@ export default function CheckoutPage() {
       </View>
       <TouchableOpacity
         style={styles.button}
-        onPress={() =>
-          router.push(getProductUrl(product))
-        }
+        onPress={() => router.push(getProductUrl(product))}
       >
         <Text style={styles.buttonText}>Voltar ao produto</Text>
       </TouchableOpacity>

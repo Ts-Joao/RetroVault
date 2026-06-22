@@ -5,22 +5,22 @@ import { useEffect, useState } from "react";
 import { Product } from "@retrovault/core";
 
 export default function ProductGrid() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true)
+    setLoading(true);
     getProducts()
       .then(setProducts)
-      .finally(() => setLoading(false))
-  }, [])
+      .finally(() => setLoading(false));
+  }, []);
 
   if (loading) {
     return (
       <View style={styles.loader}>
         <ActivityIndicator size="large" color="#BF372A" />
       </View>
-    )
+    );
   }
 
   return (
@@ -31,15 +31,15 @@ export default function ProductGrid() {
         </View>
       ))}
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
-    grid: {
-        display: 'flex',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-        paddingInline: 8
-    }
-})
+  grid: {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    paddingInline: 8,
+  },
+});
