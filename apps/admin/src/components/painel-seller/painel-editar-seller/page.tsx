@@ -167,6 +167,7 @@ export default function PainelEditSeller({ productId, onBack }: Props) {
     console.log("PATCH body:", JSON.stringify(body, null, 2));
     if (!res.ok) throw new Error(responseData?.message ?? "Erro ao atualizar produto");
     } catch (err: any) {
+      console.error('UPDATE ERROR:', err);
       alert(err.message || "Erro ao atualizar produto");
     } finally {
       setLoading(false);

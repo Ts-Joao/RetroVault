@@ -146,59 +146,74 @@ export class ProductService {
     }
   }
 
- async update(
-  id: string,
-  updateProductDto: UpdateProductDto,
-  payload?: PayloadDto,
-) {
-  try {
-    const findProduct = await this.databaseService.product.findUnique({
-      where: { id },
-    });
- 
-    if (!findProduct) {
-      throw new NotFoundException('Product not found');
+  async update(
+    id: string,
+    updateProductDto: UpdateProductDto,
+    payload?: PayloadDto,
+  ) {
+    try {
+      const findProduct = await this.databaseService.product.findUnique({
+        where: { id },
+      });
+
+      if (!findProduct) {
+        throw new NotFoundException('Product not found');
+      }
+
+      if (
+        payload &&
+        findProduct.sellerId !== payload.sub &&
+        payload.role !== 'ADMIN'
+      ) {
+        throw new UnauthorizedException(
+          'Not authorized to update this product',
+        );
+      }
+
+      const updateProduct = await this.databaseService.product.update({
+        where: { id },
+        data: updateProductDto,
+      });
+
+      return updateProduct;
+    } catch (err) {
+      console.error('UPDATE ERROR:', err);
+      if (err instanceof HttpException) throw err;
+      throw new InternalServerErrorException('Error updating product!');
     }
- 
-    if (
-      payload &&
-      findProduct.sellerId !== payload.sub &&
-      payload.role !== 'ADMIN'
-    ) {
-      throw new UnauthorizedException(
-        'Not authorized to update this product',
-      );
-    }
- 
-    // BUG FIX: extrair genres do DTO e tratar o relacionamento N:N separadamente.
-    // Antes, genres era passado direto no data e causava erro ou era ignorado.
-    const { genres, ...productData } = updateProductDto as any;
- 
-    const updateProduct = await this.databaseService.product.update({
-      where: { id },
-      data: {
-        ...productData,
-        ...(genres !== undefined
-          ? {
-              genre: {
-                set: [], // desconecta todos os gêneros atuais
-                connectOrCreate: (genres as string[]).map((name: string) => ({
-                  where: { name },
-                  create: { name },
-                })),
-              },
-            }
-          : {}),
-      },
-      include: { photos: true, genre: true },
-    });
- 
-    return updateProduct;
-  } catch (err) {
-    if (err instanceof HttpException) throw err;
-    throw new InternalServerErrorException('Error updating product!');
   }
-}
+
+  async softDelete(id: string, payload?: PayloadDto) {
+    try {
+      const findProduct = await this.databaseService.product.findUnique({
+        where: { id },
+      });
+
+      if (!findProduct) {
+        throw new NotFoundException('Product not found');
+      }
+
+      if (
+        payload &&
+        findProduct.sellerId !== payload.sub &&
+        payload.role !== 'ADMIN'
+      ) {
+        throw new UnauthorizedException(
+          'Not authorized to delete this product',
+        );
+      }
+
+      const softDeleteProduct = await this.databaseService.product.update({
+        where: { id },
+        data: { isActive: false },
+      });
+
+      return softDeleteProduct;
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      throw new InternalServerErrorException('Error soft deleting product!');
+    }
+  }
 
   async delete(id: string, payload?: PayloadDto) {
     try {
