@@ -66,6 +66,33 @@ async function bootstrap() {
   });
 
   // ──────────────────────────────────────────
+  // Reviewer Users (apenas para gerar avaliações realistas)
+  // ──────────────────────────────────────────
+  const reviewerNames = [
+    'Carlos Mendes', 'Fernanda Lima', 'João Pedro Alves', 'Beatriz Souza',
+    'Lucas Ferreira', 'Mariana Costa', 'Rafael Oliveira', 'Camila Rocha',
+    'Thiago Barbosa', 'Juliana Pereira', 'Eduardo Santos', 'Patrícia Gomes',
+  ];
+
+  const reviewers = await Promise.all(
+    reviewerNames.map((name, i) => {
+      const slug = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-');
+      return prisma.user.upsert({
+        where: { email: `reviewer${i + 1}@retrovault.com` },
+        update: {},
+        create: {
+          name,
+          email: `reviewer${i + 1}@retrovault.com`,
+          password: hashedPassword,
+          slug,
+          role: 'USER',
+          phone: '123456789',
+        },
+      });
+    }),
+  );
+
+  // ──────────────────────────────────────────
   // ProfilePhotos
   // ──────────────────────────────────────────
   await prisma.profilePhoto.upsert({
@@ -94,7 +121,7 @@ async function bootstrap() {
     skipDuplicates: true,
   });
 
-  const gameType  = await prisma.mediaType.findUnique({ where: { name: 'GAME' } });
+  const gameType = await prisma.mediaType.findUnique({ where: { name: 'GAME' } });
   const movieType = await prisma.mediaType.findUnique({ where: { name: 'MOVIE' } });
 
   // ──────────────────────────────────────────
@@ -114,16 +141,23 @@ async function bootstrap() {
       { name: 'Platformer' },
       { name: 'Fighting' },
       { name: 'Sports' },
+      { name: 'Racing' },
+      { name: 'Puzzle' },
+      { name: 'Animation' },
     ],
     skipDuplicates: true,
   });
 
+  const genreNames = [
+    'Action', 'RPG', 'Horror', 'Adventure', 'Sci-Fi', 'Drama', 'Thriller',
+    'Comedy', 'Strategy', 'Platformer', 'Fighting', 'Sports', 'Racing',
+    'Puzzle', 'Animation',
+  ];
+
   const g = Object.fromEntries(
     await Promise.all(
-      ['Action','RPG','Horror','Adventure','Sci-Fi','Drama','Thriller','Comedy','Strategy','Platformer','Fighting','Sports'].map(
-        async (name) => [name, await prisma.genre.findUnique({ where: { name } })]
-      )
-    )
+      genreNames.map(async (name) => [name, await prisma.genre.findUnique({ where: { name } })]),
+    ),
   ) as Record<string, { id: number; name: string }>;
 
   // ──────────────────────────────────────────
@@ -131,11 +165,11 @@ async function bootstrap() {
   // ──────────────────────────────────────────
   await prisma.coupon.createMany({
     data: [
-      { code: 'WELCOME10',  type: 'PERCENTAGE', value: 10, maxUses: 100, isActive: true,  expiresAt: new Date('2027-12-31') },
-      { code: 'RETRO20',    type: 'PERCENTAGE', value: 20, maxUses: 50,  isActive: true,  expiresAt: new Date('2027-12-31') },
-      { code: 'SAVE50',     type: 'FIXED',      value: 50, maxUses: 25,  isActive: true,  expiresAt: new Date('2027-12-31') },
-      { code: 'FREESHIP',   type: 'FIXED',      value: 20, maxUses: 200, isActive: true,  expiresAt: new Date('2027-12-31') },
-      { code: 'EXPIRED10',  type: 'PERCENTAGE', value: 10, maxUses: 100, isActive: true,  expiresAt: new Date('2025-01-01') },
+      { code: 'WELCOME10', type: 'PERCENTAGE', value: 10, maxUses: 100, isActive: true, expiresAt: new Date('2027-12-31') },
+      { code: 'RETRO20', type: 'PERCENTAGE', value: 20, maxUses: 50, isActive: true, expiresAt: new Date('2027-12-31') },
+      { code: 'SAVE50', type: 'FIXED', value: 50, maxUses: 25, isActive: true, expiresAt: new Date('2027-12-31') },
+      { code: 'FREESHIP', type: 'FIXED', value: 20, maxUses: 200, isActive: true, expiresAt: new Date('2027-12-31') },
+      { code: 'EXPIRED10', type: 'PERCENTAGE', value: 10, maxUses: 100, isActive: true, expiresAt: new Date('2025-01-01') },
       { code: 'INACTIVE15', type: 'PERCENTAGE', value: 15, maxUses: 100, isActive: false, expiresAt: new Date('2027-12-31') },
     ],
     skipDuplicates: true,
@@ -144,316 +178,368 @@ async function bootstrap() {
   // ──────────────────────────────────────────
   // Products — Games (10)
   // ──────────────────────────────────────────
-  const games = await Promise.all([
-    prisma.product.upsert({
-      where: { slug: 'the-last-of-us-ps3' },
-      update: {},
-      create: {
-        name: 'The Last of Us',
-        slug: 'the-last-of-us-ps3',
-        description: 'Jogo de sobrevivência pós-apocalíptico aclamado pela crítica.',
-        price: 49.99, amount: 15, rating: 4.9,
-        mediaTypeId: gameType!.id, sellerId: seller.id,
-        cep: '88032000', city: 'Florianópolis', state: 'SC',
-        shippingCost: 12.0, freeInstallments: 3, maxInstallments: 12,
-        minInstallmentAmount: 10.0, monthlyInterestRate: 0.0199,
-        genre: { connect: [{ id: g.Action.id }, { id: g.Adventure.id }] },
-      },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'baldurs-gate-3-pc' },
-      update: {},
-      create: {
-        name: "Baldur's Gate 3",
-        slug: 'baldurs-gate-3-pc',
-        description: 'CRPG premiado com escolhas narrativas profundas.',
-        price: 199.9, amount: 8, rating: 5.0,
-        mediaTypeId: gameType!.id, sellerId: seller.id,
-        cep: '11665050', city: 'São Sebastião', state: 'SP',
-        shippingCost: 0, discountPrice: 159.9,
-        discountStart: new Date('2025-06-01'),
-        discountEnd: new Date('2025-06-30'),
-        freeInstallments: 6, maxInstallments: 12,
-        minInstallmentAmount: 15.0, monthlyInterestRate: 0.0199,
-        genre: { connect: [{ id: g.RPG.id }, { id: g.Adventure.id }] },
-      },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'resident-evil-4-gamecube' },
-      update: {},
-      create: {
-        name: 'Resident Evil 4',
-        slug: 'resident-evil-4-gamecube',
-        description: 'Clássico de terror e ação para GameCube, mídia física original.',
-        price: 89.9, amount: 5, rating: 4.8,
-        mediaTypeId: gameType!.id, sellerId: seller2.id,
-        cep: '01310100', city: 'São Paulo', state: 'SP',
-        shippingCost: 15.0, freeInstallments: 2, maxInstallments: 6,
-        minInstallmentAmount: 15.0, monthlyInterestRate: 0.0199,
-        genre: { connect: [{ id: g.Horror.id }, { id: g.Action.id }] },
-      },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'super-mario-odyssey-switch' },
-      update: {},
-      create: {
-        name: 'Super Mario Odyssey',
-        slug: 'super-mario-odyssey-switch',
-        description: 'Aventura 3D do Mario para Nintendo Switch.',
-        price: 249.9, amount: 12, rating: 4.9,
-        mediaTypeId: gameType!.id, sellerId: seller.id,
-        cep: '11665050', city: 'São Sebastião', state: 'SP',
-        shippingCost: 0, discountPrice: 199.9,
-        discountStart: new Date('2026-07-01'),
-        discountEnd: new Date('2026-07-31'),
-        freeInstallments: 6, maxInstallments: 12,
-        minInstallmentAmount: 20.0, monthlyInterestRate: 0.0199,
-        genre: { connect: [{ id: g.Platformer.id }, { id: g.Adventure.id }] },
-      },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'dark-souls-remastered-ps4' },
-      update: {},
-      create: {
-        name: 'Dark Souls Remastered',
-        slug: 'dark-souls-remastered-ps4',
-        description: 'Versão remasterizada do RPG de ação mais desafiador da geração.',
-        price: 79.9, amount: 10, rating: 4.7,
-        mediaTypeId: gameType!.id, sellerId: seller2.id,
-        cep: '01310100', city: 'São Paulo', state: 'SP',
-        shippingCost: 10.0, freeInstallments: 2, maxInstallments: 6,
-        minInstallmentAmount: 13.0, monthlyInterestRate: 0.0199,
-        genre: { connect: [{ id: g.RPG.id }, { id: g.Action.id }] },
-      },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'god-of-war-ps4' },
-      update: {},
-      create: {
-        name: 'God of War (2018)',
-        slug: 'god-of-war-ps4',
-        description: 'Kratos e Atreus em uma épica jornada pela mitologia nórdica.',
-        price: 69.9, amount: 18, rating: 4.9,
-        mediaTypeId: gameType!.id, sellerId: seller.id,
-        cep: '88032000', city: 'Florianópolis', state: 'SC',
-        shippingCost: 8.0, freeInstallments: 3, maxInstallments: 10,
-        minInstallmentAmount: 10.0, monthlyInterestRate: 0.0199,
-        genre: { connect: [{ id: g.Action.id }, { id: g.Adventure.id }] },
-      },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'halo-3-xbox-360' },
-      update: {},
-      create: {
-        name: 'Halo 3',
-        slug: 'halo-3-xbox-360',
-        description: 'FPS icônico do Xbox 360, mídia física original.',
-        price: 39.9, amount: 7, rating: 4.6,
-        mediaTypeId: gameType!.id, sellerId: seller2.id,
-        cep: '30112000', city: 'Belo Horizonte', state: 'MG',
-        shippingCost: 9.0, freeInstallments: 1, maxInstallments: 4,
-        minInstallmentAmount: 10.0, monthlyInterestRate: 0.0199,
-        genre: { connect: [{ id: g.Action.id }, { id: g['Sci-Fi'].id }] },
-      },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'street-fighter-iv-ps3' },
-      update: {},
-      create: {
-        name: 'Street Fighter IV',
-        slug: 'street-fighter-iv-ps3',
-        description: 'O renascimento do jogo de luta mais famoso do mundo.',
-        price: 34.9, amount: 9, rating: 4.4,
-        mediaTypeId: gameType!.id, sellerId: seller.id,
-        cep: '11665050', city: 'São Sebastião', state: 'SP',
-        shippingCost: 7.0, freeInstallments: 1, maxInstallments: 3,
-        minInstallmentAmount: 10.0,
-        genre: { connect: [{ id: g.Fighting.id }, { id: g.Action.id }] },
-      },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'civilization-vi-pc' },
-      update: {},
-      create: {
-        name: 'Civilization VI',
-        slug: 'civilization-vi-pc',
-        description: 'Construa um império que resista ao tempo neste 4X clássico.',
-        price: 59.9, amount: 14, rating: 4.5,
-        mediaTypeId: gameType!.id, sellerId: seller2.id,
-        cep: '80010000', city: 'Curitiba', state: 'PR',
-        shippingCost: 0, freeInstallments: 2, maxInstallments: 6,
-        minInstallmentAmount: 10.0, monthlyInterestRate: 0.0199,
-        genre: { connect: [{ id: g.Strategy.id }] },
-      },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'fifa-06-ps2' },
-      update: {},
-      create: {
-        name: 'FIFA 06',
-        slug: 'fifa-06-ps2',
-        description: 'Edição clássica de futebol para PS2, mídia original.',
-        price: 24.9, amount: 20, rating: 4.1,
-        mediaTypeId: gameType!.id, sellerId: seller.id,
-        cep: '40301110', city: 'Salvador', state: 'BA',
-        shippingCost: 6.0, freeInstallments: 1, maxInstallments: 2,
-        minInstallmentAmount: 10.0,
-        genre: { connect: [{ id: g.Sports.id }] },
-      },
-    }),
-  ]);
+  const gameSeeds = [
+    {
+      name: 'The Last of Us',
+      slug: 'the-last-of-us-ps3',
+      description: 'Jogo de sobrevivência pós-apocalíptico aclamado pela crítica.',
+      price: 49.99, amount: 15, rating: 4.9,
+      sellerId: seller.id,
+      cep: '88032000', city: 'Florianópolis', state: 'SC',
+      shippingCost: 12.0, freeInstallments: 3, maxInstallments: 12,
+      minInstallmentAmount: 10.0, monthlyInterestRate: 0.0199,
+      genreIds: [g.Action.id, g.Adventure.id],
+      salesCount: 33
+    },
+    {
+      name: "Baldur's Gate 3",
+      slug: 'baldurs-gate-3-pc',
+      description: 'CRPG premiado com escolhas narrativas profundas.',
+      price: 199.9, amount: 8, rating: 5.0,
+      sellerId: seller.id,
+      cep: '11665050', city: 'São Sebastião', state: 'SP',
+      shippingCost: 0, discountPrice: 159.9,
+      discountStart: new Date('2026-06-01'), discountEnd: new Date('2026-06-30'),
+      freeInstallments: 6, maxInstallments: 12,
+      minInstallmentAmount: 15.0, monthlyInterestRate: 0.0199,
+      genreIds: [g.RPG.id, g.Adventure.id],
+      salesCount: 5
+    },
+    {
+      name: 'Resident Evil 4',
+      slug: 'resident-evil-4-gamecube',
+      description: 'Clássico de terror e ação para GameCube, mídia física original.',
+      price: 89.9, amount: 5, rating: 4.8,
+      sellerId: seller2.id,
+      cep: '01310100', city: 'São Paulo', state: 'SP',
+      shippingCost: 15.0, freeInstallments: 2, maxInstallments: 6,
+      minInstallmentAmount: 15.0, monthlyInterestRate: 0.0199,
+      genreIds: [g.Horror.id, g.Action.id],
+      salesCount: 12
+    },
+    {
+      name: 'Super Mario Odyssey',
+      slug: 'super-mario-odyssey-switch',
+      description: 'Aventura 3D do Mario para Nintendo Switch.',
+      price: 249.9, amount: 12, rating: 4.9,
+      sellerId: seller.id,
+      cep: '11665050', city: 'São Sebastião', state: 'SP',
+      shippingCost: 0, discountPrice: 199.9,
+      discountStart: new Date('2026-07-01'), discountEnd: new Date('2026-07-31'),
+      freeInstallments: 6, maxInstallments: 12,
+      minInstallmentAmount: 20.0, monthlyInterestRate: 0.0199,
+      genreIds: [g.Platformer.id, g.Adventure.id],
+      salesCount: 10
+    },
+    {
+      name: 'Dark Souls Remastered',
+      slug: 'dark-souls-remastered-ps4',
+      description: 'Versão remasterizada do RPG de ação mais desafiador da geração.',
+      price: 79.9, amount: 10, rating: 4.7,
+      sellerId: seller2.id,
+      cep: '01310100', city: 'São Paulo', state: 'SP',
+      shippingCost: 10.0, freeInstallments: 2, maxInstallments: 6,
+      minInstallmentAmount: 13.0, monthlyInterestRate: 0.0199,
+      genreIds: [g.RPG.id, g.Action.id],
+      salesCount: 20
+    },
+    {
+      name: 'God of War (2018)',
+      slug: 'god-of-war-ps4',
+      description: 'Kratos e Atreus em uma épica jornada pela mitologia nórdica.',
+      price: 69.9, amount: 18, rating: 4.9,
+      sellerId: seller.id,
+      cep: '88032000', city: 'Florianópolis', state: 'SC',
+      shippingCost: 8.0, freeInstallments: 3, maxInstallments: 10,
+      minInstallmentAmount: 10.0, monthlyInterestRate: 0.0199,
+      genreIds: [g.Action.id, g.Adventure.id],
+      salesCount: 5
+    },
+    {
+      name: 'Halo 3',
+      slug: 'halo-3-xbox-360',
+      description: 'FPS icônico do Xbox 360, mídia física original.',
+      price: 39.9, amount: 7, rating: 4.6,
+      sellerId: seller2.id,
+      cep: '30112000', city: 'Belo Horizonte', state: 'MG',
+      shippingCost: 9.0, freeInstallments: 1, maxInstallments: 4,
+      minInstallmentAmount: 10.0, monthlyInterestRate: 0.0199,
+      genreIds: [g.Action.id, g['Sci-Fi'].id],
+      salesCount: 2
+    },
+    {
+      name: 'Street Fighter IV',
+      slug: 'street-fighter-iv-ps3',
+      description: 'O renascimento do jogo de luta mais famoso do mundo.',
+      price: 34.9, amount: 9, rating: 4.4,
+      sellerId: seller.id,
+      cep: '11665050', city: 'São Sebastião', state: 'SP',
+      shippingCost: 7.0, freeInstallments: 1, maxInstallments: 3,
+      minInstallmentAmount: 10.0,
+      genreIds: [g.Fighting.id, g.Action.id],
+      salesCount: 3
+    },
+    {
+      name: 'Civilization VI',
+      slug: 'civilization-vi-pc',
+      description: 'Construa um império que resista ao tempo neste 4X clássico.',
+      price: 59.9, amount: 14, rating: 4.5,
+      sellerId: seller2.id,
+      cep: '80010000', city: 'Curitiba', state: 'PR',
+      shippingCost: 0, freeInstallments: 2, maxInstallments: 6,
+      minInstallmentAmount: 10.0, monthlyInterestRate: 0.0199,
+      genreIds: [g.Strategy.id],
+      salesCount: 6
+    },
+    {
+      name: 'FIFA 06',
+      slug: 'fifa-06-ps2',
+      description: 'Edição clássica de futebol para PS2, mídia original.',
+      price: 24.9, amount: 20, rating: 4.1,
+      sellerId: seller.id,
+      cep: '40301110', city: 'Salvador', state: 'BA',
+      shippingCost: 6.0, freeInstallments: 1, maxInstallments: 2,
+      minInstallmentAmount: 10.0,
+      genreIds: [g.Sports.id],
+      salesCount: 3
+    },
+  ];
 
   // ──────────────────────────────────────────
-  // Products — Movies (8)
+  // Products — Movies (10)
   // ──────────────────────────────────────────
-  const movies = await Promise.all([
-    prisma.product.upsert({
-      where: { slug: 'alien-1979-blu-ray' },
+  const movieSeeds = [
+    {
+      name: 'Alien (1979)',
+      slug: 'alien-1979-blu-ray',
+      description: 'Clássico de terror sci-fi de Ridley Scott em Blu-ray.',
+      price: 29.9, amount: 20, rating: 4.7,
+      sellerId: seller.id,
+      cep: '11665050', city: 'São Sebastião', state: 'SP',
+      shippingCost: 8.5, freeInstallments: 1, maxInstallments: 3,
+      minInstallmentAmount: 10.0,
+      genreIds: [g.Horror.id, g['Sci-Fi'].id],
+      salesCount: 1
+    },
+    {
+      name: "Schindler's List",
+      slug: 'schindlers-list-dvd',
+      description: 'Obra-prima de Spielberg em DVD.',
+      price: 19.9, amount: 30, rating: 4.8,
+      sellerId: seller.id,
+      cep: '88032000', city: 'Florianópolis', state: 'SC',
+      shippingCost: 6.0, freeInstallments: 1, maxInstallments: 2,
+      minInstallmentAmount: 10.0,
+      genreIds: [g.Drama.id],
+      salesCount: 3
+    },
+    {
+      name: 'The Godfather',
+      slug: 'the-godfather-blu-ray',
+      description: 'O padrinho — trilogia completa em Blu-ray remasterizado.',
+      price: 89.9, amount: 10, rating: 5.0,
+      sellerId: seller2.id,
+      cep: '01310100', city: 'São Paulo', state: 'SP',
+      shippingCost: 12.0, discountPrice: 69.9,
+      discountStart: new Date('2026-06-01'), discountEnd: new Date('2026-08-31'),
+      freeInstallments: 2, maxInstallments: 6,
+      minInstallmentAmount: 15.0, monthlyInterestRate: 0.0199,
+      genreIds: [g.Drama.id, g.Thriller.id],
+      salesCount: 5
+    },
+    {
+      name: 'Blade Runner 2049',
+      slug: 'blade-runner-2049-4k',
+      description: 'Sequência visualmente deslumbrante em UHD 4K.',
+      price: 49.9, amount: 15, rating: 4.6,
+      sellerId: seller.id,
+      cep: '11665050', city: 'São Sebastião', state: 'SP',
+      shippingCost: 9.0, freeInstallments: 1, maxInstallments: 4,
+      minInstallmentAmount: 12.0, monthlyInterestRate: 0.0199,
+      genreIds: [g['Sci-Fi'].id, g.Thriller.id],
+      salesCount: 7
+    },
+    {
+      name: 'Pulp Fiction',
+      slug: 'pulp-fiction-dvd',
+      description: 'Tarantino em sua melhor forma — edição especial em DVD.',
+      price: 22.9, amount: 25, rating: 4.9,
+      sellerId: seller2.id,
+      cep: '80010000', city: 'Curitiba', state: 'PR',
+      shippingCost: 7.0, freeInstallments: 1, maxInstallments: 2,
+      minInstallmentAmount: 10.0,
+      genreIds: [g.Drama.id, g.Thriller.id],
+      salesCount: 9
+    },
+    {
+      name: 'The Shining',
+      slug: 'the-shining-blu-ray',
+      description: 'Kubrick e Nicholson no horror psicológico definitivo.',
+      price: 34.9, amount: 12, rating: 4.7,
+      sellerId: seller.id,
+      cep: '30112000', city: 'Belo Horizonte', state: 'MG',
+      shippingCost: 8.0, freeInstallments: 1, maxInstallments: 3,
+      minInstallmentAmount: 10.0,
+      genreIds: [g.Horror.id, g.Thriller.id],
+      salesCount: 11
+    },
+    {
+      name: 'Back to the Future Trilogy',
+      slug: 'back-to-the-future-trilogy-blu-ray',
+      description: 'A trilogia completa De Volta para o Futuro em Blu-ray.',
+      price: 74.9, amount: 8, rating: 4.8,
+      sellerId: seller2.id,
+      cep: '40301110', city: 'Salvador', state: 'BA',
+      shippingCost: 11.0, freeInstallments: 2, maxInstallments: 6,
+      minInstallmentAmount: 12.5, monthlyInterestRate: 0.0199,
+      genreIds: [g['Sci-Fi'].id, g.Comedy.id, g.Adventure.id],
+      salesCount: 13
+    },
+    {
+      name: 'Parasite',
+      slug: 'parasite-blu-ray',
+      description: 'Vencedor do Oscar de Melhor Filme de Bong Joon-ho em Blu-ray.',
+      price: 39.9, amount: 18, rating: 4.9,
+      sellerId: seller.id,
+      cep: '11665050', city: 'São Sebastião', state: 'SP',
+      shippingCost: 8.0, freeInstallments: 1, maxInstallments: 3,
+      minInstallmentAmount: 10.0,
+      genreIds: [g.Drama.id, g.Thriller.id],
+      salesCount: 15
+    },
+    {
+      name: 'Spirited Away',
+      slug: 'spirited-away-blu-ray',
+      description: 'Obra-prima de animação do Studio Ghibli em Blu-ray colecionável.',
+      price: 44.9, amount: 16, rating: 5.0,
+      sellerId: seller2.id,
+      cep: '01310100', city: 'São Paulo', state: 'SP',
+      shippingCost: 8.0, freeInstallments: 2, maxInstallments: 4,
+      minInstallmentAmount: 11.0, monthlyInterestRate: 0.0199,
+      genreIds: [g.Animation.id, g.Adventure.id],
+      salesCount: 17
+    },
+    {
+      name: 'Mad Max: Fury Road',
+      slug: 'mad-max-fury-road-4k',
+      description: 'Ação pós-apocalíptica frenética em UHD 4K.',
+      price: 54.9, amount: 11, rating: 4.8,
+      sellerId: seller.id,
+      cep: '88032000', city: 'Florianópolis', state: 'SC',
+      shippingCost: 9.5, freeInstallments: 2, maxInstallments: 5,
+      minInstallmentAmount: 12.0, monthlyInterestRate: 0.0199,
+      genreIds: [g.Action.id, g['Sci-Fi'].id],
+      salesCount: 19
+    },
+  ];
+
+  async function upsertProduct(
+    seed: (typeof gameSeeds)[number],
+    mediaTypeId: number,
+  ) {
+    const { genreIds, ...data } = seed;
+    return prisma.product.upsert({
+      where: { slug: seed.slug },
       update: {},
       create: {
-        name: 'Alien (1979)',
-        slug: 'alien-1979-blu-ray',
-        description: 'Clássico de terror sci-fi de Ridley Scott em Blu-ray.',
-        price: 29.9, amount: 20, rating: 4.7,
-        mediaTypeId: movieType!.id, sellerId: seller.id,
-        cep: '11665050', city: 'São Sebastião', state: 'SP',
-        shippingCost: 8.5, freeInstallments: 1, maxInstallments: 3,
-        minInstallmentAmount: 10.0,
-        genre: { connect: [{ id: g.Horror.id }, { id: g['Sci-Fi'].id }] },
+        ...data,
+        mediaTypeId,
+        genre: { connect: genreIds.map((id) => ({ id })) },
       },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'schindlers-list-dvd' },
-      update: {},
-      create: {
-        name: "Schindler's List",
-        slug: 'schindlers-list-dvd',
-        description: 'Obra-prima de Spielberg em DVD.',
-        price: 19.9, amount: 30, rating: 4.8,
-        mediaTypeId: movieType!.id, sellerId: seller.id,
-        cep: '88032000', city: 'Florianópolis', state: 'SC',
-        shippingCost: 6.0, freeInstallments: 1, maxInstallments: 2,
-        minInstallmentAmount: 10.0,
-        genre: { connect: [{ id: g.Drama.id }] },
-      },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'the-godfather-blu-ray' },
-      update: {},
-      create: {
-        name: 'The Godfather',
-        slug: 'the-godfather-blu-ray',
-        description: 'O padrinho — trilogia completa em Blu-ray remasterizado.',
-        price: 89.9, amount: 10, rating: 5.0,
-        mediaTypeId: movieType!.id, sellerId: seller2.id,
-        cep: '01310100', city: 'São Paulo', state: 'SP',
-        shippingCost: 12.0, discountPrice: 69.9,
-        discountStart: new Date('2026-06-01'),
-        discountEnd: new Date('2026-08-31'),
-        freeInstallments: 2, maxInstallments: 6,
-        minInstallmentAmount: 15.0, monthlyInterestRate: 0.0199,
-        genre: { connect: [{ id: g.Drama.id }, { id: g.Thriller.id }] },
-      },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'blade-runner-2049-4k' },
-      update: {},
-      create: {
-        name: 'Blade Runner 2049',
-        slug: 'blade-runner-2049-4k',
-        description: 'Sequência visualmente deslumbrante em UHD 4K.',
-        price: 49.9, amount: 15, rating: 4.6,
-        mediaTypeId: movieType!.id, sellerId: seller.id,
-        cep: '11665050', city: 'São Sebastião', state: 'SP',
-        shippingCost: 9.0, freeInstallments: 1, maxInstallments: 4,
-        minInstallmentAmount: 12.0, monthlyInterestRate: 0.0199,
-        genre: { connect: [{ id: g['Sci-Fi'].id }, { id: g.Thriller.id }] },
-      },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'pulp-fiction-dvd' },
-      update: {},
-      create: {
-        name: 'Pulp Fiction',
-        slug: 'pulp-fiction-dvd',
-        description: 'Tarantino em sua melhor forma — edição especial em DVD.',
-        price: 22.9, amount: 25, rating: 4.9,
-        mediaTypeId: movieType!.id, sellerId: seller2.id,
-        cep: '80010000', city: 'Curitiba', state: 'PR',
-        shippingCost: 7.0, freeInstallments: 1, maxInstallments: 2,
-        minInstallmentAmount: 10.0,
-        genre: { connect: [{ id: g.Drama.id }, { id: g.Thriller.id }] },
-      },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'the-shining-blu-ray' },
-      update: {},
-      create: {
-        name: 'The Shining',
-        slug: 'the-shining-blu-ray',
-        description: 'Kubrick e Nicholson no horror psicológico definitivo.',
-        price: 34.9, amount: 12, rating: 4.7,
-        mediaTypeId: movieType!.id, sellerId: seller.id,
-        cep: '30112000', city: 'Belo Horizonte', state: 'MG',
-        shippingCost: 8.0, freeInstallments: 1, maxInstallments: 3,
-        minInstallmentAmount: 10.0,
-        genre: { connect: [{ id: g.Horror.id }, { id: g.Thriller.id }] },
-      },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'back-to-the-future-trilogy-blu-ray' },
-      update: {},
-      create: {
-        name: 'Back to the Future Trilogy',
-        slug: 'back-to-the-future-trilogy-blu-ray',
-        description: 'A trilogia completa De Volta para o Futuro em Blu-ray.',
-        price: 74.9, amount: 8, rating: 4.8,
-        mediaTypeId: movieType!.id, sellerId: seller2.id,
-        cep: '40301110', city: 'Salvador', state: 'BA',
-        shippingCost: 11.0, freeInstallments: 2, maxInstallments: 6,
-        minInstallmentAmount: 12.5, monthlyInterestRate: 0.0199,
-        genre: { connect: [{ id: g['Sci-Fi'].id }, { id: g.Comedy.id }, { id: g.Adventure.id }] },
-      },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'parasite-blu-ray' },
-      update: {},
-      create: {
-        name: 'Parasite',
-        slug: 'parasite-blu-ray',
-        description: 'Vencedor do Oscar de Melhor Filme de Bong Joon-ho em Blu-ray.',
-        price: 39.9, amount: 18, rating: 4.9,
-        mediaTypeId: movieType!.id, sellerId: seller.id,
-        cep: '11665050', city: 'São Sebastião', state: 'SP',
-        shippingCost: 8.0, freeInstallments: 1, maxInstallments: 3,
-        minInstallmentAmount: 10.0,
-        genre: { connect: [{ id: g.Drama.id }, { id: g.Thriller.id }] },
-      },
-    }),
-  ]);
+    });
+  }
+
+  const games = await Promise.all(gameSeeds.map((s) => upsertProduct(s, gameType!.id)));
+  const movies = await Promise.all(movieSeeds.map((s) => upsertProduct(s, movieType!.id)));
 
   const allProducts = [...games, ...movies];
 
   // ──────────────────────────────────────────
   // ProductPhotos (3 por produto)
   // ──────────────────────────────────────────
-  await prisma.productPhoto.createMany({
-    data: allProducts.flatMap((p) => [
-      { url: `https://placehold.co/400x400?text=${encodeURIComponent(p.name)}+1`, productId: p.id },
-      { url: `https://placehold.co/400x400?text=${encodeURIComponent(p.name)}+2`, productId: p.id },
-      { url: `https://placehold.co/400x400?text=${encodeURIComponent(p.name)}+3`, productId: p.id },
-    ]),
-    skipDuplicates: true,
-  });
+  for (const p of allProducts) {
+    const existing = await prisma.productPhoto.count({ where: { productId: p.id } });
+    if (existing > 0) continue;
+
+    await prisma.productPhoto.createMany({
+      data: [1, 2, 3].map((n) => ({
+        url: `https://placehold.co/600x600/1a1a1a/ffffff?text=${encodeURIComponent(p.name)}+${n}`,
+        productId: p.id,
+      })),
+    });
+  }
 
   // ──────────────────────────────────────────
   // ProductViews
   // ──────────────────────────────────────────
-  await prisma.productView.createMany({
-    data: allProducts.flatMap((p, i) =>
-      Array.from({ length: (i % 4) + 1 }, () => ({ productId: p.id }))
-    ),
-  });
+  for (const [i, p] of allProducts.entries()) {
+    const existing = await prisma.productView.count({ where: { productId: p.id } });
+    if (existing > 0) continue;
+
+    await prisma.productView.createMany({
+      data: Array.from({ length: (i % 4) + 1 }, () => ({ productId: p.id })),
+    });
+  }
+
+  // ──────────────────────────────────────────
+  // Reviews (distribuição realista + recálculo do rating do produto)
+  // ──────────────────────────────────────────
+  const allReviewerCandidates = [buyer, ...reviewers];
+
+  const ratingWeights: number[] = [1, 1, 2, 4, 5];
+  const weightedRatings = ratingWeights.flatMap((weight, idx) =>
+    Array(weight).fill(idx + 1),
+  );
+
+  function pickRandom<T>(arr: T[]): T {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function shuffle<T>(arr: T[]): T[] {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+
+  for (const [i, product] of allProducts.entries()) {
+    const reviewCount = Math.min(
+      allReviewerCandidates.length,
+      2 + (i % (allReviewerCandidates.length - 1)),
+    );
+
+    const candidatesForThisProduct = shuffle(
+      allReviewerCandidates.filter((u) => u.id !== product.sellerId),
+    ).slice(0, reviewCount);
+
+    for (const user of candidatesForThisProduct) {
+      const rating = pickRandom(weightedRatings);
+
+      await prisma.review.upsert({
+        where: { userId_productId: { userId: user.id, productId: product.id } },
+        update: {},
+        create: {
+          userId: user.id,
+          productId: product.id,
+          rating,
+        },
+      });
+    }
+
+    const aggregation = await prisma.review.aggregate({
+      where: { productId: product.id },
+      _avg: { rating: true },
+    });
+
+    const avgRating = aggregation._avg.rating ?? 0;
+
+    await prisma.product.update({
+      where: { id: product.id },
+      data: { rating: Math.round(avgRating * 10) / 10 }, // arredonda para 1 casa decimal
+    });
+  }
 
   // ──────────────────────────────────────────
   // Wallets
@@ -492,45 +578,55 @@ async function bootstrap() {
   });
 
   // ──────────────────────────────────────────
-  // Order + OrderItems + Payment
+  // Order + OrderItems + Payment (idempotente via confirmationCode)
   // ──────────────────────────────────────────
-  const order = await prisma.order.create({
-    data: {
-      userId: buyer.id,
-      totalAmount: 79.89,
-      address: 'Rua das Retro Games, 42, São Paulo - SP',
-      status: 'PAID',
-      orderItems: {
-        create: [
-          { productId: games[0].id, amount: 1, price: games[0].price },
-          { productId: movies[0].id, amount: 1, price: movies[0].price },
-        ],
-      },
-      payment: {
-        create: {
-          status: 'CAPTURED',
-          paymentMethod: 'CREDIT_CARD',
-          installments: 3,
-          paidAt: new Date(),
-          confirmationCode: 'RV-SEED-0001',
-          tokenExpiresAt: null,
-        },
-      },
-    },
+  const existingPayment = await prisma.payment.findUnique({
+    where: { confirmationCode: 'RV-SEED-0001' },
+    include: { order: true },
   });
 
-  // ──────────────────────────────────────────
-  // WalletTransactions
-  // ──────────────────────────────────────────
+  const order = existingPayment?.order
+    ? existingPayment.order
+    : await prisma.order.create({
+        data: {
+          userId: buyer.id,
+          totalAmount: 79.89,
+          address: 'Rua das Retro Games, 42, São Paulo - SP',
+          status: 'PAID',
+          orderItems: {
+            create: [
+              { productId: games[0].id, amount: 1, price: games[0].price },
+              { productId: movies[0].id, amount: 1, price: movies[0].price },
+            ],
+          },
+          payment: {
+            create: {
+              status: 'CAPTURED',
+              paymentMethod: 'CREDIT_CARD',
+              installments: 3,
+              paidAt: new Date(),
+              confirmationCode: 'RV-SEED-0001',
+              tokenExpiresAt: null,
+            },
+          },
+        },
+      });
+
   const payment = await prisma.payment.findUnique({ where: { orderId: order.id } });
 
+  // ──────────────────────────────────────────
+  // WalletTransactions (idempotente)
+  // ──────────────────────────────────────────
   await prisma.walletTransaction.createMany({
     data: [
-      { walletId: buyerWallet.id,  amount: 500.0,  type: 'DEPOSIT',    description: 'Depósito inicial de seed' },
-      { walletId: sellerWallet.id, amount: 1200.0, type: 'DEPOSIT',    description: 'Depósito inicial de seed' },
-      { walletId: buyerWallet.id,  amount: 79.89,  type: 'WITHDRAWAL', description: `Pagamento do pedido ${order.id}`, paymentId: payment!.id },
+      { walletId: buyerWallet.id, amount: 500.0, type: 'DEPOSIT', description: 'Depósito inicial de seed' },
+      { walletId: sellerWallet.id, amount: 1200.0, type: 'DEPOSIT', description: 'Depósito inicial de seed' },
+      { walletId: buyerWallet.id, amount: 79.89, type: 'WITHDRAWAL', description: `Pagamento do pedido ${order.id}`, paymentId: payment!.id },
     ],
+    skipDuplicates: true,
   });
+
+  console.log(`Seed concluído: ${allProducts.length} produtos (${games.length} games, ${movies.length} movies).`);
 
   await prisma.$disconnect();
   await pool.end();

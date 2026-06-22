@@ -14,6 +14,7 @@ COPY packages/core ./packages/core
 COPY apps/api ./apps/api
 
 WORKDIR /app/apps/api
+
 RUN pnpm prisma generate
 
 EXPOSE 4000

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   HttpException,
@@ -151,10 +152,20 @@ export class UsersService {
         );
       }
 
-      const passwordHased = await this.hashPassword(
-        updateUserDto.password,
-        findUser.password,
-      );
+      let passwordHashed = findUser.password;
+      if (updateUserDto.newPassword) {
+        if (!updateUserDto.password) {
+          throw new BadRequestException('Senha atual é necessária para definir uma nova senha');
+        }
+        const isMatch = await this.hashingService.compare(
+          updateUserDto.password,
+          findUser.password,
+        );
+        if (!isMatch) {
+          throw new BadRequestException('Senha atual incorreta');
+        }
+        passwordHashed = await this.hashingService.hash(updateUserDto.newPassword);
+      }
 
       const slug = await this.slugService.adjustSlug(
         findUser.name,
@@ -163,11 +174,13 @@ export class UsersService {
         'user'
       );
 
+      const { photoUrl, newPassword, password, ...dbFields } = updateUserDto;
+
       const updateUser = await this.databaseService.user.update({
         where: { id: userId },
         data: {
-          ...updateUserDto,
-          password: passwordHased,
+          ...dbFields,
+          password: passwordHashed,
           slug,
         },
       });

@@ -7,12 +7,13 @@ import StarRating from '@/components/StarRating'
 import { useAuth } from '@/lib/context/auth.context'
 import { getActiveProductById } from '@/lib/services/product.client'
 import { getUserByIdClient } from '@/lib/services/user.client'
-import { getProductReviews } from '@/lib/services/review.service'
+import { getProductReviews, createReview, userBoughtProduct, updateReview } from '@/lib/services/review.service' 
 import { addCartItem } from '@/lib/services/cart.service'
 import { useShippingStore } from '@/store/shipping.store'
 import { formatPrice } from '@retrovault/core'
 import Link from 'next/link'
 import { useToast } from '@/components/ui/toast-provider'
+import { PiStarFill, PiPackageBold, PiShieldCheckBold } from 'react-icons/pi'
 
 interface ProductPageProps {
   params: Promise<{
@@ -31,6 +32,11 @@ export default function ProductPage({ params }: ProductPageProps) {
   const [product, setProduct] = useState<any>(null)
   const [seller, setSeller] = useState<any>(null)
   const [totalReviews, setTotalReviews] = useState(0)
+  const [ratingValue, setRatingValue] = useState(0)
+  const [salesCount, setSalesCount] = useState(0)
+  const [hasPurchased, setHasPurchased] = useState(false) 
+  const [userRating, setUserRating] = useState(0)
+  const [hoverRating, setHoverRating] = useState(0)
   const [loading, setLoading] = useState(true)
 
   const { user } = useAuth()
@@ -40,32 +46,36 @@ export default function ProductPage({ params }: ProductPageProps) {
     async function load() {
       try {
         const resolvedParams = await params
-
         setUnwrappedParams(resolvedParams)
 
-        const productData =
-          await getActiveProductById(
-            resolvedParams.id
-          )
-
+        const productData = await getActiveProductById(resolvedParams.id)
         setProduct(productData)
 
-        const [
-          sellerData,
-          reviewsData,
-        ] = await Promise.all([
-          getUserByIdClient(
-            productData.sellerId
-          ),
-          getProductReviews(
-            productData.id
-          ),
+        const [sellerData, reviewsData] = await Promise.all([
+          getUserByIdClient(productData.sellerId),
+          getProductReviews(productData.id),
         ])
 
         setSeller(sellerData)
-        setTotalReviews(
-          reviewsData.length
-        )
+        setTotalReviews(reviewsData.length)
+        setRatingValue(productData.rating ?? 0)
+        setSalesCount(productData.salesCount ?? 0)
+
+        if (user?.sub) {
+          try {
+            const purchased = await userBoughtProduct(user.sub, productData.id);
+            setHasPurchased(purchased);
+          } catch {
+            setHasPurchased(false);
+          }
+        }
+
+        if (user?.sub) {
+          const existingReview = reviewsData.find((r: any) => r.userId === user.sub || r.buyerId === user.sub)
+          if (existingReview) {
+            setUserRating(existingReview.rating)
+          }
+        }
       } catch (error) {
         console.error(error)
       } finally {
@@ -74,24 +84,16 @@ export default function ProductPage({ params }: ProductPageProps) {
     }
 
     load()
-  }, [params])
+  }, [params, user])
 
   function handleCepChange(value: string) {
     const onlyNumbers = value.replace(/\D/g, '');
-
-    const formattedCep = onlyNumbers.replace(
-      /^(\d{5})(\d{0,3}).*/,
-      '$1-$2',
-    );
-
+    const formattedCep = onlyNumbers.replace(/^(\d{5})(\d{0,3}).*/, '$1-$2');
     setCep(formattedCep)
   }
 
-  const handleCalcularCep = async (
-    e: React.FormEvent
-  ) => {
+  const handleCalcularCep = async (e: React.FormEvent) => {
     e.preventDefault()
-
     if (cep.length >= 8) {
       setIsCalculado(true)
       await calculate(cep)
@@ -99,283 +101,222 @@ export default function ProductPage({ params }: ProductPageProps) {
     }
   }
 
-  const shippinOptions = [shipping?.sedex, shipping?.pac]
+  const handleRateProduct = async (newStars: number) => {
+    if (!user) {
+      toast.error('Você precisa estar autenticado para realizar esta operação.')
+      return
+    }
+
+    if (!hasPurchased) {
+      toast.error('Avaliação bloqueada: Você só pode avaliar produtos que já foram entregues.')
+      return
+    }
+
+    if (userRating === newStars) return
+
+    try {
+      if (userRating === 0) {
+        await createReview(user.sub, product.id, newStars);
+      } else {
+        await updateReview(user.sub, product.id, newStars);
+      }
+
+      setRatingValue((prevMedia) => {
+        const totalNotasAntigo = totalReviews;
+        
+        if (userRating === 0) {
+          const novaMedia = ((prevMedia * totalNotasAntigo) + newStars) / (totalNotasAntigo + 1);
+          setTotalReviews(prev => prev + 1);
+          return Number(novaMedia.toFixed(1));
+        } else {
+          const novaMedia = ((prevMedia * totalNotasAntigo) - userRating + newStars) / totalNotasAntigo;
+          return Number(novaMedia.toFixed(1));
+        }
+      });
+
+      setUserRating(newStars);
+      toast.success(`Avaliação de ${newStars} estrelas registrada com sucesso!`);
+    } catch (err: any) {
+      if (err?.response?.status === 409 || err?.status === 409) {
+        toast.error('Você já avaliou este produto anteriormente.');
+      } else {
+        toast.error('Falha ao registrar avaliação.');
+      }
+    }
+  }
+
   const precoProduto = Number(product?.price || 0)
   const valorFrete = freteSelecionado ?? 0
   const precoTotal = precoProduto + valorFrete
 
-  if (
-    loading ||
-    !unwrappedParams ||
-    !product
-  ) return (
+  if (loading || !unwrappedParams || !product) return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#f4f4f6]">
       <div className="text-center">
         <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-2 border-zinc-300 border-t-black"></div>
-        <p className="font-chakra-petch text-zinc-600">Carregando produto...</p>
+        <p className="font-chakra-petch text-zinc-600">Sincronizando dados...</p>
       </div>
     </div>
   )
-
-  async function handleAddToCart() {
-    try {
-      if (!user?.sub) {
-        return
-      }
-
-      await addCartItem(
-        product.id,
-        1
-      )
-    } catch (error) {
-      console.error(error)
-    }
-  }
 
   const image = `${process.env.NEXT_PUBLIC_API_URL}${product.photos?.[0]?.url}`
 
   return (
     <div className="w-full bg-[#F4F4F6] font-chakra-petch min-h-screen text-zinc-900">
       <div className="mx-auto w-[92%] max-w-7xl py-10">
-
-        {/* Grid Principal - Estilo Checkout Lado a Lado */}
         <div className="grid gap-8 lg:grid-cols-[1fr_380px] items-start">
-
+          
           <div>
-            {/* Coluna da Esquerda: Detalhes do Produto */}
             <main className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-6 md:p-8">
               <div className="grid gap-10 lg:grid-cols-[400px_1fr]">
-
-                {/* Imagem do Produto */}
+                
                 <div className="rounded-xl border border-zinc-100 bg-zinc-50 p-4 flex items-center justify-center">
                   <div className="relative w-full aspect-square max-w-[350px]">
                     {product.photos?.[0]?.url ? (
-                      <Image
-                        src={image}
-                        alt={product.name}
-                        fill
-                        priority
-                        sizes="400px"
-                        className="object-contain"
-                      />
+                      <Image src={image} alt={product.name} fill priority sizes="400px" className="object-contain" />
                     ) : (
-                      <div className="flex h-full items-center justify-center text-zinc-400">
-                        Sem imagem
-                      </div>
+                      <div className="flex h-full items-center justify-center text-zinc-400">Sem imagem</div>
                     )}
                   </div>
                 </div>
 
-                {/* Informações de Texto */}
                 <div className="flex flex-col">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <span className="text-xs uppercase tracking-wider text-zinc-400 font-bold">Produto Oficial</span>
-                      <h1 className="text-4xl font-bold text-zinc-900 mt-1 leading-tight">
-                        {product.name}
-                      </h1>
+                      <h1 className="text-4xl font-bold text-zinc-900 mt-1 leading-tight">{product.name}</h1>
+                      
+                      <div className="flex items-center gap-1.5 mt-1 text-xs text-emerald-600 font-bold uppercase tracking-wide">
+                        <PiPackageBold />
+                        <span>{salesCount} unidades adquiridas pelo sistema</span>
+                      </div>
+
                       <p className="mt-2 text-sm text-zinc-500">
                         Vendido e entregue por
-                        <Link
-                          className="text-zinc-700 font-semibold ml-1"
-                          href={`/profile/${seller?.id}/${seller?.slug}`}
-                        >
+                        <Link className="text-zinc-700 font-semibold ml-1" href={`/profile/${seller?.id}/${seller?.slug}`}>
                           {seller?.name ?? 'Vendedor'}
                         </Link>
                       </p>
 
-                      {/* Bloco de Avaliações Simplificado (Apenas Estrelas) */}
                       <div className="mt-4 flex items-center gap-2 bg-zinc-50 px-3 py-1.5 rounded-lg w-fit border border-zinc-100">
-                        <StarRating rating={product.rating ?? 0} />
-                        <span className="font-bold text-sm text-zinc-800 mt-0.5">
-                          {product.rating ?? 0}
-                        </span>
-                        <span className="text-xs text-zinc-400 mt-0.5">
-                          ({totalReviews} avaliações)
-                        </span>
+                        <StarRating rating={ratingValue} />
+                        <span className="font-bold text-sm text-zinc-800 mt-0.5">{ratingValue}</span>
+                        <span className="text-xs text-zinc-400 mt-0.5">({totalReviews} avaliações)</span>
                       </div>
                     </div>
-
-                    <FavoriteButton
-                      productId={product?.id}
-                    />
+                    <FavoriteButton productId={product?.id} />
                   </div>
 
-                  {/* Gêneros */}
-                  {product.genre?.length ? (
-                    <div className="mt-6">
-                      <p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-400">Gêneros</p>
-                      <div className="flex flex-wrap gap-2">
-                        {product.genre.map((genre: { id: number; name: string }) => (
-                          <span key={genre.id} className="rounded-md bg-zinc-100 border border-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700">
-                            {genre.name}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-
-                  {/* Tipos */}
-                  {product.mediaType ? (
-                    <div className="mt-4">
-                      <p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-400">Tipo</p>
-                      <span className="rounded-md bg-zinc-100 border border-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700">
-                        {product.mediaType.name}
-                      </span>
-                    </div>
-                  ) : null}
-
-                  {/* Descrição */}
                   {product.description && (
                     <div className="mt-6 border-t border-zinc-100 pt-6">
                       <h2 className="mb-2 text-sm font-bold uppercase tracking-wider text-zinc-400">Descrição</h2>
-                      <p className="leading-relaxed text-zinc-600 text-sm">
-                        {product.description}
-                      </p>
+                      <p className="leading-relaxed text-zinc-600 text-sm">{product.description}</p>
                     </div>
                   )}
                 </div>
               </div>
             </main>
 
-            {/* Seção Inferior: Apenas Avaliações em Estrelas (Sem comentários textuais) */}
+            {/* Seção Inferior de Avaliações */}
             <section className="mt-8 bg-white rounded-2xl shadow-sm border border-zinc-200 p-6 md:p-8">
               <h2 className="text-xl font-bold text-zinc-900 mb-2">Avaliações dos Clientes</h2>
-              <p className="text-sm text-zinc-500 mb-6">Média de satisfação com base nas notas enviadas pelos compradores.</p>
+              <p className="text-sm text-zinc-500 mb-6">Média de satisfação com base nas notas enviadas pelos compradores legítimos.</p>
 
-              <div className="flex flex-col sm:flex-row items-center gap-6 bg-zinc-50 p-6 rounded-xl border border-zinc-100 w-fit">
-                <div className="text-center">
-              <p className="text-5xl font-black text-zinc-900">{product.rating ?? 0}</p>
-              <p className="text-xs text-zinc-400 font-medium mt-1">de 5.0 estrelas</p>
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center bg-zinc-50 p-6 rounded-xl border border-zinc-100">
+                <div className="flex items-center gap-6">
+                  <div className="text-center">
+                    <p className="text-5xl font-black text-zinc-900">{ratingValue}</p>
+                    <p className="text-xs text-zinc-400 font-medium mt-1">de 5.0 estrelas</p>
+                  </div>
+                  <div className="h-12 w-px bg-zinc-200" />
+                  <div className="flex flex-col gap-1">
+                    <StarRating rating={ratingValue} />
+                    <p className="text-xs font-semibold text-zinc-600 mt-1">({totalReviews} feedbacks computados)</p>
+                  </div>
+                </div>
 
-            <div className="h-px sm:h-12 w-12 sm:w-px bg-zinc-200" />
+                {/* Console de Avaliação Interativo */}
+                <div className="border-t md:border-t-0 md:border-l border-zinc-200 pt-4 md:pt-0 md:pl-6 space-y-2">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400 block">
+                    Sua Classificação
+                  </span>
+                  
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => handleRateProduct(star)}
+                        onMouseEnter={() => setHoverRating(star)}
+                        onMouseLeave={() => setHoverRating(0)}
+                        disabled={!hasPurchased}
+                        className={`text-2xl transition-transform active:scale-90 ${
+                          hasPurchased ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
+                        }`}
+                      >
+                        <PiStarFill 
+                          className={star <= (hoverRating || userRating) ? "text-amber-400" : "text-zinc-200"} 
+                        />
+                      </button>
+                    ))}
+                  </div>
+                  
+                  <p className="text-[11px] text-zinc-500 flex items-center gap-1 font-medium">
+                    <PiShieldCheckBold className={hasPurchased ? "text-emerald-500" : "text-zinc-400"} />
+                    {hasPurchased 
+                      ? "Avaliação desbloqueada - pedido entregue." 
+                      : "Disponível apenas após a entrega do pedido."
+                    }
+                  </p>
+                </div>
 
-            <div className="flex flex-col items-center sm:items-start gap-1">
-              <StarRating rating={product.rating ?? 0} />
-              <p className="text-xs font-semibold text-zinc-600 mt-1">
-                {totalReviews} clientes avaliaram este produto positivamente.
-              </p>
-            </div>
+              </div>
+            </section>
           </div>
-        </section>
-          </div>
 
-          {/* Coluna da Direita: Checkout Preview & Frete */}
+          {/* Checkout Preview Lateral */}
           <aside className="sticky top-6 grid gap-6">
-
-            {/* Bloco de Preview de Pagamento e Compra */}
             <div className="rounded-2xl bg-white p-6 shadow-sm border border-zinc-200">
               <h3 className="text-lg font-bold text-zinc-900 mb-4 pb-3 border-b border-zinc-100">Resumo do Pedido</h3>
-
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between text-zinc-600">
                   <span>Produto</span>
-                  <span>R$ {precoProduto.toFixed(2).replace('.', ',')}</span>
+                  <span>R$ {formatPrice(precoProduto)}</span>
                 </div>
-
                 <div className="flex justify-between text-zinc-600">
                   <span>Frete</span>
-                  <span>{freteSelecionado !== null ? `R$ ${valorFrete.toFixed(2).replace('.', ',')}` : 'Calcular'}</span>
+                  <span>{freteSelecionado !== null ? `R$ ${formatPrice(valorFrete)}` : 'Calcular'}</span>
                 </div>
-
                 <div className="pt-3 border-t border-dashed border-zinc-200 flex justify-between items-end">
                   <span className="font-bold text-zinc-900 text-base">Total do Pedido</span>
                   <div className="text-right">
-                    <span className="text-2xl font-black text-[#D33C2D]">
-                      R$ {precoTotal.toFixed(2).replace('.', ',')}
-                    </span>
+                    <span className="text-2xl font-black text-[#D33C2D]">R$ {formatPrice(precoTotal)}</span>
                     <p className="text-[10px] text-zinc-400 uppercase tracking-wide font-bold">No Pix ou Boleto</p>
                   </div>
                 </div>
               </div>
 
-              {/* Ações */}
               <div className="mt-6 space-y-2.5">
-                <div>
-                  <Link href={`/checkout/${product.id}`}>
-                    <button
-                      className="w-full rounded-xl bg-[#D9A128] py-3.5 text-sm font-bold text-white shadow-sm transition hover:brightness-95 tracking-wide uppercase cursor-pointer"
-                    >
-                      Comprar Agora
-                    </button>
-                  </Link>
-                </div>
-
-                <div>
-                  <Link href="/cart">
-                    <button
-                      onClick={() => {
-                        handleAddToCart()
-                        toast.success('Produto adicionado ao carrinho!')
-                      }}
-                      className="w-full rounded-xl border border-zinc-300 bg-white py-3.5 text-sm font-bold text-zinc-700 transition hover:bg-zinc-50 tracking-wide uppercase cursor-pointer"
-                      >
-                      Adicionar ao Carrinho
-                    </button>
-                  </Link>
-                </div>
+                <Link href={`/checkout/${product.id}`}>
+                  <button className="w-full rounded-xl bg-[#D9A128] py-3.5 text-sm font-bold text-white shadow-sm transition hover:brightness-95 tracking-wide uppercase cursor-pointer mb-2">
+                    Comprar Agora
+                  </button>
+                </Link>
+                <button
+                  onClick={async () => {
+                    if (user?.sub) {
+                      await addCartItem(product.id, 1)
+                      toast.success('Produto adicionado ao carrinho!')
+                    }
+                  }}
+                  className="w-full rounded-xl border border-zinc-300 bg-white py-3.5 text-sm font-bold text-zinc-700 transition hover:bg-zinc-50 tracking-wide uppercase cursor-pointer"
+                >
+                  Adicionar ao Carrinho
+                </button>
               </div>
             </div>
-
-            {/* Bloco de Cálculo de Frete */}
-            <div className="rounded-2xl bg-white p-6 shadow-sm border border-zinc-200">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-400 mb-3">Calcular Frete e Prazo</h3>
-
-              <form onSubmit={handleCalcularCep} className="flex gap-2">
-                <input
-                  type="text"
-                  maxLength={9}
-                  placeholder="00000-000"
-                  disabled={shippingLoading}
-                  value={cep}
-                  onChange={(e) => handleCepChange(e.target.value)}
-                  className="flex-1 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm focus:outline-none focus:border-zinc-500 font-sans"
-                />
-                <button type="submit" disabled={shippingLoading} className="rounded-xl bg-zinc-900 px-4 py-2.5 text-xs font-bold text-white uppercase tracking-wider hover:bg-zinc-800 transition cursor-pointer">
-                  Calcular
-                </button>
-              </form>
-
-              {/* Lista de Resultados do Frete */}
-              {isCalculado && (
-                <div className="mt-4 pt-4 border-t border-zinc-100 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-bold text-zinc-900">Frete para <span className="font-medium text-sm text-zinc-900 uppercase ml-1">{shipping?.city} - {shipping?.state}</span></h2>
-                  </div>
-                  {shippinOptions.map((shipping) => (
-                    <label
-                      key={`${shipping?.price}-${shipping?.deadline}`}
-                      className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${freteSelecionado === shipping?.price
-                        ? 'border-[#D9A128] bg-amber-50/40'
-                        : 'border-zinc-200 hover:bg-zinc-50'
-                        }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="radio"
-                          name="frete"
-                          checked={freteSelecionado === shipping?.price}
-                          onChange={() => setFreteSelecionado(Number(shipping?.price))}
-                          className="accent-[#D9A128] h-4 w-4"
-                        />
-                        <div>
-                          <p className="text-sm font-bold text-zinc-800">{shipping?.name}</p>
-                          <p className="text-sm text-zinc-400">{shipping?.deadline} dias</p>
-                        </div>
-                      </div>
-                      <span className="text-sm font-bold text-zinc-900">
-                        R$ {formatPrice(Number(shipping?.price))}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-
           </aside>
-        </div>
 
+        </div>
       </div>
     </div>
   )

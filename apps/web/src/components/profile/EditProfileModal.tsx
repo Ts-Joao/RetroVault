@@ -4,6 +4,7 @@ import { useState } from "react";
 import { PiGearBold, PiXBold, PiUserCircleFill, PiLockBold, PiCameraBold } from "react-icons/pi";
 import { User } from "@retrovault/core";
 import { useToast } from "../ui/toast-provider";
+import api from "@/lib/axios";
 
 type Props = {
   user: User & {
@@ -21,6 +22,9 @@ export default function EditProfileModal({ user }: Props) {
   const [phone, setPhone] = useState(user.phone);
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [photoPreview, setPhotoPreview] = useState<string | null>(
+    user.profilePic?.url || user.photo || "/image/placeholder-pfp.webp"
+  );
 
   const toast = useToast();
 
@@ -41,35 +45,60 @@ export default function EditProfileModal({ user }: Props) {
     setPhone(formatted.substring(0, 15));
   }
 
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPhotoPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      await api.post("/uploads/profile", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      toast.success("Foto de perfil atualizada com sucesso!");
+      window.location.reload();
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Erro ao atualizar foto de perfil.");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const cleanCep = cep.replace(/\D/g, '');
     const cleanPhone = phone?.replace(/\D/g, '');
 
-    try {
-      const response = await fetch('/api/users/profile/update', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          name, 
-          email, 
-          defaultCep: cleanCep, 
-          phone: cleanPhone, 
-          password, 
-          newPassword 
-        }),
-      });
+    const payload: any = {
+      name,
+      email,
+      defaultCep: cleanCep || null,
+      phone: cleanPhone || undefined,
+    };
 
-      if (response.ok) {
-        setIsOpen(false);
-        toast.success('Perfil atualizado com sucesso!');
-      } else {
-        toast.error('Erro ao atualizar perfil!');
-      }
-    } catch (error) {
-      console.error("Falha na validação de segurança do terminal:", error);
-      toast.error('Erro ao atualizar perfil!');
+    if (password && newPassword) {
+      payload.password = password;
+      payload.newPassword = newPassword;
+    }
+
+    try {
+      await api.patch(`/users/${user.id}`, payload);
+      setIsOpen(false);
+      toast.success('Perfil atualizado com sucesso!');
+      window.location.reload();
+    } catch (error: any) {
+      console.error(error);
+      const errMsg = error.response?.data?.message || 'Erro ao atualizar perfil!';
+      toast.error(Array.isArray(errMsg) ? errMsg[0] : errMsg);
     }
   };
 
@@ -83,7 +112,7 @@ export default function EditProfileModal({ user }: Props) {
         <PiGearBold className="text-sm" />
         Configurar Perfil
       </button>
-
+ 
       {/* 🚀 Estrutura do Modal */}
       {isOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 font-chakra-petch animate-fade-in">
@@ -92,7 +121,7 @@ export default function EditProfileModal({ user }: Props) {
             {/* Engineering Corners no Modal */}
             <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-[#CD463A]"></div>
             <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-[#CD463A]"></div>
-
+ 
             {/* Header */}
             <div className="p-5 border-b border-zinc-100 flex items-center justify-between bg-zinc-50 shrink-0">
               <div className="flex items-center gap-2">
@@ -106,7 +135,7 @@ export default function EditProfileModal({ user }: Props) {
                 <PiXBold className="text-lg" />
               </button>
             </div>
-
+ 
             {/* Conteúdo com Scroll para telas pequenas */}
             <form onSubmit={handleSubmit} className="overflow-y-auto p-6 space-y-5 flex-1">
               
@@ -114,13 +143,13 @@ export default function EditProfileModal({ user }: Props) {
               <div className="flex flex-col items-center gap-2 pb-2 border-b border-zinc-100">
                 <div className="relative h-20 w-20 rounded-xl border-2 border-zinc-200 bg-zinc-50 overflow-hidden group">
                   <img 
-                    src={user.profilePic?.url || user.photo || "/image/placeholder-pfp.webp"} 
+                    src={photoPreview || "/image/placeholder-pfp.webp"} 
                     alt="Preview" 
                     className="object-cover w-full h-full"
                   />
                   <label className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                     <PiCameraBold className="text-white text-lg" />
-                    <input type="file" className="sr-only" accept="image/*" />
+                    <input type="file" className="sr-only" accept="image/*" onChange={handlePhotoChange} />
                   </label>
                 </div>
                 <span className="text-[10px] font-bold text-zinc-400 uppercase">Alterar Identidade Visual</span>
