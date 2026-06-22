@@ -23,4 +23,5 @@ export interface ProductDetails extends Product {
   description: string;
   amount: number;
   comments: string;
+  salesCount: number;
 }

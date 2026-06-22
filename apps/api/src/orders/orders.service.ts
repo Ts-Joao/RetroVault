@@ -38,28 +38,28 @@ export class OrdersService {
 
   async checkout(userId: string, dto: CreateOrderDto) {
     try {
-      let orderItens: CartItem[] = [];
+      let orderItens: any[] = [];
       let finalAmount: Decimal;
-
-      const cart = await this.cartService.getCart(userId)
-      finalAmount = this.calculateCartTotal(cart.cartItem);
+      let cartIdToClear: string | null = null;
 
       if (dto.orderItens && dto.orderItens.length > 0) {
         orderItens = dto.orderItens;
         finalAmount = this.calculateCartTotal(orderItens);
       } else {
-        await this.validateCart(userId);
+        const cart = await this.validateCart(userId);
+        orderItens = cart.cartItem;
+        finalAmount = this.calculateCartTotal(orderItens);
+        cartIdToClear = cart.id;
       }
 
-      await this.validateStock(cart.cartItem);
+      await this.validateStock(orderItens);
 
-      const cartTotal = this.calculateCartTotal(cart.cartItem);
       let couponId: string | null = null;
 
       if (dto.couponCode) {
         const couponResult = await this.couponService.validateCoupon(
           dto.couponCode,
-          Number(cartTotal),
+          Number(finalAmount),
           userId,
         );
         finalAmount = new Prisma.Decimal(couponResult.total);
@@ -81,7 +81,7 @@ export class OrdersService {
                 ? OrderStatus.PAID
                 : OrderStatus.PENDING,
             orderItems: {
-              create: cart.cartItem.map((item) => ({
+              create: orderItens.map((item) => ({
                 productId: item.productId,
                 amount: item.amount,
                 price: item.price,
@@ -114,12 +114,14 @@ export class OrdersService {
           });
         }
 
-        await tx.cartItem.deleteMany({
-          where: { cartId: cart.id },
-        });
+        if (cartIdToClear) {
+          await tx.cartItem.deleteMany({
+            where: { cartId: cartIdToClear },
+          });
+        }
 
         await Promise.all(
-          cart.cartItem.map((item) =>
+          orderItens.map((item) =>
             tx.product.update({
               where: { id: item.productId },
               data: {

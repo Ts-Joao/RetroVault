@@ -189,6 +189,7 @@ async function bootstrap() {
       shippingCost: 12.0, freeInstallments: 3, maxInstallments: 12,
       minInstallmentAmount: 10.0, monthlyInterestRate: 0.0199,
       genreIds: [g.Action.id, g.Adventure.id],
+      salesCount: 33
     },
     {
       name: "Baldur's Gate 3",
@@ -202,6 +203,7 @@ async function bootstrap() {
       freeInstallments: 6, maxInstallments: 12,
       minInstallmentAmount: 15.0, monthlyInterestRate: 0.0199,
       genreIds: [g.RPG.id, g.Adventure.id],
+      salesCount: 5
     },
     {
       name: 'Resident Evil 4',
@@ -213,6 +215,7 @@ async function bootstrap() {
       shippingCost: 15.0, freeInstallments: 2, maxInstallments: 6,
       minInstallmentAmount: 15.0, monthlyInterestRate: 0.0199,
       genreIds: [g.Horror.id, g.Action.id],
+      salesCount: 12
     },
     {
       name: 'Super Mario Odyssey',
@@ -226,6 +229,7 @@ async function bootstrap() {
       freeInstallments: 6, maxInstallments: 12,
       minInstallmentAmount: 20.0, monthlyInterestRate: 0.0199,
       genreIds: [g.Platformer.id, g.Adventure.id],
+      salesCount: 10
     },
     {
       name: 'Dark Souls Remastered',
@@ -237,6 +241,7 @@ async function bootstrap() {
       shippingCost: 10.0, freeInstallments: 2, maxInstallments: 6,
       minInstallmentAmount: 13.0, monthlyInterestRate: 0.0199,
       genreIds: [g.RPG.id, g.Action.id],
+      salesCount: 20
     },
     {
       name: 'God of War (2018)',
@@ -248,6 +253,7 @@ async function bootstrap() {
       shippingCost: 8.0, freeInstallments: 3, maxInstallments: 10,
       minInstallmentAmount: 10.0, monthlyInterestRate: 0.0199,
       genreIds: [g.Action.id, g.Adventure.id],
+      salesCount: 5
     },
     {
       name: 'Halo 3',
@@ -259,6 +265,7 @@ async function bootstrap() {
       shippingCost: 9.0, freeInstallments: 1, maxInstallments: 4,
       minInstallmentAmount: 10.0, monthlyInterestRate: 0.0199,
       genreIds: [g.Action.id, g['Sci-Fi'].id],
+      salesCount: 2
     },
     {
       name: 'Street Fighter IV',
@@ -270,6 +277,7 @@ async function bootstrap() {
       shippingCost: 7.0, freeInstallments: 1, maxInstallments: 3,
       minInstallmentAmount: 10.0,
       genreIds: [g.Fighting.id, g.Action.id],
+      salesCount: 3
     },
     {
       name: 'Civilization VI',
@@ -281,6 +289,7 @@ async function bootstrap() {
       shippingCost: 0, freeInstallments: 2, maxInstallments: 6,
       minInstallmentAmount: 10.0, monthlyInterestRate: 0.0199,
       genreIds: [g.Strategy.id],
+      salesCount: 6
     },
     {
       name: 'FIFA 06',
@@ -292,6 +301,7 @@ async function bootstrap() {
       shippingCost: 6.0, freeInstallments: 1, maxInstallments: 2,
       minInstallmentAmount: 10.0,
       genreIds: [g.Sports.id],
+      salesCount: 3
     },
   ];
 
@@ -309,6 +319,7 @@ async function bootstrap() {
       shippingCost: 8.5, freeInstallments: 1, maxInstallments: 3,
       minInstallmentAmount: 10.0,
       genreIds: [g.Horror.id, g['Sci-Fi'].id],
+      salesCount: 1
     },
     {
       name: "Schindler's List",
@@ -320,6 +331,7 @@ async function bootstrap() {
       shippingCost: 6.0, freeInstallments: 1, maxInstallments: 2,
       minInstallmentAmount: 10.0,
       genreIds: [g.Drama.id],
+      salesCount: 3
     },
     {
       name: 'The Godfather',
@@ -333,6 +345,7 @@ async function bootstrap() {
       freeInstallments: 2, maxInstallments: 6,
       minInstallmentAmount: 15.0, monthlyInterestRate: 0.0199,
       genreIds: [g.Drama.id, g.Thriller.id],
+      salesCount: 5
     },
     {
       name: 'Blade Runner 2049',
@@ -344,6 +357,7 @@ async function bootstrap() {
       shippingCost: 9.0, freeInstallments: 1, maxInstallments: 4,
       minInstallmentAmount: 12.0, monthlyInterestRate: 0.0199,
       genreIds: [g['Sci-Fi'].id, g.Thriller.id],
+      salesCount: 7
     },
     {
       name: 'Pulp Fiction',
@@ -355,6 +369,7 @@ async function bootstrap() {
       shippingCost: 7.0, freeInstallments: 1, maxInstallments: 2,
       minInstallmentAmount: 10.0,
       genreIds: [g.Drama.id, g.Thriller.id],
+      salesCount: 9
     },
     {
       name: 'The Shining',
@@ -366,6 +381,7 @@ async function bootstrap() {
       shippingCost: 8.0, freeInstallments: 1, maxInstallments: 3,
       minInstallmentAmount: 10.0,
       genreIds: [g.Horror.id, g.Thriller.id],
+      salesCount: 11
     },
     {
       name: 'Back to the Future Trilogy',
@@ -377,6 +393,7 @@ async function bootstrap() {
       shippingCost: 11.0, freeInstallments: 2, maxInstallments: 6,
       minInstallmentAmount: 12.5, monthlyInterestRate: 0.0199,
       genreIds: [g['Sci-Fi'].id, g.Comedy.id, g.Adventure.id],
+      salesCount: 13
     },
     {
       name: 'Parasite',
@@ -388,6 +405,7 @@ async function bootstrap() {
       shippingCost: 8.0, freeInstallments: 1, maxInstallments: 3,
       minInstallmentAmount: 10.0,
       genreIds: [g.Drama.id, g.Thriller.id],
+      salesCount: 15
     },
     {
       name: 'Spirited Away',
@@ -399,6 +417,7 @@ async function bootstrap() {
       shippingCost: 8.0, freeInstallments: 2, maxInstallments: 4,
       minInstallmentAmount: 11.0, monthlyInterestRate: 0.0199,
       genreIds: [g.Animation.id, g.Adventure.id],
+      salesCount: 17
     },
     {
       name: 'Mad Max: Fury Road',
@@ -410,6 +429,7 @@ async function bootstrap() {
       shippingCost: 9.5, freeInstallments: 2, maxInstallments: 5,
       minInstallmentAmount: 12.0, monthlyInterestRate: 0.0199,
       genreIds: [g.Action.id, g['Sci-Fi'].id],
+      salesCount: 19
     },
   ];
 
@@ -464,11 +484,9 @@ async function bootstrap() {
   // ──────────────────────────────────────────
   // Reviews (distribuição realista + recálculo do rating do produto)
   // ──────────────────────────────────────────
-  // Pool de usuários que podem avaliar (não inclui admin nem os sellers donos do produto)
   const allReviewerCandidates = [buyer, ...reviewers];
 
-  // Pesos para sortear nota: favorece 4 e 5, com alguma variação realista
-  const ratingWeights: number[] = [1, 1, 2, 4, 5]; // índice 0 = nota 1, índice 4 = nota 5
+  const ratingWeights: number[] = [1, 1, 2, 4, 5];
   const weightedRatings = ratingWeights.flatMap((weight, idx) =>
     Array(weight).fill(idx + 1),
   );
@@ -487,7 +505,6 @@ async function bootstrap() {
   }
 
   for (const [i, product] of allProducts.entries()) {
-    // Quantidade de reviews varia por produto: entre 2 e o tamanho do pool de candidatos
     const reviewCount = Math.min(
       allReviewerCandidates.length,
       2 + (i % (allReviewerCandidates.length - 1)),
@@ -511,7 +528,6 @@ async function bootstrap() {
       });
     }
 
-    // Recalcula o rating médio real a partir das reviews existentes
     const aggregation = await prisma.review.aggregate({
       where: { productId: product.id },
       _avg: { rating: true },

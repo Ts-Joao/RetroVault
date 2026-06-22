@@ -35,7 +35,7 @@ export class ReviewsService {
     });
   }
 
-  private async userBoughtProduct(userId: string, productId: string) {
+  async userBoughtProduct(userId: string, productId: string) {
     const orderItem = await this.db.orderItem.findFirst({
       where: {
         productId,

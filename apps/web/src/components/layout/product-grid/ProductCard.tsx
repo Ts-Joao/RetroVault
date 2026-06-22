@@ -23,7 +23,7 @@ type Props = {
 
 export default function ProductCard({ product, users }: Props) {
   const router = useRouter();
-  const seller = users?.find((u) => u.id === product.sellerId);
+  const seller = users?.find((u) => u.id === product.sellerId) || (product as any).seller;
   const toast = useToast()
 
   const firstPhoto = product.photos?.[0]?.url || "";

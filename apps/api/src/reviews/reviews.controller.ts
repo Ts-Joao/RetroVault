@@ -24,10 +24,20 @@ export class ReviewsController {
     return this.reviewsService.getProductReviews(productId);
   }
 
+  @ApiOperation({ summary: 'Get user bought product' })
+  @ApiResponse({ status: 200, description: 'User bought product retrieved successfully' })
+  @Get('products/:productId/bought')
+  userBoughtProduct(
+    @Headers('user-id') userId: string,
+    @Param('productId') productId: string,
+  ) {
+    return this.reviewsService.userBoughtProduct(userId, productId);
+  }
+
   @ApiOperation({ summary: 'Get user review' })
   @ApiResponse({ status: 200, description: 'User review retrieved successfully' })
   @ApiResponse({ status: 404, description: 'User review not found' })
-  @Get('products/:product/me')
+  @Get('products/:productId/me')
   getUserReview(
     @Headers('user-id') userId: string,
     @Param('productId') productId: string,

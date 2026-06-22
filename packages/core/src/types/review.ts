@@ -3,4 +3,5 @@ export interface Review {
     name: string
     comments: string
     productId: string;
+    rating: number
 }

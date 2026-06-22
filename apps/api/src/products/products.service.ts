@@ -77,7 +77,7 @@ export class ProductService {
         where: { isActive: true },
         include: {
           photos: true,
-          seller: { select: { id: true, name: true } },
+          seller: { select: { id: true, name: true, slug: true } },
         },
       });
     } catch (err) {
@@ -117,7 +117,7 @@ export class ProductService {
         where: { sellerId, isActive: true },
         include: {
           photos: true,
-          seller: { select: { id: true, name: true } },
+          seller: { select: { id: true, name: true, slug: true } },
         },
       });
     } catch (err) {
@@ -137,7 +137,7 @@ export class ProductService {
         where: { sellerId },
         include: {
           photos: true,
-          seller: { select: { id: true, name: true } },
+          seller: { select: { id: true, name: true, slug: true } },
         },
       });
     } catch (err) {
@@ -251,7 +251,7 @@ export class ProductService {
         where: { isActive: true, amount: { gt: 0 } },
         include: {
           photos: true,
-          seller: { select: { id: true, name: true } },
+          seller: { select: { id: true, name: true, slug: true } },
           mediaType: true,
           genre: true,
         },
@@ -276,7 +276,7 @@ export class ProductService {
         where: { id, isActive: true, amount: { gt: 0 } },
         include: {
           photos: true,
-          seller: { select: { id: true, name: true } },
+          seller: { select: { id: true, name: true, slug: true } },
           mediaType: true,
           genre: true,
         },
