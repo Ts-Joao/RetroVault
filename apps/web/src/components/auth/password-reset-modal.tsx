@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, KeyboardEvent } from 'react'
-import { FaTimes, FaLock, FaEye, FaEyeSlash, FaCheckCircle } from 'react-icons/fa'
+import { FaTimes, FaLock, FaEye, FaEyeSlash, FaCheckCircle, FaCheck, FaCircle } from 'react-icons/fa'
 import { MdEmail } from 'react-icons/md'
 import { useToast } from '@/components/ui/toast-provider'
 
@@ -25,6 +25,32 @@ export function PasswordResetModal({ isOpen, onClose }: PasswordResetModalProps)
 
   const codeRefs = useRef<(HTMLInputElement | null)[]>([])
   const toast = useToast()
+
+  // Sistema de Verificação de Força da Senha
+  const getPasswordStrength = (pwd: string) => {
+    let score = 0
+    if (!pwd) return { score, label: 'Inexistente', color: 'bg-zinc-200', textColor: 'text-zinc-400' }
+    
+    if (pwd.length >= 8) score++
+    if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) score++
+    if (/[0-9]/.test(pwd)) score++
+    if (/[^A-Za-z0-9]/.test(pwd)) score++
+
+    switch (score) {
+      case 1:
+        return { score, label: 'Fraca (Muito Vulnerável)', color: 'bg-red-500', textColor: 'text-red-500' }
+      case 2:
+        return { score, label: 'Média (Aceitável)', color: 'bg-yellow-500', textColor: 'text-yellow-500' }
+      case 3:
+        return { score, label: 'Boa (Segura)', color: 'bg-blue-500', textColor: 'text-blue-500' }
+      case 4:
+        return { score, label: 'Forte (Excelente / Retro-Shield)', color: 'bg-green-500', textColor: 'text-green-500' }
+      default:
+        return { score, label: 'Muito Fraca', color: 'bg-red-500', textColor: 'text-red-500' }
+    }
+  }
+
+  const strength = getPasswordStrength(password)
 
   useEffect(() => {
     if (!isOpen) {
@@ -118,8 +144,8 @@ export function PasswordResetModal({ isOpen, onClose }: PasswordResetModalProps)
       toast.error('As senhas não coincidem.')
       return
     }
-    if (password.length < 8) {
-      toast.error('A senha deve ter no mínimo 8 caracteres.')
+    if (strength.score < 2) {
+      toast.error('Escolha uma senha mais forte.')
       return
     }
     setLoading(true)
@@ -172,7 +198,7 @@ export function PasswordResetModal({ isOpen, onClose }: PasswordResetModalProps)
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-[#CD463A] mb-1">Passo 1 de 3</p>
                   <h2 className="text-xl font-black text-zinc-900 uppercase tracking-tight">Esqueceu a senha?</h2>
-                  <p className="text-xs text-zinc-500 mt-1.5 font-medium uppercase tracking-wide">Insira seu e-mail cadastrado para enviarmos um token de verificação.</p>
+                  <p className="text-xs text-zinc-500 mt-1.5 font-medium tracking-wide">Insira seu e-mail cadastrado para enviarmos um token de verificação.</p>
                 </div>
 
                 <div className="space-y-1.5">
@@ -259,7 +285,7 @@ export function PasswordResetModal({ isOpen, onClose }: PasswordResetModalProps)
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-[#CD463A] mb-1">Passo 3 de 3</p>
                   <h2 className="text-xl font-black text-zinc-900 uppercase tracking-tight">Nova Assinatura</h2>
-                  <p className="text-xs text-zinc-500 mt-1.5 font-medium uppercase tracking-wide">Insira sua nova senha de segurança.</p>
+                  <p className="text-xs text-zinc-500 mt-1.5 font-medium tracking-wide">Insira sua nova senha de segurança.</p>
                 </div>
 
                 <div className="space-y-4">
@@ -282,6 +308,42 @@ export function PasswordResetModal({ isOpen, onClose }: PasswordResetModalProps)
                         {showPassword ? <FaEyeSlash /> : <FaEye />}
                       </button>
                     </div>
+
+                    {/* Exibição da Força da Senha */}
+                    {password && (
+                      <div className="pt-1.5 space-y-1">
+                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider">
+                          <span className="text-zinc-400">Segurança:</span>
+                          <span className={strength.textColor}>{strength.label}</span>
+                        </div>
+                        <div className="grid grid-cols-4 gap-1 h-1">
+                          {[1, 2, 3, 4].map((level) => (
+                            <div
+                              key={level}
+                              className={`h-full rounded-sm transition-all duration-300 ${
+                                level <= strength.score ? strength.color : 'bg-zinc-100'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        
+                        {/* Lista de Checklists Dinâmicos */}
+                        <div className="pt-1 grid grid-cols-2 gap-x-2 gap-y-1 text-[9px] font-bold text-zinc-400 uppercase tracking-tight">
+                          <span className={`flex items-center gap-1 ${password.length >= 8 ? 'text-green-600' : ''}`}>
+                            <FaCircle className="text-[4px]" /> Min. 8 dígitos
+                          </span>
+                          <span className={`flex items-center gap-1 ${/[A-Z]/.test(password) && /[a-z]/.test(password) ? 'text-green-600' : ''}`}>
+                            <FaCircle className="text-[4px]" /> Maiúsc. e Minúsc.
+                          </span>
+                          <span className={`flex items-center gap-1 ${/[0-9]/.test(password) ? 'text-green-600' : ''}`}>
+                            <FaCircle className="text-[4px]" /> Contém Número
+                          </span>
+                          <span className={`flex items-center gap-1 ${/[^A-Za-z0-9]/.test(password) ? 'text-green-600' : ''}`}>
+                            <FaCircle className="text-[4px]" /> Símbolo (!@#$)
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-1.5">
@@ -314,7 +376,7 @@ export function PasswordResetModal({ isOpen, onClose }: PasswordResetModalProps)
 
                 <button
                   onClick={handleResetPassword}
-                  disabled={!password || !confirmPassword || password !== confirmPassword || loading}
+                  disabled={!password || !confirmPassword || password !== confirmPassword || strength.score < 2 || loading}
                   className="w-full bg-zinc-900 text-white py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#CD463A] hover:shadow-[0_4px_20px_rgba(205,70,58,0.25)] hover:-translate-y-0.5 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
                 >
                   {loading ? 'Salvando...' : 'Atualizar Assinatura →'}

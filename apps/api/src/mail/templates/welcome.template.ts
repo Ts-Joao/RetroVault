@@ -133,7 +133,7 @@ export function welcomeTemplate({ name, email }: WelcomeEmailData): string {
     </div>
  
     <div class="body">
-      <p class="greeting">Operador Ativado: ${name}</p>
+      <p class="greeting">Usuário Ativado: ${name}</p>
  
       <p class="text">
         Sua credencial foi homologada no sistema. Você agora possui autorização de acesso ao cofre da <strong>RetroVault</strong>.
@@ -161,7 +161,7 @@ export function welcomeTemplate({ name, email }: WelcomeEmailData): string {
       </div>
  
       <div class="cta-wrapper">
-        <a class="cta" href="${process.env.APP_URL ?? 'http://localhost:3001'}">
+        <a class="cta" href="http://127.0.0.1:3000/login">
           Acessar Terminal →
         </a>
       </div>

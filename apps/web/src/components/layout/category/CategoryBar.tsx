@@ -3,20 +3,20 @@
 import { useState, useRef } from "react";
 import { 
   PiGridFourBold, 
-  PiTShirtBold, 
-  PiDeviceMobileBold, 
-  PiSneakerBold, 
   PiGameControllerBold, 
+  PiDiscBold, 
+  PiTelevisionBold, 
+  PiCassetteTapeBold, 
   PiSparkleBold 
 } from "react-icons/pi";
 
 const CATEGORIES = [
-  { id: "all", name: "Todos", icon: <PiGridFourBold /> },
-  { id: "vestuario", name: "Vestuário", icon: <PiTShirtBold /> },
-  { id: "eletronicos", name: "Eletrônicos", icon: <PiDeviceMobileBold /> },
-  { id: "calcados", name: "Calçados", icon: <PiSneakerBold /> },
-  { id: "games", name: "Games & Geek", icon: <PiGameControllerBold /> },
-  { id: "colecionaveis", name: "Colecionáveis", icon: <PiSparkleBold /> },
+  { id: "all", name: "Todos os Itens", icon: <PiGridFourBold /> },
+  { id: "consoles", name: "Consoles & Arcade", icon: <PiGameControllerBold /> },
+  { id: "midias", name: "Jogos & Mídias Retro", icon: <PiDiscBold /> },
+  { id: "hardware", name: "Hardware & Telas CRT", icon: <PiTelevisionBold /> },
+  { id: "audio-video", name: "Fitas & K7 / VHS", icon: <PiCassetteTapeBold /> },
+  { id: "colecionaveis", name: "Memorabilia & Geek", icon: <PiSparkleBold /> },
 ];
 
 interface CategoriesBarProps {

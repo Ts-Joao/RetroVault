@@ -11,6 +11,8 @@ import { HashingServiceProtocol } from './hash/hashing.service';
 import jwtConfig from './config/jwt.config';
 import { AuthTokenGuard } from './guard/auth-token.guard';
 import { RefreshGuard } from './guard/refresh.guard';
+import { PasswordResetService } from './services/password-reset.service';
+import { PasswordResetController } from './controllers/password-reset.controller';
 
 @Module({
   imports: [
@@ -35,8 +37,9 @@ import { RefreshGuard } from './guard/refresh.guard';
     },
     AuthTokenGuard,
     RefreshGuard,
+    PasswordResetService
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, PasswordResetController],
   exports: [
     JwtModule,
     RolesGuard,

@@ -80,8 +80,8 @@ export default function LoginPage() {
               </div>
               <input
                 type="email"
-                placeholder="Ex: operador@retrovault.com"
-                className="w-full bg-zinc-50 border border-zinc-200 rounded-xl py-3.5 pl-11 pr-4 text-sm font-bold uppercase tracking-wide focus:outline-none focus:border-zinc-400 focus:bg-white transition-all"
+                placeholder="Digite seu e-mail"
+                className="w-full bg-zinc-50 border border-zinc-200 rounded-xl py-3.5 pl-11 pr-4 text-sm font-bold tracking-wide focus:outline-none focus:border-zinc-400 focus:bg-white transition-all"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
