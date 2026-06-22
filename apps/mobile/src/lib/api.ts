@@ -122,4 +122,10 @@ export async function getProfile() {
   return user as { id: string; name: string; email: string }
 }
 
-export default { login, register, refresh, logout, request, getProfile }
+export async function searchProducts(query: string): Promise<any[]> {
+  const res = await request(`/products/search?q=${encodeURIComponent(query)}`, { method: 'GET' })
+  if (!res.ok) throw new Error('Falha ao buscar produtos')
+  return res.json()
+}
+
+export default { login, register, refresh, logout, request, getProfile, searchProducts }

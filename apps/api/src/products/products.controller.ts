@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './products.service';
@@ -59,6 +60,13 @@ export class ProductsController {
   @Get('media-types')
   async getMediaTypes() {
     return this.productsService.getMediaTypes();
+  }
+
+  @ApiOperation({ summary: 'Search products by name' })
+  @ApiResponse({ status: 200, description: 'List of matching products' })
+  @Get('search')
+  searchProducts(@Query('q') q: string) {
+    return this.productsService.searchByName(q ?? '');
   }
 
   @ApiOperation({ summary: 'Get product by ID' })

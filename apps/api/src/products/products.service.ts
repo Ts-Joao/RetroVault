@@ -268,6 +268,27 @@ export class ProductService {
     }
   }
 
+  async searchByName(name: string) {
+    try {
+      return await this.databaseService.product.findMany({
+        where: {
+          isActive: true,
+          amount: { gt: 0 },
+          name: { contains: name, mode: 'insensitive' },
+        },
+        include: {
+          photos: true,
+          seller: { select: { id: true, name: true } },
+          mediaType: true,
+          genre: true,
+        },
+      });
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      throw new InternalServerErrorException('Error searching products!');
+    }
+  }
+
   async getActiveProductById(id: string) {
     try {
       await this.getById(id);

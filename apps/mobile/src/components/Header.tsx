@@ -33,12 +33,12 @@ export default function Header() {
             className="py-2 px-3 min-w-48 max-w-48 placeholder:text-slate-500 text-slate-800 placeholder:font-chakra placeholder:text-md focus:outline-none"
             value={query}
             onChangeText={setQuery}
-            onSubmitEditing={() => { router.navigate(`/search?query=${query}`) }}
+            onSubmitEditing={() => { router.navigate(`/search?query=${encodeURIComponent(query)}`) }}
           />
           <Octicons
             name="search"
             size={18}
-            onPress={() => router.navigate(`/search?q=${encodeURIComponent(query)}`)}
+            onPress={() => router.navigate(`/search?query=${encodeURIComponent(query)}`)}
           />
         </View>
         <View className="relative">
