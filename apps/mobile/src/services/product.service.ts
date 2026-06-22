@@ -51,6 +51,7 @@ function parseProductDetails(product: any): ProductDetails {
     description: product.description ?? "",
     amount: product.amount ?? 0,
     comments: product.comments ?? "",
+    salesCount: Number(product.salesCount ?? 0),
   };
 }
 

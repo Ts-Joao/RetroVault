@@ -42,4 +42,10 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingInline: 8,
   },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
 });
