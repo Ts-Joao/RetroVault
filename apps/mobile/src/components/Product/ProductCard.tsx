@@ -13,12 +13,15 @@ import {
   TouchableOpacity,
   StyleSheet,
   Pressable,
+  Alert,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useCartActionsStore } from "../../stores/useCartActionsStore";
 import StarRating from "../StarRating";
 import { Link } from "expo-router";
 import { getProductImage } from "@/lib/productImages";
+import { useFavoritesStore } from "../../stores/useFavoritesStore";
+import { useAuthStore } from "../../stores/useAuthStore";
 
 type SellerInfo = {
   id: string;
@@ -45,20 +48,49 @@ export default function ProductCard({ product }: Prop) {
       ? `/profile/${seller.id}/${seller.slug}`
       : undefined;
 
+  const token = useAuthStore((state) => state.token);
+  const favorites = useFavoritesStore((state) => state.favorites);
+  const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite);
+
+  const isFavorited = favorites.some((f) => f.productId === product.id);
+
+  const handleFavoritePress = () => {
+    if (!token) {
+      Alert.alert(
+        "Acesso restrito",
+        "Você precisa fazer login para favoritar produtos."
+      );
+      return;
+    }
+    toggleFavorite(product);
+  };
+
   return (
     <View className="p-2 bg-[#d9d9d9] rounded-2xl flex-1">
-      <Link href={productUrl} asChild>
-        <Pressable
-          className="bg-white justify-center items-center rounded-t-xl overflow-hidden"
-          style={{ aspectRatio: 1 }}
+      <View style={{ position: "relative" }}>
+        <Link href={productUrl} asChild>
+          <Pressable
+            className="bg-white justify-center items-center rounded-t-xl overflow-hidden"
+            style={{ aspectRatio: 1 }}
+          >
+            <Image
+              source={getProductImage(product)}
+              style={{ width: "100%", height: "100%" }}
+              resizeMode="contain"
+            />
+          </Pressable>
+        </Link>
+        <TouchableOpacity
+          style={styles.heartButton}
+          onPress={handleFavoritePress}
         >
-          <Image
-            source={getProductImage(product)}
-            style={{ width: "100%", height: "100%" }}
-            resizeMode="contain"
+          <MaterialCommunityIcons
+            name={isFavorited ? "heart" : "heart-outline"}
+            size={20}
+            color={isFavorited ? "#BF372A" : "#000"}
           />
-        </Pressable>
-      </Link>
+        </TouchableOpacity>
+      </View>
 
       <Link href={productUrl} asChild>
         <Pressable>
@@ -125,5 +157,19 @@ const styles = StyleSheet.create({
   installment_amount: {
     fontFamily: "Chackra-Bold",
     fontSize: 18,
+  },
+  heartButton: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    borderRadius: 20,
+    padding: 6,
+    zIndex: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
   },
 });

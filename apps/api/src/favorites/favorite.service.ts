@@ -21,6 +21,7 @@ export class FavoriteService {
           include: {
             photos: true,
             mediaType: true,
+            seller: { select: { id: true, name: true, slug: true } },
           },
         },
       },
@@ -56,7 +57,11 @@ export class FavoriteService {
       },
       include: {
         product: {
-          include: { photos: true },
+          include: {
+            photos: true,
+            mediaType: true,
+            seller: { select: { id: true, name: true, slug: true } },
+          },
         },
       },
     });
