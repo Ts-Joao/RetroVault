@@ -15,7 +15,7 @@ export default async function SellerPage({ user }: Props) {
       <div className="flex items-center justify-between border-b border-zinc-100 pb-4 mb-6">
         <div className="flex items-center gap-2">
           <PiPackageBold className="text-xl text-[#CD463A]" />
-          <h2 className="text-sm font-black uppercase tracking-wider text-zinc-800">Produtos no Cofre</h2>
+          <h2 className="text-sm font-black uppercase tracking-wider text-zinc-800">Produtos no Vault</h2>
         </div>
         <span className="text-xs font-bold text-zinc-400 uppercase bg-zinc-50 px-2 py-1 rounded border border-zinc-100">
           {products.length} itens cadastrados

@@ -6,7 +6,7 @@ interface LoginDto {
     password: string
 }
 
-export async function getMe() {
+export async function getMe(): Promise<JwtPayload> {
   const { data } = await api.get<JwtPayload>('/auth/me')
   return data
 }

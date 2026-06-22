@@ -1,5 +1,5 @@
 import { getOrdersByUserId } from "@/lib/services/orders.server";
-import { getUserById } from "@/lib/services/user.server";
+import { getUserById } from "@/lib/services/user.server"; 
 import SellerPage from "./SellerPage";
 import BuyerPage from "./BuyerPage";
 import Image from "next/image";
@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { PiSignOutBold, PiCalendarBlankBold, PiMapPinBold } from "react-icons/pi";
 import EditProfileModal from "@/components/profile/EditProfileModal";
+import { getMe } from "@/lib/services/auth.server";
 import { Order, User } from "@retrovault/core";
 
 interface ProfileProps {
@@ -16,16 +17,18 @@ interface ProfileProps {
 export default async function Profile({ params }: ProfileProps) {
     const { id } = await params;
     const user = await getUserById(id);
-    
+
     if (!user)
         return <div className="text-center py-20 font-chakra-petch text-zinc-800 font-bold">OPERADOR NÃO ENCONTRADO NO BANCO DE DADOS.</div>;
 
+    const currentUserId = await getMe();
+
+    const isOwnProfile = currentUserId === user.id;
+
     let orders: Order[] = [];
-    let reviews = [];
 
     try {
       orders = await getOrdersByUserId(id);
-      // reviews = await getReviewsByUserId(id);
     } catch (err: any) {
       if (isRedirectError(err)) throw err;
       if (err?.response?.status === 401) {
@@ -44,7 +47,7 @@ export default async function Profile({ params }: ProfileProps) {
     <main className="min-h-[87dvh] pt-5 bg-[#F8F9FA] font-chakra-petch pb-12">
       <div className="max-w-4xl mx-auto">
         
-        {/* 🚀 Card Container com Cantos de Engenharia */}
+        {/* Card Container com Cantos de Engenharia */}
         <div className="relative mx-4 my-8 md:mx-8 md:my-12 rounded-2xl bg-white border border-zinc-200 shadow-xl overflow-visible">
           
           {/* Cantos Industriais */}
@@ -69,15 +72,17 @@ export default async function Profile({ params }: ProfileProps) {
             </div>
           </div>
 
-          {/* Botão de Logout Técnico no Topo */}
-          <div className="absolute right-4 top-4 z-10">
-            <form action={handleLogout}>
-              <button type="submit" className="flex items-center gap-2 px-4 py-2 bg-black/60 hover:bg-[#CD463A] text-white text-xs font-black uppercase tracking-wider rounded-lg border border-white/20 transition-all cursor-pointer">
-                <PiSignOutBold className="text-sm" />
-                Desconectar
-              </button>
-            </form>
-          </div>
+          {/* Botão de Logout Técnico no Topo - Exibido apenas se for o próprio perfil */}
+          {isOwnProfile && (
+            <div className="absolute right-4 top-4 z-10">
+              <form action={handleLogout}>
+                <button type="submit" className="flex items-center gap-2 px-4 py-2 bg-black/60 hover:bg-[#CD463A] text-white text-xs font-black uppercase tracking-wider rounded-lg border border-white/20 transition-all cursor-pointer">
+                  <PiSignOutBold className="text-sm" />
+                  Desconectar
+                </button>
+              </form>
+            </div>
+          )}
 
           {/* Área de Informações Principais */}
           <div className="bg-white px-6 md:px-10 pt-14 md:pt-16 pb-6 border-b border-zinc-100">
@@ -98,8 +103,12 @@ export default async function Profile({ params }: ProfileProps) {
               </div>
 
               <div className="flex items-center gap-2 self-start sm:self-auto">
-                <EditProfileModal user={user as User & { phone: string | undefined }} />
-                {user.role === "BUYER" && (
+                {/* Modal de Edição também protegido: só aparece no seu próprio perfil */}
+                {isOwnProfile && (
+                  <EditProfileModal user={user as User & { phone: string | undefined }} />
+                )}
+                
+                {user.role === "BUYER" && !isOwnProfile && (
                   <button className="px-5 py-2.5 bg-[#CD463A] hover:bg-[#DC5246] text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-sm cursor-pointer">
                     Seguir Loja
                   </button>

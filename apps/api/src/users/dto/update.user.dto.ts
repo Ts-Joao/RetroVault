@@ -1,5 +1,5 @@
 import { CreateUserDto } from './create.user.dto';
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, IsStrongPassword } from 'class-validator';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
@@ -18,4 +18,12 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsOptional()
   @IsString()
   readonly refreshToken?: string;
+
+  @ApiProperty({
+    example: 'NewStrongP@ssw0rd',
+    description: 'New password for the user',
+  })
+  @IsOptional()
+  @IsStrongPassword()
+  readonly newPassword?: string;
 }
