@@ -61,8 +61,21 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Post('refresh')
   @UseGuards(RefreshGuard)
-  async refresh(@CurrentUser() user: PayloadDto) {
-    return this.authService.generateToken(user.sub, user.email, user.role, user.name, user.slug)
+  async refresh(
+    @CurrentUser() user: PayloadDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const tokens = await this.authService.generateToken(user.sub, user.email, user.role, user.name, user.slug);
+    await this.authService.saveRefreshToken(user.sub, tokens.refreshToken);
+
+    res.cookie('refresh_token', tokens.refreshToken, {
+      httpOnly: true,
+      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production',
+      path: '/api/auth/refresh'
+    });
+
+    return { accessToken: tokens.accessToken };
   }
 
   @ApiBearerAuth()
