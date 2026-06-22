@@ -32,6 +32,17 @@ model User {
   @@map("users")
 }
 
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
 model ProfilePhoto {
   id     String @id @default(cuid())
   url    String

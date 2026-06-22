@@ -6,13 +6,12 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { HashingServiceProtocol } from './hash/hashing.service';
+import { HashingServiceProtocol } from '../hash/hashing.service';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
-import LoginDto from './dto/login.dto';
-import { PayloadDto } from './dto/payload.dto';
+import LoginDto from '../dto/login.dto';
+import { PayloadDto } from '../dto/payload.dto';
 import { Role } from '@prisma/client';
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -40,12 +39,24 @@ export class AuthService {
       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
     }
 
-    const tokens = await this.generateToken(user.id, user.email, user.role, user.name, user.slug);
+    const tokens = await this.generateToken(
+      user.id,
+      user.email,
+      user.role,
+      user.name,
+      user.slug,
+    );
     await this.saveRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
 
-  async generateToken(sub: string, email: string, role: Role, name?: string, slug?: string) {
+  async generateToken(
+    sub: string,
+    email: string,
+    role: Role,
+    name?: string,
+    slug?: string,
+  ) {
     if (!name || !slug) {
       const user = await this.usersService.getById(sub);
       name = user.name;
@@ -55,14 +66,14 @@ export class AuthService {
     const payload = { sub, email, role, name, slug };
 
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(
-        payload,
-        { expiresIn: '15m', secret: process.env.JWT_ACCESS_SECRET! },
-      ),
-      this.jwtService.signAsync(
-        payload,
-        { expiresIn: '7d', secret: process.env.JWT_REFRESH_SECRET! },
-      ),
+      this.jwtService.signAsync(payload, {
+        expiresIn: '15m',
+        secret: process.env.JWT_ACCESS_SECRET!,
+      }),
+      this.jwtService.signAsync(payload, {
+        expiresIn: '7d',
+        secret: process.env.JWT_REFRESH_SECRET!,
+      }),
     ]);
 
     return { accessToken, refreshToken };

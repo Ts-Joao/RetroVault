@@ -19,7 +19,7 @@ import {
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { CartService } from 'src/cart/cart.service';
 import { ProductService } from 'src/products/products.service';
-import { AuthService } from 'src/auth/auth.service';
+import { AuthService } from 'src/auth/services/auth.service';
 import { PayloadDto } from 'src/auth/dto/payload.dto';
 import { WalletService } from 'src/wallet/wallet.service';
 import { CouponService } from 'src/coupon/coupon.service';
@@ -68,7 +68,11 @@ export class OrdersService {
 
       const order = await this.databaseService.$transaction(async (tx) => {
         if (dto.paymentMethod === PaymentMethod.WALLET) {
-          await this.walletService.processWalletPayment(tx, userId, finalAmount);
+          await this.walletService.processWalletPayment(
+            tx,
+            userId,
+            finalAmount,
+          );
         }
 
         const newOrder = await tx.order.create({
@@ -277,14 +281,21 @@ export class OrdersService {
       });
     } catch (error) {
       if (error instanceof HttpException) {
-        throw error
+        throw error;
       }
 
       throw new InternalServerErrorException('Error to update order!');
     }
   }
 
+<<<<<<< HEAD
   private async incrementProductSales(tx: Prisma.TransactionClient, orderItems: OrderItem[]) {
+=======
+  private async incrementProductSales(
+    tx: Prisma.TransactionClient,
+    orderItems: OrderItem[],
+  ) {
+>>>>>>> develop
     await Promise.all(
       orderItems.map((item) =>
         tx.product.update({
