@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react"
 import { View, Text, ActivityIndicator } from "react-native"
 import { useLocalSearchParams } from "expo-router"
-import { Product } from "@retrovault/core"
+import { ProductDetails } from "@retrovault/core"
 import { getProductById } from "@/services/product.service"
 import ProductDetail from "@/components/Product/ProductDetail"
 
 export default function ProductPage() {
   const { id } = useLocalSearchParams<{ id: string; slug: string }>()
-  const [product, setProduct] = useState<Product | null>(null)
+  const [product, setProduct] = useState<ProductDetails | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

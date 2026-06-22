@@ -15,24 +15,32 @@ import {
   Pressable,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { mockUsers } from "@/services/user.service";
-import { useCartStore } from "@retrovault/store";
+import { useCartActionsStore } from "../../stores/useCartActionsStore";
 import StarRating from "../StarRating";
 import { Link } from "expo-router";
 import { getProductImage } from "@/lib/productImages";
+
+type SellerInfo = {
+  id: string;
+  name: string;
+  slug?: string;
+};
 
 type Prop = {
   product: Product;
 };
 
 export default function ProductCard({ product }: Prop) {
-  const addItem = useCartStore((state) => state.addItem);
-  const seller = mockUsers.find((user) => user.id === product.sellerId);
+  const addItem = useCartActionsStore((state) => state.addItem);
+  const seller = (product as any).seller as SellerInfo | undefined;
   const productUrl = getProductUrl(product);
 
   const installments = getProductInstallments(product);
   const best = getBestProductInstallment(product);
   const { units, cents } = splitPrice(best.installment_amount);
+
+  const sellerName = seller?.name ?? product.sellerId;
+  const sellerProfileUrl = seller?.id && seller?.slug ? `/profile/${seller.id}/${seller.slug}` : undefined;
 
   return (
     <View className="p-2 bg-[#d9d9d9] rounded-2xl flex-1">
@@ -59,12 +67,13 @@ export default function ProductCard({ product }: Prop) {
 
       <Text className="text-2xl font-barlow">
         Por{" "}
-        <Link
-          href={`/profile/${seller?.id}/${seller?.slug}`}
-          className="text-md"
-        >
-          {seller?.name}
-        </Link>
+        {sellerProfileUrl ? (
+          <Link href={sellerProfileUrl} asChild>
+            <Text className="text-md">{sellerName}</Text>
+          </Link>
+        ) : (
+          <Text className="text-md">{sellerName}</Text>
+        )}
       </Text>
 
       <View className="flex-row justify-end">
@@ -92,7 +101,7 @@ export default function ProductCard({ product }: Prop) {
         </Link>
         <TouchableOpacity
           className="bg-third p-1 rounded-md"
-          onPress={() => addItem(product)}
+          onPress={() => addItem(product.id)}
         >
           <MaterialCommunityIcons name="cart-plus" size={15} color="#000" />
         </TouchableOpacity>

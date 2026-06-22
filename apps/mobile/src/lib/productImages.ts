@@ -1,5 +1,5 @@
 import { ImageSourcePropType } from "react-native"
-import type { Product } from "@retrovault/core"
+import type { Product, ProductPhoto } from "@retrovault/core"
 
 export const productImages: Record<string, ImageSourcePropType> = {
   '1': require('../../assets/image/f1-25.webp'),
@@ -10,6 +10,21 @@ export const productImages: Record<string, ImageSourcePropType> = {
   '6': require('../../assets/image/sonic-x-shadow-generations.nintendo-switch.webp'),
 }
 
-export function getProductImage(product: Pick<Product, 'id'>): ImageSourcePropType {
+function getRemotePhotoUrl(photos?: ProductPhoto[]) {
+  if (!photos || photos.length === 0) return undefined
+  const firstUrl = photos[0].url
+  if (typeof firstUrl !== 'string' || firstUrl.trim() === '') return undefined
+  if (firstUrl.startsWith('http')) {
+    return firstUrl
+  }
+  return undefined
+}
+
+export function getProductImage(product: Pick<Product, 'id' | 'photos'>): ImageSourcePropType {
+  const remoteUrl = getRemotePhotoUrl(product.photos)
+  if (remoteUrl) {
+    return { uri: remoteUrl }
+  }
+
   return productImages[product.id] ?? { uri: 'https://placehold.co/400x400?text=Sem+Imagem' }
 }

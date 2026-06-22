@@ -12,17 +12,22 @@ import { useRouter } from "expo-router"
 import { Link } from "expo-router"
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
 import {
-  Product,
+  ProductDetails,
   calculeCartInstallments,
   formatPrice,
   splitPrice,
 } from "@retrovault/core"
 import { getProductImage } from "@/lib/productImages"
-import { mockUsers } from "@/services/user.service"
 import StarRating from "../StarRating"
 
 type Props = {
-  product: Product
+  product: ProductDetails
+}
+
+type SellerInfo = {
+  id: string
+  name: string
+  slug?: string
 }
 
 export default function ProductDetail({ product }: Props) {
@@ -30,7 +35,7 @@ export default function ProductDetail({ product }: Props) {
   const router = useRouter()
   const [activeSlide, setActiveSlide] = useState(0)
   const image = getProductImage(product)
-  const seller = mockUsers.find((user) => user.id === product.sellerId)
+  const seller = (product as any).seller as SellerInfo | undefined
 
   const installments = calculeCartInstallments([{
     price: product.price,
@@ -49,6 +54,8 @@ export default function ProductDetail({ product }: Props) {
   const { units, cents } = splitPrice(best.installment_amount)
   const genres = product.genre?.join(", ") || "—"
   const mediaType = product.type?.[0] || "—"
+  const sellerName = seller?.name ?? product.sellerId
+  const sellerProfileUrl = seller?.id && seller?.slug ? `/profile/${seller.id}/${seller.slug}` : undefined
 
   return (
     <View className="flex-1 bg-stone-100">
@@ -120,9 +127,13 @@ export default function ProductDetail({ product }: Props) {
 
           <Text className="text-sm text-stone-600 mb-1">
             Por{" "}
-            <Link href={`/profile/${seller?.id}/${seller?.slug}`} className="text-primary font-semibold">
-              {seller?.name}
-            </Link>
+            {sellerProfileUrl ? (
+              <Link href={sellerProfileUrl} className="text-primary font-semibold" asChild>
+                <Text>{sellerName}</Text>
+              </Link>
+            ) : (
+              <Text className="text-primary font-semibold">{sellerName}</Text>
+            )}
           </Text>
 
           <View className="flex-row flex-wrap gap-x-4 gap-y-1 mb-3">
