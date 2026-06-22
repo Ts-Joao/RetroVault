@@ -1,6 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
+import { AuthService } from './services/auth.service';
+import { AuthController } from './controllers/auth.controller';
 import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigType } from '@nestjs/config';
@@ -15,9 +15,9 @@ import { RefreshGuard } from './guard/refresh.guard';
 @Module({
   imports: [
     forwardRef(() => UsersModule),
-    ConfigModule.forFeature(jwtConfig), // <-- adiciona isso
+    ConfigModule.forFeature(jwtConfig),
     JwtModule.registerAsync({
-      imports: [ConfigModule.forFeature(jwtConfig)], // <-- e aqui também
+      imports: [ConfigModule.forFeature(jwtConfig)],
       inject: [jwtConfig.KEY],
       useFactory: (config: ConfigType<typeof jwtConfig>) => ({
         secret: config.secret,
@@ -31,10 +31,10 @@ import { RefreshGuard } from './guard/refresh.guard';
     SelfGuard,
     {
       provide: HashingServiceProtocol,
-      useClass: BcryptService
+      useClass: BcryptService,
     },
     AuthTokenGuard,
-    RefreshGuard
+    RefreshGuard,
   ],
   controllers: [AuthController],
   exports: [
@@ -44,7 +44,7 @@ import { RefreshGuard } from './guard/refresh.guard';
     HashingServiceProtocol,
     AuthService,
     AuthTokenGuard,
-    RefreshGuard
+    RefreshGuard,
   ],
 })
 export class AuthModule {}

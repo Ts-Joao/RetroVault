@@ -6,7 +6,7 @@ import {
   HttpException,
 } from '@nestjs/common';
 
-import { AuthService } from './auth.service';
+import { AuthService } from './services/auth.service';
 import { UsersService } from '../users/users.service';
 import { HashingServiceProtocol } from './hash/hashing.service';
 
@@ -74,9 +74,7 @@ describe('AuthService', () => {
       .mockResolvedValueOnce('access-token')
       .mockResolvedValueOnce('refresh-token');
 
-    usersServiceMock.updateRefreshToken.mockResolvedValue(
-      'hashed-refresh',
-    );
+    usersServiceMock.updateRefreshToken.mockResolvedValue('hashed-refresh');
 
     const result = await service.authenticate({
       email: 'john@test.com',
@@ -113,9 +111,7 @@ describe('AuthService', () => {
   });
 
   it('should throw NotFoundException when user does not exist', async () => {
-    usersServiceMock.getByEmail.mockRejectedValue(
-      new NotFoundException(),
-    );
+    usersServiceMock.getByEmail.mockRejectedValue(new NotFoundException());
 
     await expect(
       service.authenticate({
