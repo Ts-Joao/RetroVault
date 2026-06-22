@@ -15,13 +15,15 @@ import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
 import { Role } from '@prisma/client';
 import { PayloadDto } from 'src/auth/dto/payload.dto';
 import { SlugServiceProtocol } from 'src/common/utils/slug/slug.service';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly hashingService: HashingServiceProtocol,
-    private readonly slugService: SlugServiceProtocol
+    private readonly slugService: SlugServiceProtocol,
+    private readonly mailService: MailService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -64,6 +66,8 @@ export class UsersService {
             url: '',
           },
         });
+        
+        void this.mailService.sendWelcome({ name: newUser.name, email: newUser.email });
 
         return { newUser, userWallet, userCart, userPhoto };
       });

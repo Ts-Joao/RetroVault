@@ -1,7 +1,4 @@
-import {
-  BadRequestException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   OrderStatus,
@@ -15,7 +12,7 @@ import { OrdersService } from './orders.service';
 import { DatabaseService } from 'src/database/database.service';
 import { CartService } from 'src/cart/cart.service';
 import { ProductService } from 'src/products/products.service';
-import { AuthService } from 'src/auth/auth.service';
+import { AuthService } from 'src/auth/services/auth.service';
 import { WalletService } from 'src/wallet/wallet.service';
 import { CouponService } from 'src/coupon/coupon.service';
 
@@ -219,9 +216,7 @@ describe('OrdersService', () => {
         ],
       });
 
-      expect(
-        walletServiceMock.processWalletPayment,
-      ).toHaveBeenCalled();
+      expect(walletServiceMock.processWalletPayment).toHaveBeenCalled();
     });
 
     it('should apply coupon', async () => {
@@ -270,9 +265,7 @@ describe('OrdersService', () => {
       });
 
       expect(result.id).toBe('order-id');
-      expect(
-        couponServiceMock.validateCoupon,
-      ).toHaveBeenCalled();
+      expect(couponServiceMock.validateCoupon).toHaveBeenCalled();
     });
 
     it('should throw when cart is empty', async () => {
@@ -312,10 +305,7 @@ describe('OrdersService', () => {
 
   describe('findAll', () => {
     it('should return orders', async () => {
-      databaseMock.order.findMany.mockResolvedValue([
-        { id: '1' },
-        { id: '2' },
-      ]);
+      databaseMock.order.findMany.mockResolvedValue([{ id: '1' }, { id: '2' }]);
 
       const result = await service.findAll();
 
@@ -327,14 +317,9 @@ describe('OrdersService', () => {
     it('should return user orders', async () => {
       authServiceMock.validateTokenUser.mockResolvedValue(true);
 
-      databaseMock.order.findMany.mockResolvedValue([
-        { id: '1' },
-      ]);
+      databaseMock.order.findMany.mockResolvedValue([{ id: '1' }]);
 
-      const result = await service.findAllByUserId(
-        payload as any,
-        'user-id',
-      );
+      const result = await service.findAllByUserId(payload as any, 'user-id');
 
       expect(result).toHaveLength(1);
     });
@@ -363,11 +348,7 @@ describe('OrdersService', () => {
       databaseMock.order.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.findOne(
-          payload as any,
-          'order-id',
-          'user-id',
-        ),
+        service.findOne(payload as any, 'order-id', 'user-id'),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -419,13 +400,9 @@ describe('OrdersService', () => {
         });
       });
 
-      const result = await service.updateStatus(
-        payload as any,
-        'order-id',
-        {
-          status: OrderStatus.SHIPPED,
-        },
-      );
+      const result = await service.updateStatus(payload as any, 'order-id', {
+        status: OrderStatus.SHIPPED,
+      });
 
       expect(result.status).toBe(OrderStatus.SHIPPED);
     });
@@ -460,17 +437,11 @@ describe('OrdersService', () => {
         });
       });
 
-      await service.updateStatus(
-        payload as any,
-        'order-id',
-        {
-          status: OrderStatus.CANCELED,
-        },
-      );
+      await service.updateStatus(payload as any, 'order-id', {
+        status: OrderStatus.CANCELED,
+      });
 
-      expect(
-        walletServiceMock.refundWallet,
-      ).toHaveBeenCalled();
+      expect(walletServiceMock.refundWallet).toHaveBeenCalled();
     });
 
     it('should throw when order already canceled', async () => {
@@ -479,13 +450,9 @@ describe('OrdersService', () => {
       } as any);
 
       await expect(
-        service.updateStatus(
-          payload as any,
-          'order-id',
-          {
-            status: OrderStatus.SHIPPED,
-          },
-        ),
+        service.updateStatus(payload as any, 'order-id', {
+          status: OrderStatus.SHIPPED,
+        }),
       ).rejects.toThrow(BadRequestException);
     });
   });

@@ -5,6 +5,7 @@ import { UsersService } from './users.service';
 import { AuthModule } from 'src/auth/auth.module';
 import { WalletModule } from 'src/wallet/wallet.module';
 import { CommonModule } from 'src/common/common.module';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { CommonModule } from 'src/common/common.module';
     forwardRef(() => AuthModule),
     WalletModule,
     CommonModule,
+    MailModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],

@@ -14,6 +14,7 @@ import { CircularReferenceFilter } from 'src/common/circular-reference.filter';
 import { APP_FILTER } from '@nestjs/core';
 import { ReviewsModule } from 'src/reviews/reviews.module';
 import { ShippingModule } from 'src/shipping/shipping.module';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
@@ -31,7 +32,8 @@ import { ShippingModule } from 'src/shipping/shipping.module';
     PaymentModule,
     FavoritesModule,
     ReviewsModule,
-    ShippingModule
+    ShippingModule,
+    MailModule
   ],
   providers: [
     AppService,
