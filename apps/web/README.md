@@ -5,7 +5,7 @@
 
 ### 🌐 Aplicação Web construída com Next.js para uma experiência moderna e responsiva.
 
-![Status](https://img.shields.io/badge/🚧%20Status-Em%20Desenvolvimento-22C55E?style=for-the-badge&labelColor=161b22&logo=github&logoColor=white)
+![Status](https://img.shields.io/badge/✅%20Status-Completo-22C55E?style=for-the-badge&labelColor=161b22&logo=github&logoColor=white)
 
 </div>
 
@@ -84,13 +84,13 @@ pnpm --filter=web start
 
 ## 🎨 Features
 
-- ✅ **Next.js 16 & React 19** - Estrutura moderna e alto desempenho
-- ✅ **App Router** - Roteamento moderno baseado em arquivos
-- ✅ **Server Components** - Renderização otimizada no servidor para SEO e performance
-- ✅ **Separação de Serviços** - Serviços divididos logicamente entre escopos `.client` e `.server`
-- ✅ **Tailwind CSS v4** - Estilização moderna e otimizada por padrão
-- ✅ **Responsive** - Design totalmente adaptável para todos os dispositivos
-- ✅ **Zustand** - Gerenciamento de estado global otimizado
+- ✅ **Next.js 16 & React 19** — Estrutura moderna e alto desempenho
+- ✅ **App Router** — Roteamento moderno baseado em arquivos
+- ✅ **Server Components** — Renderização otimizada no servidor para SEO e performance
+- ✅ **Separação de Serviços** — Serviços divididos logicamente entre escopos `.client` e `.server`
+- ✅ **Tailwind CSS v4** — Estilização moderna e otimizada por padrão
+- ✅ **Responsive** — Design totalmente adaptável para todos os dispositivos
+- ✅ **Zustand** — Gerenciamento de estado global otimizado
 
 ## 📦 Dependências Principais
 
@@ -108,30 +108,13 @@ pnpm --filter=web start
 }
 ```
 
-## 👥 Nossa Equipe
+## 👥 Equipe — Web
 
-### [João Teixeira](https://github.com/ts-joao)
-**Tech Lead & Fullstack Developer**
-- 🏗️ **Arquitetura:** Responsável pela estrutura e organização da arquitetura do projeto.
-- 🗄️ **Database:** Realizou a modelagem completa do banco de dados.
-- 👨‍💻 **Desenvolvimento:** Desenvolveu a API, realizou a integração entre Back e Front, e atuou no desenvolvimento Web e Mobile.
-  
-### [Baruki Bytes](https://github.com/Baruki-Bytes)
-**Project Owner & Fullstack Developer**
-- 📑 **Gestão:** Responsável pela visão do produto (PO) e requisitos.
-- 👨‍💻 **Desenvolvimento:** Desenvolveu a interface Web e auxiliou no desenvolvimento Backend.
-
-### [Felipe Farias](https://github.com/felipinho3105)
-**Frontend Developer**
-- 👨‍💻 **Desenvolvimento:** Desenvolveu a interface Web do projeto e auxiliou no desenvolvimento Mobile.
-
-### [Lucas Alves](https://github.com/ktzxs)
-**Fullstack Developer**
-- 👨‍💻 **Desenvolvimento:** Desenvolveu o Backend e auxiliou no desenvolvimento Frontend Mobile.
-
-### [Luiz Henrique](https://github.com/troninho69)
-**Fullstack Developer**
-- 👨‍💻 **Desenvolvimento:** Desenvolveu o Frontend Mobile e auxiliou no desenvolvimento da API.
+| Desenvolvedor | Contribuição |
+|---|---|
+| [João Teixeira](https://github.com/ts-joao) | Desenvolvimento da interface web e integração com a API |
+| [Baruki Bytes](https://github.com/Baruki-Bytes) | Desenvolvimento da interface web |
+| [Felipe Farias](https://github.com/felipinho3105) | Responsividade e ajustes de interface |
 
 ---
 

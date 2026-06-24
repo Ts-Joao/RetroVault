@@ -1,15 +1,13 @@
 <div align="center">
     <img src="../../.github/logo.png" alt="RetroVault Logo" width="300"/>
 
-
 # RetroVault API
-
 
 ### 🔌 API RESTful construída com NestJS para servir aplicações web e mobile.
 
 <br>
 
-![Status](https://img.shields.io/badge/🚧%20Status-Em%20Desenvolvimento-22C55E?style=for-the-badge&labelColor=161b22&logo=github&logoColor=white)
+![Status](https://img.shields.io/badge/✅%20Status-Completo-22C55E?style=for-the-badge&labelColor=161b22&logo=github&logoColor=white)
 
 </div>
 
@@ -20,6 +18,7 @@
 <br>
 
 ## 📖 Sobre a API
+
 Esta é a API RESTful do RetroVault, desenvolvida para centralizar e atender todas as demandas de dados e regras de negócio do ecossistema. Utilizamos TypeScript com NestJS para garantir um backend robusto e de alta performance.
 
 ## 📄 Documentação da API (Swagger)
@@ -37,23 +36,30 @@ O painel expõe todos os endpoints disponíveis, esquemas de dados de requisiç�
 A API implementa as principais regras de negócio da plataforma RetroVault:
 
 * **🔐 Autenticação Robusta**: Login e renovação de sessões utilizando JWT e Refresh Tokens criptografados, trafegados via Cookies `HTTP-only` seguros.
+* **📧 E-mail Transacional (Nodemailer)**:
+  * Envio automático de e-mail de boas-vindas ao criar uma nova conta.
+  * Fluxo de recuperação de senha com código de 6 dígitos enviado por e-mail, com expiração por tempo.
 * **👛 Carteira Digital (Wallet)**:
   * Sistema de saldo virtual para cada usuário da plataforma.
   * Lançamento de créditos (depósitos) via Pix ou Cartão.
   * Histórico e extrato detalhado de movimentações (Entradas/Saídas/Compras).
 * **💳 Gateway de Pagamento Simulado (Payment)**:
-  * Simulação de fluxos reais para PIX (gerando chaves estéticas/QR Codes reais).
-  * Geração de linhas digitáveis para boleto e tokens para cartões de crédito/débito.
+  * Simulação de fluxos reais para PIX com geração de QR Code escaneável.
+  * Geração de código de barras (barcode) para boleto bancário.
+  * Tokens para confirmação de pagamentos via cartão de crédito/débito.
   * Roteiro de confirmação e liquidação instantânea de transações.
 * **📦 Pedidos & Checkout (Orders)**:
   * Criação e faturamento de pedidos.
   * Integração com a carteira digital para debitar saldos durante compras.
+* **⭐ Sistema de Avaliações**:
+  * Avaliações habilitadas exclusivamente após a confirmação de entrega do pedido.
+  * Notas de satisfação (ratings) vinculadas ao produto e ao vendedor.
 * **🚚 Cálculo de Frete (Shipping)**:
   * Simulação dinâmica de preço e prazo (PAC/Sedex) por CEP.
 * **🏷️ Catálogo de Produtos & Uploads**:
   * Cadastro de mídias e consoles retrô com upload direto de fotos armazenadas no servidor.
   * Moderação de produtos ativos, busca inteligente e categorias.
-* **⭐ Avaliações & Favoritos**: Sistema de notas de satisfação (ratings) e moderação de favoritos.
+* **❤️ Favoritos**: Moderação e listagem de produtos favoritos por usuário.
 
 ## 🏗️ Estrutura do Projeto
 
@@ -62,8 +68,11 @@ api/
 ├── prisma/             # Banco de dados (Esquema, Migrations e Seeds)
 ├── src/                # Código-fonte da aplicação NestJS
 │   ├── auth/           # Autenticação via JWT & cookies seguros
+│   ├── mail/           # Envio de e-mails transacionais (Nodemailer)
 │   ├── wallet/         # Carteira digital (saldo e extrato de movimentações)
-│   ├── payment/        # Simulação de pagamentos (Pix, Boleto, Cartões)
+│   ├── payment/        # Simulação de pagamentos (Pix/QRCode, Boleto/Barcode, Cartões)
+│   ├── orders/         # Pedidos, checkout e integração com wallet
+│   ├── ratings/        # Avaliações pós-entrega
 │   ├── app.module.ts   # Módulo raiz do sistema
 │   └── main.ts         # Ponto de entrada (CORS, prefixo de rotas e Swagger)
 └── test/               # Suite de testes End-to-End (E2E)
@@ -77,6 +86,8 @@ api/
 | <img src="https://img.shields.io/badge/NestJS_11-0D1117?style=for-the-badge&logo=nestjs&logoColor=E0234E"/> | Framework modular do Backend RESTful |
 | <img src="https://img.shields.io/badge/PostgreSQL-0D1117?style=for-the-badge&logo=postgresql&logoColor=4169E1"/> | Banco de dados relacional (Produção, Dev e Testes) |
 | <img src="https://img.shields.io/badge/Prisma_7-0D1117?style=for-the-badge&logo=prisma&logoColor=2D3748"/> | ORM moderno e type-safe para comunicação com o banco |
+| <img src="https://img.shields.io/badge/Nodemailer-0D1117?style=for-the-badge&logo=gmail&logoColor=EA4335"/> | Envio de e-mails transacionais (boas-vindas e recuperação de senha) |
+| <img src="https://img.shields.io/badge/Swagger-0D1117?style=for-the-badge&logo=swagger&logoColor=85EA2D"/> | Documentação interativa da API |
 | <img src="https://img.shields.io/badge/Docker-0D1117?style=for-the-badge&logo=docker&logoColor=2496ED"/> | Conteinerização do banco de dados e aplicações |
 
 ## ⚙️ Pré-requisitos
@@ -89,6 +100,9 @@ api/
 ```bash
 # Na raiz do monorepo, instale todas as dependências
 pnpm install
+
+# Crie o arquivo .env a partir do exemplo antes de subir qualquer serviço
+cp .env.example .env
 
 # Inicialize o banco de dados PostgreSQL usando Docker
 docker compose up -d postgres
@@ -121,11 +135,25 @@ cp .env.example .env
 ```
 
 Campos no `.env`:
-* `DATABASE_URL`: String de conexão com o banco de dados relacional principal.
-* `DATABASE_URL_TEST`: Banco de dados exclusivo para testes de integração.
-* `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET`: Chaves de assinatura dos tokens de autenticação.
-* `JWT_TTL`: Tempo de expiração (Time-To-Live) dos tokens.
-* `WEB_URL` / `MOBILE_URL` / `ADMIN_URL`: Origens habilitadas para controle de CORS.
+
+| Variável | Descrição |
+|----------|-----------|
+| `DATABASE_URL` | String de conexão com o banco de dados principal |
+| `DATABASE_URL_TEST` | Banco de dados exclusivo para testes de integração |
+| `JWT_ACCESS_SECRET` | Chave de assinatura dos access tokens |
+| `JWT_REFRESH_SECRET` | Chave de assinatura dos refresh tokens |
+| `JWT_TOKEN_AUDIENCE` | Audience declarado nos tokens JWT |
+| `JWT_TOKEN_ISSUER` | Issuer declarado nos tokens JWT |
+| `JWT_TTL` | Tempo de expiração dos tokens em segundos (ex: `3600`) |
+| `MAIL_HOST` | Host do servidor SMTP (ex: `smtp.gmail.com`) |
+| `MAIL_PORT` | Porta do servidor SMTP (ex: `587`) |
+| `MAIL_SECURE` | Usar TLS direto — `true` para porta 465, `false` para STARTTLS |
+| `MAIL_USER` | Usuário de autenticação SMTP |
+| `MAIL_PASS` | Senha ou App Password do SMTP |
+| `MAIL_FROM` | Remetente exibido nos e-mails (ex: `"RetroVault <noreply@exemplo.com>"`) |
+| `WEB_URL` | Origem habilitada para CORS (frontend web) |
+| `MOBILE_URL` | Origem habilitada para CORS (mobile) |
+| `ADMIN_URL` | Origem habilitada para CORS (painel admin) |
 
 ## 🗃️ Database
 
@@ -160,23 +188,39 @@ Temos uma suíte de testes automatizados ponta-a-ponta rodando com **Jest** e **
    ```bash
    pnpm --filter=api test:e2e
    ```
-   *Nota: Este comando executa automaticamente a preparação do banco de testes (`pnpm db:test:prepare`), resetando o esquema e garantindo um ambiente limpo para cada suite de testes.*
+   > Este comando executa automaticamente a preparação do banco de testes (`pnpm db:test:prepare`), resetando o esquema e garantindo um ambiente limpo para cada suite.
 
 ## 📦 Dependências Principais
-
-Abaixo estão listadas as dependências de maior destaque no `package.json`:
 
 ```json
 {
   "dependencies": {
     "@nestjs/core": "^11.0.1",
+    "@nestjs/config": "^4.0.4",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/passport": "^11.0.5",
     "@nestjs/swagger": "^11.4.4",
     "@prisma/client": "^7.4.1",
+    "@prisma/adapter-pg": "^7.4.2",
     "bcrypt": "^6.0.0",
-    "passport-jwt": "^4.0.1"
+    "class-validator": "^0.15.1",
+    "class-transformer": "^0.5.1",
+    "cookie-parser": "^1.4.7",
+    "multer": "^2.1.1",
+    "nodemailer": "^9.0.1",
+    "passport-jwt": "^4.0.1",
+    "pg": "^8.19.0",
+    "slugify": "^1.6.9"
   }
 }
 ```
+
+## 👥 Equipe — API
+
+| Desenvolvedor | Contribuição |
+|---|---|
+| [João Teixeira](https://github.com/ts-joao) | Arquitetura, modelagem do banco, desenvolvimento completo da API |
+| [Lucas Alves](https://github.com/ktzxs) | Desenvolvimento do backend |
 
 ---
 

@@ -1,20 +1,23 @@
 <div align="center">
     <img src=".github/logo.png" alt="RetroVault Logo" width="300"/>
 
-
 # RetroVault
 
-### 📦 Monorepo com API, Web e Mobile
+### 📦 Monorepo com API, Web, Admin e Mobile
 Marketplace retrô focado em mídia física e colecionáveis.
 
 </div>
 
 ## 📖 Sobre o projeto
-Este é um projeto desenvolvido para a disciplina de Projeto Integrador. Durante o nosso **brainstorm**, identificamos a carência de e-commerces focados em **mídia física**, o que dificulta a jornada de fãs e colecionadores em busca de itens específicos.  RetroVault surge como um marketplace com temática retrô, onde usuários podem comprar e vender produtos, celebrando o início da indústria do entretenimento.
+
+Este é um projeto desenvolvido para a disciplina de Projeto Integrador. Durante o nosso **brainstorm**, identificamos a carência de e-commerces focados em **mídia física**, o que dificulta a jornada de fãs e colecionadores em busca de itens específicos. RetroVault surge como um marketplace com temática retrô, onde usuários podem comprar e vender produtos, celebrando o início da indústria do entretenimento.
+
 <br>
 
 ## 🏗️ Estrutura do Projeto
+
 Este projeto utiliza **arquitetura monorepo** com separação clara de responsabilidades:
+
 ```
 RetroVault/
 ├── apps/
@@ -92,7 +95,15 @@ pnpm dev --filter=mobile
 
 ### 🐳 Rodando com Docker
 
-O monorepo está totalmente conteinerizado e configurado para subir todos os serviços e bancos de dados integrados via Docker Compose:
+O monorepo está totalmente conteinerizado e configurado para subir todos os serviços e bancos de dados integrados via Docker Compose.
+
+> **⚠️ Antes de rodar:** cada aplicação precisa de um arquivo `.env` próprio. Copie o `.env.example` de cada diretório e preencha os valores:
+> ```bash
+> cp apps/api/.env.example apps/api/.env
+> cp apps/web/.env.example apps/web/.env
+> cp apps/admin/.env.example apps/admin/.env
+> cp apps/mobile/.env.example apps/mobile/.env
+> ```
 
 ```bash
 # Para construir e subir todos os serviços (api, web, admin, mobile, postgres)
@@ -148,21 +159,26 @@ Nossa pipeline de Integração Contínua está configurada com GitHub Actions (e
 **Tech Lead & Fullstack Developer**
 - 🏗️ **Arquitetura:** Responsável pela estrutura e organização da arquitetura do projeto.
 - 🗄️ **Database:** Realizou a modelagem completa do banco de dados.
-- 👨‍💻 **Desenvolvimento:** Desenvolveu a API, realizou a integração entre Back e Front, e atuou no desenvolvimento Web e Mobile.
-  
+- 👨‍💻 **API:** Desenvolveu o backend completo (auth, wallet, pagamentos, pedidos, e-mail, Swagger).
+- 🌐 **Web:** Atuou no desenvolvimento da interface web.
+- 📱 **Mobile:** Atuou no desenvolvimento do aplicativo mobile.
+
 ### [Baruki Bytes](https://github.com/Baruki-Bytes)
 **Project Owner & Fullstack Developer**
 - 📑 **Gestão:** Responsável pela visão do produto (PO) e requisitos.
-- 👨‍💻 **Desenvolvimento:** Desenvolveu a interface Web e auxiliou no desenvolvimento Backend.
+- 🌐 **Web:** Desenvolveu a interface web do projeto.
+- 🛡️ **Admin:** Desenvolveu o painel administrativo.
 
 ### [Felipe Farias](https://github.com/felipinho3105)
 **Frontend Developer**
-- 👨‍💻 **Desenvolvimento:** Desenvolveu a interface Web do projeto e auxiliou no desenvolvimento Mobile.
+- 🌐 **Web:** Auxiliou no desenvolvimento da interface web, com foco em responsividade.
+- 📱 **Mobile:** Auxiliou no desenvolvimento mobile, com foco em responsividade.
 
 ### [Lucas Alves](https://github.com/ktzxs)
 **Fullstack Developer**
-- 👨‍💻 **Desenvolvimento:** Desenvolveu o Backend e auxiliou no desenvolvimento Frontend Mobile.
+- 👨‍💻 **API:** Atuou no desenvolvimento do backend.
+- 📱 **Mobile:** Desenvolveu o aplicativo mobile.
 
 ### [Luiz Henrique](https://github.com/troninho69)
 **Fullstack Developer**
-- 👨‍💻 **Desenvolvimento:** Desenvolveu o Frontend Mobile e axiliou no desenvolvimento da API.
+- 📱 **Mobile:** Desenvolveu o Frontend Mobile e auxiliou no desenvolvimento da API.

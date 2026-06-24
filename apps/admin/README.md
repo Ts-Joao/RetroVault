@@ -5,7 +5,7 @@
 
 ### 🛡️ Painel Administrativo construído com Next.js 16 para gestão de usuários, vendas e configurações.
 
-![Status](https://img.shields.io/badge/🚧%20Status-Em%20Desenvolvimento-22C55E?style=for-the-badge&labelColor=161b22&logo=github&logoColor=white)
+![Status](https://img.shields.io/badge/✅%20Status-Completo-22C55E?style=for-the-badge&labelColor=161b22&logo=github&logoColor=white)
 
 </div>
 
@@ -53,8 +53,6 @@ admin/
 
 ## 🛠️ Instalação e Execução
 
-Para executar o painel admin individualmente a partir do monorepo:
-
 ```bash
 # Na raiz do monorepo, instale as dependências
 pnpm install
@@ -66,7 +64,6 @@ pnpm --filter=admin dev
 A aplicação estará disponível em http://localhost:5000.
 
 ### Produção
-
 ```bash
 # Geração do build otimizado
 pnpm --filter=admin build
@@ -82,9 +79,11 @@ pnpm --filter=admin start
 - 🛍️ **Painel Vendedor (Seller)** para listagem de produtos, upload de mídias físicas, gerenciamento de estoque e envio de pedidos.
 - ⚡ **Next.js 16 & React Compiler** integrados para maior performance de renderização.
 
-## 👥 Nossa Equipe
+## 👥 Equipe — Admin
 
-*Consulte a lista completa da equipe no [README principal do projeto](../../README.md).*
+| Desenvolvedor | Contribuição |
+|---|---|
+| [Baruki Bytes](https://github.com/Baruki-Bytes) | Desenvolvimento do painel administrativo |
 
 ---
 
