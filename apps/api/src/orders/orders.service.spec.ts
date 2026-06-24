@@ -1,11 +1,4 @@
-<<<<<<< HEAD
-import {
-  BadRequestException,
-  NotFoundException,
-} from '@nestjs/common';
-=======
 import { BadRequestException, NotFoundException } from '@nestjs/common';
->>>>>>> develop
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   OrderStatus,
@@ -19,11 +12,7 @@ import { OrdersService } from './orders.service';
 import { DatabaseService } from 'src/database/database.service';
 import { CartService } from 'src/cart/cart.service';
 import { ProductService } from 'src/products/products.service';
-<<<<<<< HEAD
-import { AuthService } from 'src/auth/auth.service';
-=======
 import { AuthService } from 'src/auth/services/auth.service';
->>>>>>> develop
 import { WalletService } from 'src/wallet/wallet.service';
 import { CouponService } from 'src/coupon/coupon.service';
 
@@ -227,13 +216,7 @@ describe('OrdersService', () => {
         ],
       });
 
-<<<<<<< HEAD
-      expect(
-        walletServiceMock.processWalletPayment,
-      ).toHaveBeenCalled();
-=======
       expect(walletServiceMock.processWalletPayment).toHaveBeenCalled();
->>>>>>> develop
     });
 
     it('should apply coupon', async () => {
@@ -282,13 +265,7 @@ describe('OrdersService', () => {
       });
 
       expect(result.id).toBe('order-id');
-<<<<<<< HEAD
-      expect(
-        couponServiceMock.validateCoupon,
-      ).toHaveBeenCalled();
-=======
       expect(couponServiceMock.validateCoupon).toHaveBeenCalled();
->>>>>>> develop
     });
 
     it('should throw when cart is empty', async () => {
@@ -324,8 +301,6 @@ describe('OrdersService', () => {
         }),
       ).rejects.toThrow(BadRequestException);
     });
-<<<<<<< HEAD
-=======
   });
 
   describe('findAll', () => {
@@ -478,187 +453,6 @@ describe('OrdersService', () => {
         service.updateStatus(payload as any, 'order-id', {
           status: OrderStatus.SHIPPED,
         }),
-      ).rejects.toThrow(BadRequestException);
-    });
->>>>>>> develop
-  });
-
-  describe('findAll', () => {
-    it('should return orders', async () => {
-      databaseMock.order.findMany.mockResolvedValue([
-        { id: '1' },
-        { id: '2' },
-      ]);
-
-      const result = await service.findAll();
-
-      expect(result).toHaveLength(2);
-    });
-  });
-
-  describe('findAllByUserId', () => {
-    it('should return user orders', async () => {
-      authServiceMock.validateTokenUser.mockResolvedValue(true);
-
-      databaseMock.order.findMany.mockResolvedValue([
-        { id: '1' },
-      ]);
-
-      const result = await service.findAllByUserId(
-        payload as any,
-        'user-id',
-      );
-
-      expect(result).toHaveLength(1);
-    });
-  });
-
-  describe('findOne', () => {
-    it('should return order', async () => {
-      authServiceMock.validateTokenUser.mockResolvedValue(true);
-
-      databaseMock.order.findUnique.mockResolvedValue({
-        id: 'order-id',
-      });
-
-      const result = await service.findOne(
-        payload as any,
-        'order-id',
-        'user-id',
-      );
-
-      expect(result.id).toBe('order-id');
-    });
-
-    it('should throw NotFoundException', async () => {
-      authServiceMock.validateTokenUser.mockResolvedValue(true);
-
-      databaseMock.order.findUnique.mockResolvedValue(null);
-
-      await expect(
-        service.findOne(
-          payload as any,
-          'order-id',
-          'user-id',
-        ),
-      ).rejects.toThrow(NotFoundException);
-    });
-  });
-
-  describe('updatePaymentStatus', () => {
-    it('should update payment status', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValue({
-        id: 'order-id',
-      } as any);
-
-      databaseMock.order.update.mockResolvedValue({
-        id: 'order-id',
-      });
-
-      const result = await service.updatePaymentStatus(
-        payload as any,
-        'order-id',
-        {
-          paymentStatus: PaymentStatus.CAPTURED,
-        },
-      );
-
-      expect(result.id).toBe('order-id');
-    });
-  });
-
-  describe('updateStatus', () => {
-    it('should update status', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValue({
-        id: 'order-id',
-        status: OrderStatus.PENDING,
-        payment: {
-          status: PaymentStatus.PENDING,
-        },
-        orderItems: [],
-      } as any);
-
-      databaseMock.$transaction.mockImplementation(async (callback) => {
-        return callback({
-          order: {
-            update: jest.fn().mockResolvedValue({
-              id: 'order-id',
-              status: OrderStatus.SHIPPED,
-            }),
-          },
-          product: {
-            update: jest.fn(),
-          },
-        });
-      });
-
-      const result = await service.updateStatus(
-        payload as any,
-        'order-id',
-        {
-          status: OrderStatus.SHIPPED,
-        },
-      );
-
-      expect(result.status).toBe(OrderStatus.SHIPPED);
-    });
-
-    it('should restore stock and refund wallet when canceled', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValue({
-        id: 'order-id',
-        userId: 'user-id',
-        totalAmount: 100,
-        status: OrderStatus.PENDING,
-        payment: {
-          status: PaymentStatus.CAPTURED,
-        },
-        orderItems: [
-          {
-            productId: 'product-id',
-            amount: 2,
-          },
-        ],
-      } as any);
-
-      databaseMock.$transaction.mockImplementation(async (callback) => {
-        return callback({
-          order: {
-            update: jest.fn().mockResolvedValue({
-              status: OrderStatus.CANCELED,
-            }),
-          },
-          product: {
-            update: jest.fn(),
-          },
-        });
-      });
-
-      await service.updateStatus(
-        payload as any,
-        'order-id',
-        {
-          status: OrderStatus.CANCELED,
-        },
-      );
-
-      expect(
-        walletServiceMock.refundWallet,
-      ).toHaveBeenCalled();
-    });
-
-    it('should throw when order already canceled', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValue({
-        status: OrderStatus.CANCELED,
-      } as any);
-
-      await expect(
-        service.updateStatus(
-          payload as any,
-          'order-id',
-          {
-            status: OrderStatus.SHIPPED,
-          },
-        ),
       ).rejects.toThrow(BadRequestException);
     });
   });

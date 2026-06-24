@@ -11,6 +11,7 @@ import { UsersService } from './users.service';
 import { DatabaseService } from 'src/database/database.service';
 import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
 import { SlugServiceProtocol } from 'src/common/utils/slug/slug.service';
+import { MailService } from 'src/mail/mail.service';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -44,6 +45,11 @@ describe('UsersService', () => {
     adjustSlug: jest.fn(),
   };
 
+  const mailMock = {
+    sendWelcome: jest.fn().mockResolvedValue(undefined),
+    sendPasswordReset: jest.fn().mockResolvedValue(undefined),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -59,6 +65,10 @@ describe('UsersService', () => {
         {
           provide: SlugServiceProtocol,
           useValue: slugMock,
+        },
+        {
+          provide: MailService,
+          useValue: mailMock,
         },
       ],
     }).compile();

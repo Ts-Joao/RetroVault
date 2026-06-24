@@ -180,5 +180,5 @@ Nossa pipeline de Integração Contínua está configurada com GitHub Actions (e
 - 📱 **Mobile:** Desenvolveu o aplicativo mobile.
 
 ### [Luiz Henrique](https://github.com/troninho69)
-**Fullstack Developer**
-- 📱 **Mobile:** Desenvolveu o Frontend Mobile e auxiliou no desenvolvimento da API.
+**Frontend Developer**
+- 📱 **Mobile:** Desenvolveu o Frontend Mobile.
