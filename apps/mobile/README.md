@@ -1,12 +1,11 @@
 <div align="center">
-    <img src="../.github/logo.png" alt="RetroVault Logo" width="300"/>
+    <img src="../../.github/logo.png" alt="RetroVault Logo" width="300"/>
 
 # RetroVault Mobile
 
 ### 📱 Aplicação Mobile construída com React Native e Expo para iOS e Android.
 
-![Status](https://img.shields.io/badge/🚧%20Status-Em%20Desenvolvimento-22C55E?style=for-the-badge&labelColor=161b22&logo=github&logoColor=white)
-
+![Status](https://img.shields.io/badge/✅%20Status-Completo-22C55E?style=for-the-badge&labelColor=161b22&logo=github&logoColor=white)
 
 </div>
 
@@ -45,8 +44,7 @@ mobile/
 | <img src="https://img.shields.io/badge/React_Native-0D1117?style=for-the-badge&logo=react&logoColor=61DAFB"/> | Framework para aplicativos nativos |
 | <img src="https://img.shields.io/badge/TypeScript-0D1117?style=for-the-badge&logo=typescript&logoColor=3178C6"/> | Linguagem com tipagem estática |
 | <img src="https://img.shields.io/badge/Expo_Router-0D1117?style=for-the-badge&logo=expo&logoColor=white"/> | Roteamento file-based para React Native |
-| ![Monorepo](https://img.shields.io/badge/Monorepo-0D1117?style=for-the-badge&logo=turborepo&logoColor=white) | Orquestração do Monorepo e Cache de Build
-
+| ![Monorepo](https://img.shields.io/badge/Monorepo-0D1117?style=for-the-badge&logo=turborepo&logoColor=white) | Orquestração do Monorepo e Cache de Build |
 
 ## ⚙️ Pré-requisitos
 
@@ -138,30 +136,14 @@ pnpm --filter=mobile build:ios
 3. Escaneie o QR Code no terminal com o app Câmera
 4. Toque na notificação para abrir no Expo Go
 
-## 👥 Nossa Equipe
+## 👥 Equipe — Mobile
 
-### [João Teixeira](https://github.com/ts-joao)
-**Tech Lead & Fullstack Developer**
-- 🏗️ **Arquitetura:** Responsável pela estrutura e organização da arquitetura do projeto.
-- 🗄️ **Database:** Realizou a modelagem completa do banco de dados.
-- 👨‍💻 **Desenvolvimento:** Desenvolveu a API, realizou a integração entre Back e Front, e atuou no desenvolvimento Web e Mobile.
-  
-### [Baruki Bytes](https://github.com/Baruki-Bytes)
-**Project Owner & Fullstack Developer**
-- 📑 **Gestão:** Responsável pela visão do produto (PO) e requisitos.
-- 👨‍💻 **Desenvolvimento:** Desenvolveu a interface Web e auxiliou no desenvolvimento Backend.
-
-### [Felipe Farias](https://github.com/felipinho3105)
-**Frontend Developer**
-- 👨‍💻 **Desenvolvimento:** Desenvolveu a interface Web do projeto e auxiliou no desenvolvimento Mobile.
-
-### [Lucas Alves](https://github.com/ktzxs)
-**Fullstack Developer**
-- 👨‍💻 **Desenvolvimento:** Desenvolveu o Backend e auxiliou no desenvolvimento Frontend Mobile.
-
-### [Luiz Henrique](https://github.com/troninho69)
-**Fullstack Developer**
-- 👨‍💻 **Desenvolvimento:** Desenvolveu o Frontend Mobile e auxiliou no desenvolvimento da API.
+| Desenvolvedor | Contribuição |
+|---|---|
+| [João Teixeira](https://github.com/ts-joao) | Desenvolvimento do aplicativo mobile |
+| [Lucas Alves](https://github.com/ktzxs) | Desenvolvimento do aplicativo mobile |
+| [Luiz Henrique](https://github.com/troninho69) | Desenvolvimento do aplicativo mobile |
+| [Felipe Farias](https://github.com/felipinho3105) | Responsividade e ajustes de interface |
 
 ---
 

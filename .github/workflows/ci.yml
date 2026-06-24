@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  test:
+    name: Run E2E tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: retrovault_db_test
+          POSTGRES_USER: retrovault
+          POSTGRES_PASSWORD: retrovault
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create .env file
+        run: |
+          echo "NODE_ENV=test" > apps/api/.env
+          echo "DATABASE_URL_TEST=${{ secrets.DATABASE_URL_TEST }}" >> apps/api/.env
+          echo "JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}" >> apps/api/.env
+          echo "JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}" >> apps/api/.env
+          echo "JWT_TOKEN_AUDIENCE=${{ secrets.JWT_TOKEN_AUDIENCE }}" >> apps/api/.env
+          echo "JWT_TOKEN_ISSUER=${{ secrets.JWT_TOKEN_ISSUER }}" >> apps/api/.env
+          echo "JWT_TTL=${{ secrets.JWT_TTL }}" >> apps/api/.env
+
+      - name: Generate Prisma Client
+        run: pnpm prisma generate
+        working-directory: apps/api
+
+      - name: Push database schema
+        run: pnpm prisma db push --force-reset
+        working-directory: apps/api
+
+      - name: Run E2E tests
+        run: pnpm test:e2e
+        working-directory: apps/api
+
+  unit-test:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm prisma generate
+        working-directory: apps/api
+
+      - name: Run unit tests
+        run: pnpm test
+        working-directory: apps/api

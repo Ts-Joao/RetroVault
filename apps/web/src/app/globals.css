@@ -1,20 +1,5 @@
 @import "tailwindcss";
 
-@theme {
-  --color-bg: #f2f2f2;
-  --color-prim: #BF372A;
-  --color-prim-light: #e57373;
-  --color-second: #F2EFDC;
-  --color-third: #D9A13B;
-  --color-white: #fff;
-  --color-black: #000;
-  --color-submit: #F4BB2A;
-
-  --font-barlow-condensed: var(--font-barlow-condensed);
-  --font-special-elite: var(--font-special-elite);
-  --font-chakra-petch: var(--font-chakra-petch);
-}
-
 .Barlow_Condensed {
   font-family: var(--font-family-barlow-condensed);
 }
@@ -30,4 +15,48 @@
 body {
   background-color: var(--color-bg);
   overflow-x: hidden !important;
+}
+
+@theme {
+  --color-bg: #f2f2f2;
+  --color-prim: #BF372A;
+  --color-prim-light: #e57373;
+  --color-second: #F2EFDC;
+  --color-third: #D9A13B;
+  --color-white: #fff;
+  --color-black: #000;
+
+  --font-barlow-condensed: var(--font-barlow-condensed);
+  --font-special-elite: var(--font-special-elite);
+  --font-chakra-petch: var(--font-chakra-petch);
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+}
+
+.toast-enter {
+  animation: toast-enter 200ms ease-out forwards;
+}
+
+.toast-exit {
+  animation: toast-exit 200ms ease-in forwards;
 }

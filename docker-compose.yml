@@ -1,4 +1,71 @@
 services:
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    command: sh -c "pnpm prisma migrate deploy && pnpm prisma db seed"
+    env_file:
+      - apps/api/.env
+  
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: retrovault-api
+    restart: unless-stopped
+    env_file:
+      - apps/api/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "4000:4000"
+    volumes:
+    - ./apps/api/uploads:/app/apps/api/uploads
+
+  admin:
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+    container_name: retrovault-admin
+    restart: unless-stopped
+    env_file:
+      - apps/admin/.env
+    depends_on:
+      - api
+    ports:
+      - "5000:3000"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: retrovault-web
+    restart: unless-stopped
+    env_file:
+      - apps/web/.env
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+
+  mobile:
+    build:
+      context: .
+      dockerfile: apps/mobile/Dockerfile
+    container_name: retrovault-mobile
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "8081:8081"
+
   postgres:
     image: postgres:18
     container_name: retrovault-db
@@ -7,10 +74,29 @@ services:
       POSTGRES_USER: retrovault
       POSTGRES_PASSWORD: retrovault
       POSTGRES_DB: retrovault_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
 
+  postgres-test:
+    image: postgres:18
+    container_name: retrovault-db-test
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: retrovault
+      POSTGRES_PASSWORD: retrovault
+      POSTGRES_DB: retrovault_db_test
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql
+
 volumes:
   postgres_data:
+  postgres_test_data:

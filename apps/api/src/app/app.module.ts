@@ -1,0 +1,46 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { AppService } from './app.service';
+import { UsersModule } from 'src/users/users.module';
+import { ProductsModule } from 'src/products/products.module';
+import { CartModule } from 'src/cart/cart.module';
+import { AuthModule } from 'src/auth/auth.module';
+import { UploadModule } from 'src/upload/upload.module';
+import { OrdersModule } from 'src/orders/orders.module';
+import { WalletModule } from 'src/wallet/wallet.module';
+import { PaymentModule } from 'src/payment/payment.module';
+import { FavoritesModule } from 'src/favorites/favorite.module';
+import { CircularReferenceFilter } from 'src/common/circular-reference.filter';
+import { APP_FILTER } from '@nestjs/core';
+import { ReviewsModule } from 'src/reviews/reviews.module';
+import { ShippingModule } from 'src/shipping/shipping.module';
+import { MailModule } from 'src/mail/mail.module';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env'
+    }),
+    UsersModule,
+    ProductsModule,
+    CartModule,
+    AuthModule,
+    UploadModule,
+    OrdersModule,
+    WalletModule,
+    PaymentModule,
+    FavoritesModule,
+    ReviewsModule,
+    ShippingModule,
+    MailModule
+  ],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: CircularReferenceFilter,
+    }
+  ],
+})
+export class AppModule {}

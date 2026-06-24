@@ -1,11 +1,12 @@
 export type Installment = {
-  amount: number
-  installment_amount: number
-  total_amount: number
-  has_Interest: boolean
-  label: string
-  sublabel: string
-}
+  amount: number;
+  installments: number;
+  installment_amount: number;
+  total_amount: number;
+  has_Interest: boolean;
+  label: string;
+  sublabel: string;
+};
 
 export type InstallmentProduct = {
   price: number;
